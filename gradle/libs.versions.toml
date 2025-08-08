@@ -18,6 +18,18 @@ kotlinStdlib = "2.2.0"
 runner = "1.6.2"
 core = "1.6.1"
 
+koin = "4.0.0"
+ktor = "3.0.0"
+coil3 = "3.0.0-rc02"
+ksp = "2.0.20-1.0.24"
+sqlite = "2.5.0-alpha11"
+room = "2.7.0-alpha11"
+navigationCompose = "2.8.0-alpha10"
+kotlinSerialization = "1.7.3"
+
+material-extend-icon ="1.6.10"
+androidx-material = "1.12.0"
+mokoResource = "0.24.0"
 
 
 [libraries]
@@ -36,6 +48,39 @@ kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", versio
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
 
+matrial3-extended-icon  ={group = "org.jetbrains.compose.material",name ="material-icons-extended",version.ref = "material-extend-icon" }
+jetbrains-compose-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref= "navigationCompose"}
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
+
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
+
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
+coil-compose-core = { module = "io.coil-kt.coil3:coil-compose-core", version.ref = "coil3" }
+coil-network-ktor2 = { module = "io.coil-kt.coil3:coil-network-ktor2", version.ref = "coil3" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil3" }
+coil-mp = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
+
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+moko-resource = {module = "dev.icerock.moko:resources", version.ref = "mokoResource"}
+moko-resource-compose = {module = "dev.icerock.moko:resources-compose", version.ref = "mokoResource"}
+moko-resource-compose-bridge = { group = "dev.icerock.moko", name = "resources-compose-bridge", version.ref = "mokoResource" }
+
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
@@ -44,3 +89,23 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMul
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room = { id = "androidx.room", version.ref = "room" }
+multiplatformResource = {id = "dev.icerock.mobile.multiplatform-resources", version.ref = "mokoResource"}
+jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+[bundles]
+ktor = [
+    "ktor-client-core",
+    "ktor-client-content-negotiation",
+    "ktor-client-auth",
+    "ktor-client-logging",
+    "ktor-serialization-kotlinx-json",
+]
+coil = [
+    "coil-compose",
+    "coil-compose-core",
+    "coil-network-ktor2",
+    "coil-network-ktor3",
+    "coil-mp"
+]

@@ -1,7 +1,10 @@
 package com.hasan.dnb
 
-interface Platform {
-    val name: String
-}
+import org.koin.core.module.Module
+import org.koin.dsl.module
 
-expect fun getPlatform(): Platform
+expect val platformModule: Module
+
+val sharedModule = module {
+    single { HttpClientFactory.create(get()) }
+}

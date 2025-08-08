@@ -35,6 +35,7 @@ plugins {
 include(":composeApp")
 include(":core:data")
 include(":core:domain")
+include(":core:di")
 include(":core:presentation")
-include(":feature:login")
+include(":feature:auth")
 

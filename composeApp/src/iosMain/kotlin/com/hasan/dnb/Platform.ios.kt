@@ -1,9 +1,12 @@
 package com.hasan.dnb
 
-import platform.UIKit.UIDevice
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.darwin.Darwin
+import org.koin.core.module.Module
+import org.koin.dsl.module
 
-class IOSPlatform: Platform {
-    override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
-}
 
-actual fun getPlatform(): Platform = IOSPlatform()
+actual val platformModule: Module
+    get() = module {
+        single<HttpClientEngine>{ Darwin.create()}
+    }

@@ -1,7 +1,11 @@
 package com.hasan.dnb
 
-class JVMPlatform: Platform {
-    override val name: String = "Java ${System.getProperty("java.version")}"
-}
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.cio.CIO
+import org.koin.core.module.Module
+import org.koin.dsl.module
 
-actual fun getPlatform(): Platform = JVMPlatform()
+actual val platformModule: Module
+    get() = module {
+        single<HttpClientEngine>{ CIO.create() }
+    }

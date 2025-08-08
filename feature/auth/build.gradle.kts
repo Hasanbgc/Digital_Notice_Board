@@ -57,7 +57,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.hasan.dnb.feature.login"
+    namespace = "com.hasan.dnb.feature.auth"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
@@ -89,7 +89,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.hasan.dnb.feature.login"
+            packageName = "com.hasan.dnb.feature.auth"
             packageVersion = "1.0.0"
         }
     }
