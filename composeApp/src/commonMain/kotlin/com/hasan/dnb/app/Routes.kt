@@ -20,3 +20,4 @@ sealed class MainDestination {
     @Serializable
     data object Settings : MainDestination()
 }
+

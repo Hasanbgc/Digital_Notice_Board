@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hasan.dnb.splashScreen.SplashScreenRoot
 import com.hasan.dnb.splashScreen.SplashViewModel
+import home.HomeScreenRoot
+import home.HomeViewModel
 import login.LoginScreenRoot
 import login.LoginViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -43,10 +45,12 @@ fun App() {
         composable<AppDestination.Auth> {
             val viewModel: LoginViewModel = viewModel()
             LoginScreenRoot(viewModel){
-                //navigate to main
+                navController.navigate(AppDestination.Main)
             }
         }
 
-
+        composable<AppDestination.Main> {
+            HomeScreen()
+        }
     }
 }

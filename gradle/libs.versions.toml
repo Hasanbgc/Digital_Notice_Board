@@ -25,6 +25,7 @@ ksp = "2.0.20-1.0.24"
 sqlite = "2.5.0-alpha11"
 room = "2.7.0-alpha11"
 navigationCompose = "2.8.0-alpha10"
+androidx-navigation = "2.7.5"
 kotlinSerialization = "1.7.3"
 
 material-extend-icon ="1.6.10"
@@ -51,6 +52,9 @@ androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
 matrial3-extended-icon  ={group = "org.jetbrains.compose.material",name ="material-icons-extended",version.ref = "material-extend-icon" }
 jetbrains-compose-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref= "navigationCompose"}
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
+androidx-compose-navigation = {group = "androidx.navigation", name="navigation-compose", version.ref = "androidx-navigation"}
+androidx-compose-foundation = {group = "androidx.compose.foundation", name="foundation", version.ref = "composeMultiplatform"}
+
 
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }

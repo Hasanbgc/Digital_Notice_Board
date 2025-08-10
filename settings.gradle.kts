@@ -38,4 +38,5 @@ include(":core:domain")
 include(":core:di")
 include(":core:presentation")
 include(":feature:auth")
+include(":feature:noticeBoard")
 
