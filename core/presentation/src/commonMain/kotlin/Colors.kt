@@ -1,5 +1,3 @@
-package com.hasan.dnb.theme
-
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -76,6 +74,15 @@ val md_theme_dark_scrim = Color(0xFF000000)
 val deep_green = Color(0xFF006A4E)
 val mid_green = Color(0xFF2d8f5f)
 val light_green = Color(0xFF3cb371)
+val gray_light = Color(0xFFf7f9fa)
+val boarder = Color(0xFFe5e7eb)
+
+val tabBackground = Color(0xFFf5f6f8)
+
+val welcomeTextColor = Color(0xFF004f3b)
+val signInTextColor = Color(0xFF2e9474)
+val greenTextColor = Color(0xFF007a56)
+val redTextColor = Color(0xFFc10007)
 
 // Add more color tokens...
 
@@ -88,4 +95,9 @@ val splashScreenBackground = Brush.linearGradient(
     colors = listOf(md_theme_light_primary, mid_green, light_green),
     start = Offset(0f, 0f),
     end = Offset.Infinite
+)
+val loginBackground = Brush.linearGradient(
+    colors = listOf(Color(0xFFF0FDF4), Color(0xFFD1FAE5)),
+    start = Offset(0f, 0f),   // top-left
+    end = Offset.Infinite     // bottom-right
 )

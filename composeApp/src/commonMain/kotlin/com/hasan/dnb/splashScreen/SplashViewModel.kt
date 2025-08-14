@@ -15,7 +15,7 @@ class SplashViewModel: ViewModel() {
 
     init {
         viewModelScope.launch {
-            delay(5000)
+            delay(2000)
             setState(SplashScreenAction.Complete)
         }
     }

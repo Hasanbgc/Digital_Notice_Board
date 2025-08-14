@@ -17,8 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hasan.dnb.theme.md_theme_light_onPrimary
-import com.hasan.dnb.theme.splashScreenBackground
+import md_theme_light_onPrimary
+import splashScreenBackground
 import digita_notice_board.composeapp.generated.resources.Res
 import digita_notice_board.composeapp.generated.resources.app_name
 import digita_notice_board.composeapp.generated.resources.dnb_logo

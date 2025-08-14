@@ -2,6 +2,7 @@ package com.hasan.dnb.app
 
 import Constant
 import Constant.Companion
+import androidx.compose.material3.Scaffold
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -20,37 +21,39 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun App() {
-    val navController = rememberNavController()
+    Scaffold { innerPadding ->
+        val navController = rememberNavController()
 
-    NavHost(
-        navController = navController,
-        startDestination = AppDestination.Splash,
-    ) {
-        composable<AppDestination.Splash> {
-            val viewModel: SplashViewModel = viewModel()
-            SplashScreenRoot(viewModel) { destination ->
-                when (destination) {
-                     Constant.MAIN -> navController.navigate(AppDestination.Main) {
-                        popUpTo(AppDestination.Splash) { inclusive = true }
+        NavHost(
+            navController = navController,
+            startDestination = AppDestination.Auth,
+        ) {
+            composable<AppDestination.Splash> {
+                val viewModel: SplashViewModel = viewModel()
+                SplashScreenRoot(viewModel) { destination ->
+                    when (destination) {
+                        Constant.MAIN -> navController.navigate(AppDestination.Main) {
+                            popUpTo(AppDestination.Splash) { inclusive = true }
+                        }
+
+                        Constant.AUTH -> navController.navigate(AppDestination.Auth) {
+                            popUpTo(AppDestination.Splash) { inclusive = true }
+                        }
+
+                        else -> {}
                     }
-
-                    Constant.AUTH -> navController.navigate(AppDestination.Auth) {
-                        popUpTo(AppDestination.Splash) { inclusive = true }
-                    }
-
-                    else -> {}
                 }
             }
-        }
-        composable<AppDestination.Auth> {
-            val viewModel: LoginViewModel = viewModel()
-            LoginScreenRoot(viewModel){
-                navController.navigate(AppDestination.Main)
+            composable<AppDestination.Auth> {
+                val viewModel: LoginViewModel = viewModel()
+                LoginScreenRoot(innerPadding,viewModel) {
+                    navController.navigate(AppDestination.Main)
+                }
             }
-        }
 
-        composable<AppDestination.Main> {
-            HomeScreen()
+            composable<AppDestination.Main> {
+                HomeScreen()
+            }
         }
     }
 }

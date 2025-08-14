@@ -46,6 +46,7 @@ fun HomeScreen(
     )
     // Get the coroutine scope from Compose
     val scope = rememberCoroutineScope()
+
     LaunchedEffect(pagerState.currentPage){
         //haptic feedback
     }

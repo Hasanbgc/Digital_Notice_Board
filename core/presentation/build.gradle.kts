@@ -80,17 +80,26 @@ android {
     }
 }
 
-dependencies {
-    debugImplementation(compose.uiTooling)
-}
+// ADD THIS: Compose Resources Configuration
+compose {
+    resources {
+        publicResClass = true
+        packageOfResClass = "com.hasan.dnb.core.presentation.resources"
+        generateResClass = always
+    }
 
-compose.desktop {
-    application {
-
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.hasan.dnb.core.presentation"
-            packageVersion = "1.0.0"
+    desktop {
+        application {
+            nativeDistributions {
+                targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+                packageName = "com.hasan.dnb.core.presentation"
+                packageVersion = "1.0.0"
+            }
         }
     }
+}
+
+dependencies {
+    debugImplementation(compose.uiTooling)
+    implementation(compose.components.resources)
 }
