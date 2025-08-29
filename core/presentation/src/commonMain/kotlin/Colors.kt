@@ -84,6 +84,11 @@ val signInTextColor = Color(0xFF2e9474)
 val greenTextColor = Color(0xFF007a56)
 val redTextColor = Color(0xFFc10007)
 
+val textGray500 = Color(0xFF6d7585)
+
+val green400 = Color(0xFFecfdf5)
+val green_light_boarder = Color(0xFFaef0d0)
+
 // Add more color tokens...
 
 // Bangladesh-specific colors
@@ -100,4 +105,9 @@ val loginBackground = Brush.linearGradient(
     colors = listOf(Color(0xFFF0FDF4), Color(0xFFD1FAE5)),
     start = Offset(0f, 0f),   // top-left
     end = Offset.Infinite     // bottom-right
+)
+val continueButtonBackground = Brush.linearGradient(
+    colors = listOf(Color(0xFF7CCCB4), Color(0xFF9CDCBC)),
+    start = Offset(0f, 0f),   // top-left
+    end = Offset.Infinite
 )

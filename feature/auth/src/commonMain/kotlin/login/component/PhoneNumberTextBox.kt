@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -45,16 +47,8 @@ fun PhoneNumberTextBoxWithCountryCode(
     placeholder: String = "18xxxxxxxxx",
     modifier: Modifier = Modifier
 ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .border(width = 1.dp, color = boarder, shape = RoundedCornerShape(16.dp))
-                .background(color = Color.Transparent),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Row(
+
+            /*Row(
                 modifier = Modifier
                     .weight(0.3f)
                     .fillMaxHeight()
@@ -72,8 +66,8 @@ fun PhoneNumberTextBoxWithCountryCode(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(text = "+880")
-            }
-            TextField(
+            }*/
+            OutlinedTextField(
                 value = phoneNumber,
                 onValueChange = { newValue ->
                     val filteredValue = newValue.filter { it.isDigit() }
@@ -84,19 +78,36 @@ fun PhoneNumberTextBoxWithCountryCode(
                 placeholder = {
                     Text(text = placeholder, color = Color.Gray)
                 },
+                leadingIcon = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .background(color = gray_light,/* shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)*/)
+                            .padding(start = 16.dp, end = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(Res.drawable.flag_bd),
+                            contentDescription = "Country Flag",
+                            modifier = Modifier
+                                .size(20.dp)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(text = "+880")
+                    }
+                },
                 colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Gray,
                     unfocusedIndicatorColor = Color(0xFF6200EE).copy(alpha = 0.6f),
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                 ),
-                modifier = Modifier
-                    .weight(0.7f, fill = true)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)),
+                modifier = modifier,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
-                isError = isError
+                isError = isError,
+                shape = RoundedCornerShape(16.dp)
             )
-        }
+
 }
