@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -28,8 +29,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -63,8 +70,13 @@ import androidx.compose.ui.text.font.FontStyle
 /*import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info*/
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -112,14 +124,11 @@ fun LoginScreenRoot(
     viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit
 ) {
-    val tabState by viewModel.tabSelected.collectAsStateWithLifecycle()
+    val loginScreenState by viewModel.loginScreenState.collectAsStateWithLifecycle()
     LoginScreen(
         paddingValues = paddingValues, //paddingValues,
-        tabState = tabState,
-        onLoginSuccess = { onLoginSuccess.invoke() },
-        onTabSelected = { viewModel.setTab(it) },
-        onValueChange = { viewModel.setMobileNumber(it) },
-        onPasswordValueChange = { viewModel.setPassword(it) }
+        loginScreenState = loginScreenState,
+        onStateChange = { viewModel.updateLoginState(it) },
     )
 
 }
@@ -134,11 +143,8 @@ class NoRippleInteractionSource : MutableInteractionSource {
 @Composable
 fun LoginScreen(
     paddingValues: PaddingValues,
-    tabState: AuthTab,
-    onLoginSuccess: () -> Unit,
-    onTabSelected: (AuthTab) -> Unit,
-    onValueChange:(String) -> Unit,
-    onPasswordValueChange:(String) -> Unit
+    loginScreenState: LoginScreenState,
+    onStateChange: (LoginScreenState) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -173,7 +179,7 @@ fun LoginScreen(
         )
         {
             var tabPosition by remember { mutableStateOf<List<TabPosition>>(emptyList()) }
-
+            val currentTab = loginScreenState.selectedTab
             // Wrap TabRow in a Box to control layering
             Box {
                 // Background indicator layer
@@ -185,23 +191,11 @@ fun LoginScreen(
                         .background(color = tabBackground, shape = RoundedCornerShape(32.dp))
                 )
                 {
-                    val firstTabLeft = 0.dp // Since we're calculating relative position
-                    val currentTab = remember(tabState) {
-                        // You'll need to calculate tab positions manually here
-                        // For 2 equal tabs, approximate positions:
-                        when (tabState) {
-                            AuthTab.NORMAL_USER -> 12.dp
-                            AuthTab.NOTICE_POSTER -> 174.dp // Adjust based on your tab width
-                        }
-                    }
-
-
-
                     if (tabPosition.isNotEmpty()) {
-                        val selectedTab = tabPosition[tabState.ordinal]
+                        val selectedTab = tabPosition[currentTab.ordinal]
 
                         val animatedOffset by animateDpAsState(
-                            targetValue = if (tabState.ordinal == 0) selectedTab.left else selectedTab.left - 12.dp,
+                            targetValue = if (currentTab.ordinal == 0) selectedTab.left else selectedTab.left - 12.dp,
                             animationSpec = tween(
                                 durationMillis = 300,
                                 easing = FastOutSlowInEasing
@@ -226,7 +220,7 @@ fun LoginScreen(
 
                 // TabRow on top
                 TabRow(
-                    selectedTabIndex = tabState.ordinal,
+                    selectedTabIndex = currentTab.ordinal,
                     modifier = Modifier
                         .fillMaxWidth(),
                     containerColor = Color.Transparent, // Make transparent to show background
@@ -236,8 +230,8 @@ fun LoginScreen(
                     } // Empty indicator
                 ) {
                     Tab(
-                        selected = tabState == AuthTab.NORMAL_USER,
-                        onClick = { onTabSelected(AuthTab.NORMAL_USER) },
+                        selected = currentTab == AuthTab.NORMAL_USER,
+                        onClick = { onStateChange(loginScreenState.copy(selectedTab = AuthTab.NORMAL_USER)) },
                         modifier = Modifier.padding(4.dp),
                         text = {
                             TabWithHorizontalIcon(
@@ -253,8 +247,8 @@ fun LoginScreen(
                         interactionSource = remember { NoRippleInteractionSource() }
                     )
                     Tab(
-                        selected = tabState == AuthTab.NOTICE_POSTER,
-                        onClick = { onTabSelected(AuthTab.NOTICE_POSTER) },
+                        selected = currentTab == AuthTab.NOTICE_POSTER,
+                        onClick = {onStateChange(LoginScreenState(selectedTab = AuthTab.NOTICE_POSTER)) },
                         modifier = Modifier.padding(4.dp),
                         text = {
                             TabWithHorizontalIcon(
@@ -271,12 +265,14 @@ fun LoginScreen(
                     )
                 }
             }
-            when (tabState) {
+            when (currentTab) {
                 AuthTab.NORMAL_USER -> NormalUserLogin(/*onLoginSuccess = onLoginSuccess*/
-                    onValueChange = onValueChange,
+                    state = loginScreenState,
+                    onStateChange = onStateChange,
                     )
-                AuthTab.NOTICE_POSTER -> NoticePosterLogin(/*onLoginSuccess = onLoginSuccess*/
-                    onValueChange = onPasswordValueChange
+                AuthTab.NOTICE_POSTER -> NoticePosterLogin(
+                    state = loginScreenState,
+                    onStateChange = onStateChange,
                 )
             }
         }
@@ -287,10 +283,11 @@ fun LoginScreen(
 
 @Preview
 @Composable
-fun NormalUserLogin(/*onLoginSuccess: () -> Unit*/onValueChange:(String) -> Unit) {
-    var phoneNumber by remember {
-        mutableStateOf("")
-    }
+fun NormalUserLogin(
+    state: LoginScreenState,
+    onStateChange: (LoginScreenState) -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
     var isError by remember {
         mutableStateOf(false)
     }
@@ -302,7 +299,15 @@ fun NormalUserLogin(/*onLoginSuccess: () -> Unit*/onValueChange:(String) -> Unit
     var isAutoRead by remember { mutableStateOf(true) }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(color = Color.White).padding(16.dp),
+        modifier = Modifier.fillMaxSize().background(color = Color.White)
+            .verticalScroll(rememberScrollState())
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    // Clear focus on tap outside
+                    focusManager.clearFocus()
+                })
+            }
+            .padding(16.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top
     )
@@ -314,11 +319,11 @@ fun NormalUserLogin(/*onLoginSuccess: () -> Unit*/onValueChange:(String) -> Unit
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
-            value = phoneNumber,
+            value = state.mobileNumber,
             onValueChange = { newValue ->
                 val filteredValue = newValue.filter { it.isDigit() }
                 if (filteredValue.length <= 12) {
-                    onValueChange(filteredValue)
+                    onStateChange(state.copy(mobileNumber = filteredValue))
                 }
             },
             placeholder = {
@@ -490,20 +495,25 @@ fun NormalUserLogin(/*onLoginSuccess: () -> Unit*/onValueChange:(String) -> Unit
 
 @Composable
 fun NoticePosterLogin(
-/*onLoginSuccess: () -> Unit*/
-    onValueChange:(String) -> Unit
+    state: LoginScreenState,
+    onStateChange: (LoginScreenState) -> Unit,
 ) {
-
-    var regPhoneNumber by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var isInputSecret by remember { mutableStateOf(false) }
+    var isInputSecret by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White)
+            .verticalScroll(rememberScrollState())
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    // Clear focus on tap outside
+                    focusManager.clearFocus()
+                })
+            }
             .padding(16.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top
@@ -515,11 +525,11 @@ fun NoticePosterLogin(
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
-            value = regPhoneNumber,
+            value = state.regMobileNumber,
             onValueChange = { newValue ->
                 val filteredValue = newValue.filter { it.isDigit() }
                 if (filteredValue.length <= 12) {
-                    onValueChange(filteredValue)
+                    onStateChange(state.copy(regMobileNumber = filteredValue))
                 }
             },
             placeholder = {
@@ -557,21 +567,40 @@ fun NoticePosterLogin(
             isError = isError,
             shape = RoundedCornerShape(16.dp)
         )
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Registered Phone",
+            text = "Security PIN",
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.titleMedium,
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
-            value = password,
-            onValueChange = onValueChange,
+            value = state.password,
+            onValueChange = {
+                if(it.length<=4)
+                onStateChange(state.copy(password = it))
+            },
+            placeholder = {
+                Text(text = "Enter 4-digit PIN ", color = Color.Gray)
+            },
             modifier = Modifier.fillMaxWidth(),
+            trailingIcon = {
+                Icon(
+                    imageVector = if(isInputSecret)Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                    contentDescription = "Password visibility",
+                    tint = Color.Gray,
+                    modifier = Modifier.clickable {
+                        isInputSecret = !isInputSecret
+                    }
+                )
+            },
             visualTransformation = if(isInputSecret){
                 PasswordVisualTransformation(mask = '*')
             }else{
                 VisualTransformation.None
             },
+            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done),
             shape = RoundedCornerShape(16.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Gray,
