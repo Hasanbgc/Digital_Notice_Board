@@ -5,7 +5,10 @@ data class LoginScreenState (
     val selectedTab:AuthTab = AuthTab.NORMAL_USER,
     val mobileNumber:String = "",
     val regMobileNumber: String = "",
-    val password:String = ""
+    val password:String = "",
+    val loading:Boolean = false,
+    val errorMessage:String? = null,
+    val successMessage:String? = null
 )
 /*sealed class LoginScreenState {
     data class normalUserState(

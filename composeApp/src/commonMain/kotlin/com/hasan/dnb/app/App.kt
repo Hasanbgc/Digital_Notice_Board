@@ -47,7 +47,9 @@ fun App() {
             composable<AppDestination.Auth> {
                 val viewModel: LoginViewModel = viewModel()
                 LoginScreenRoot(innerPadding,viewModel) {
-                    navController.navigate(AppDestination.Main)
+                    navController.navigate(AppDestination.Main,){
+                        popUpTo(AppDestination.Auth) { inclusive = true }
+                    }
                 }
             }
 

@@ -106,8 +106,23 @@ val loginBackground = Brush.linearGradient(
     start = Offset(0f, 0f),   // top-left
     end = Offset.Infinite     // bottom-right
 )
-val continueButtonBackground = Brush.linearGradient(
+val continueButtonBackgroundInactive = Brush.linearGradient(
     colors = listOf(Color(0xFF7CCCB4), Color(0xFF9CDCBC)),
+    start = Offset(0f, 0f),   // top-left
+    end = Offset.Infinite
+)
+val continueButtonBackgroundActive = Brush.linearGradient(
+    colors = listOf(Color(0xFF04A054), Color(0xFF14AC4C)),
+    start = Offset(0f, 0f),   // top-left
+    end = Offset.Infinite
+)
+val signInButtonBackgroundInactive = Brush.linearGradient(
+    colors = listOf(Color(0xFFF47CA4), Color(0xFFF47CB4),Color(0xFFF47C94)),
+    start = Offset(0f, 0f),   // top-left
+    end = Offset.Infinite
+)
+val signInButtonBackgroundActive = Brush.linearGradient(
+    colors = listOf(Color(0xFFE40459), Color(0xFFE40430),Color(0xFFEC444C)),
     start = Offset(0f, 0f),   // top-left
     end = Offset.Infinite
 )
