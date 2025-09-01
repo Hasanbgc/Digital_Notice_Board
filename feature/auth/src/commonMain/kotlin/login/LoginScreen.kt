@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import boarder
+import common.AuthTab
 import continueButtonBackgroundActive
 import continueButtonBackgroundInactive
 import deep_green
@@ -149,7 +150,8 @@ fun LoginScreen(
             .background(loginBackground)
             .padding(paddingValues),
         horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    )
+    {
         Spacer(modifier = Modifier.height(60.dp))
         Text(
             text = "Welcome Back",

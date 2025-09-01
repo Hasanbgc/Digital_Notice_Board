@@ -1,9 +1,7 @@
 package com.hasan.dnb.app
 
 import Constant
-import Constant.Companion
 import androidx.compose.material3.Scaffold
-
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -11,11 +9,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hasan.dnb.splashScreen.SplashScreenRoot
 import com.hasan.dnb.splashScreen.SplashViewModel
-import home.HomeScreenRoot
-import home.HomeViewModel
 import login.LoginScreenRoot
 import login.LoginViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import registration.RegistrationScreenRoot
+import registration.RegistrationViewModel
 
 
 @Composable
@@ -47,14 +45,27 @@ fun App() {
             composable<AppDestination.Auth> {
                 val viewModel: LoginViewModel = viewModel()
                 LoginScreenRoot(innerPadding,viewModel) {
-                    navController.navigate(AppDestination.Main,){
-                        popUpTo(AppDestination.Auth) { inclusive = true }
+                    navController.navigate(AppDestination.Registration){
+                        popUpTo(AppDestination.Auth) { inclusive = false }
                     }
+
+                    /*navController.navigate(AppDestination.Main,){
+                        popUpTo(AppDestination.Auth) { inclusive = true }
+                    }*/
                 }
             }
 
             composable<AppDestination.Main> {
                 HomeScreen()
+            }
+
+            composable<AppDestination.Registration >{
+                val viewModel: RegistrationViewModel = viewModel()
+                RegistrationScreenRoot(innerPadding,viewModel) {
+                    navController.navigate(AppDestination.Main){
+                        popUpTo(AppDestination.Registration) { inclusive = true }
+                    }
+                }
             }
         }
     }

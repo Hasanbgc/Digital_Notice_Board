@@ -1,8 +1,10 @@
 package login
 
+import common.AuthTab
+
 
 data class LoginScreenState (
-    val selectedTab:AuthTab = AuthTab.NORMAL_USER,
+    val selectedTab: AuthTab = AuthTab.NORMAL_USER,
     val mobileNumber:String = "",
     val regMobileNumber: String = "",
     val password:String = "",

@@ -1,4 +1,4 @@
-package login
+package common
 
 enum class AuthTab {
     NORMAL_USER,

@@ -9,6 +9,8 @@ sealed class AppDestination {
     @Serializable
     data object Auth : AppDestination()
     @Serializable
+    data object Registration : AppDestination()
+    @Serializable
     data object Main : AppDestination()
 }
 @Serializable
