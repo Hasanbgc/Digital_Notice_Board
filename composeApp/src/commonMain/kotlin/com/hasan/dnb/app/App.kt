@@ -24,7 +24,7 @@ fun App() {
 
         NavHost(
             navController = navController,
-            startDestination = AppDestination.Auth,
+            startDestination = AppDestination.Registration,
         ) {
             composable<AppDestination.Splash> {
                 val viewModel: SplashViewModel = viewModel()

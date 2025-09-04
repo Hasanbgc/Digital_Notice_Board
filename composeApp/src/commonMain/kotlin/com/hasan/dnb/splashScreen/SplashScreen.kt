@@ -15,9 +15,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import md_theme_light_onPrimary
 import splashScreenBackground
 import digita_notice_board.composeapp.generated.resources.Res
 import digita_notice_board.composeapp.generated.resources.app_name
@@ -69,19 +69,19 @@ fun SplashScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "ডিজিটাল নোটিশ বোর্ড",
-            color = md_theme_light_onPrimary,
+            color = Color.White,
             style = MaterialTheme.typography.headlineLarge,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = stringResource(Res.string.app_name),
-            color = md_theme_light_onPrimary,
+            color = Color.White,
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(160.dp))
         if(state is SplashScreenAction.Loading){
             CircularProgressIndicator(
-                color = md_theme_light_onPrimary
+                color = Color.White
             )
         }
         Spacer(modifier = Modifier.weight(1f))

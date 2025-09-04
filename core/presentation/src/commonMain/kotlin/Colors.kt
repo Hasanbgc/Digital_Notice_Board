@@ -3,101 +3,53 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 // Light theme
-val md_theme_light_primary = Color(0xFF006A4E)       // Bangladesh green
-val md_theme_light_onPrimary = Color(0xFFFFFFFF)
-val md_theme_light_primaryContainer = Color(0xFF7CF8CD)
-val md_theme_light_onPrimaryContainer = Color(0xFF002116)
-val md_theme_light_secondary = Color(0xFF4D6357)
-val md_theme_light_onSecondary = Color(0xFFFFFFFF)
-val md_theme_light_secondaryContainer = Color(0xFFCFE9D7)
-val md_theme_light_onSecondaryContainer = Color(0xFF0A1F15)
-val md_theme_light_tertiary = Color(0xFF38656A)
-val md_theme_light_onTertiary = Color(0xFFFFFFFF)
-val md_theme_light_tertiaryContainer = Color(0xFFBCEBF0)
-val md_theme_light_onTertiaryContainer = Color(0xFF002022)
-val md_theme_light_error = Color(0xFFBA1A1A)
-val md_theme_light_errorContainer = Color(0xFFFFDAD6)
-val md_theme_light_onError = Color(0xFFFFFFFF)
-val md_theme_light_onErrorContainer = Color(0xFF410002)
-val md_theme_light_background = Color(0xFFFBFDF9)
-val md_theme_light_onBackground = Color(0xFF191C1A)
-val md_theme_light_surface = Color(0xFFFBFDF9)
-val md_theme_light_onSurface = Color(0xFF191C1A)
-val md_theme_light_surfaceVariant = Color(0xFFDBE5DD)
-val md_theme_light_onSurfaceVariant = Color(0xFF404943)
-val md_theme_light_outline = Color(0xFF707973)
-val md_theme_light_inverseOnSurface = Color(0xFFEFF1ED)
-val md_theme_light_inverseSurface = Color(0xFF2E312E)
-val md_theme_light_inversePrimary = Color(0xFF006A4E)
-val md_theme_light_surfaceTint = Color(0xFF006A4E)
-val md_theme_light_outlineVariant = Color(0xFFBFC9C2)
-val md_theme_light_scrim = Color(0xFF000000)
-// Add more color tokens...
+val PrimaryGreenHover = Color(0xFF005A42)
+val PrimaryGreenLight = Color(0xFF008B5C)
+val BangladeshRed = Color(0xFFF42A41)
+val CreamBackground = Color(0xFFFFF8E6)
 
-// Dark theme
-val md_theme_dark_primary = Color(0xFF5CDBB1)
-val md_theme_dark_onPrimary = Color(0xFF003828)
-val md_theme_dark_primaryContainer = Color(0xFF00513B)
-val md_theme_dark_onPrimaryContainer = Color(0xFF7CF8CD)
-val md_theme_dark_secondary = Color(0xFFB3CCBC)
-val md_theme_dark_onSecondary = Color(0xFF1F3529)
-val md_theme_dark_secondaryContainer = Color(0xFF364B3F)
-val md_theme_dark_onSecondaryContainer = Color(0xFFCFE9D7)
+// Secondary colors
+val SuccessGreen = Color(0xFF10B981)
+val SuccessGreenHover = Color(0xFF059669)
+val WarningYellow = Color(0xFFF59E0B)
+val InfoBlue50 = Color(0xFFEBF8FF)   // Tailwind blue-50
+val InfoBlue200 = Color(0xFFBFDBFE)  // Tailwind blue-200
 
-val md_theme_dark_tertiary = Color(0xFF4FD8EB)
-val md_theme_dark_onTertiary = Color(0xFF00363D)
-val md_theme_dark_tertiaryContainer = Color(0xFF004F59)
-val md_theme_dark_onTertiaryContainer = Color(0xFF97F0FF)
+// Neutral colors
+val CardBackground = Color(0xFFFFFFFF)
+val PrimaryText = Color(0xFF1A1A1A)
+val PrimaryTextAlt1 = Color(0xFF374151)
+val PrimaryTextAlt2 = Color(0xFF4B5563)
+val SecondaryText = Color(0xFF6B7280)
+val SecondaryTextAlt = Color(0xFF9CA3AF)
+val LightBorder = Color(0xFFE5E7EB) //boarder
+val LightBorderAlt = Color(0xFFD1D5DB)
+val LightBorderAlt2 = Color(0xFFF3F4F6)
+val BackgroundMuted = Color(0xFFF9F9F6)
+val BackgroundSecondary = Color(0xFFF5F5F0)
+val PrimaryGreen = Color(0xFF006A4E)      // Deep Green
+val SecondaryGreen = Color(0xFF2D8F5F)    // Mid Green
+val TertiaryGreen = Color(0xFF3CB371)     // Light Green
 
-val md_theme_dark_error = Color(0xFFFFB4AB)
-val md_theme_dark_errorContainer = Color(0xFF93000A)
-val md_theme_dark_onError = Color(0xFF690005)
-val md_theme_dark_onErrorContainer = Color(0xFFFFDAD6)
+val LightGray = Color(0xFFF7F9FA)         // Gray Light
+val BorderGray = Color(0xFFE5E7EB)        // Border
+val TabBackgroundGray = Color(0xFFF5F6F8) // Tab Background
 
-val md_theme_dark_background = Color(0xFF1C1B1F)
-val md_theme_dark_onBackground = Color(0xFFE6E1E5)
+val WelcomeTextGreen = Color(0xFF004F3B)  // Welcome Text
+val SignInTextGreen = Color(0xFF2E9474)   // Sign In Text
+val AccentGreen = Color(0xFF007A56)       // Green Text
+val ErrorRed = Color(0xFFC10007)          // Red Text
 
-val md_theme_dark_surface = Color(0xFF1C1B1F)
-val md_theme_dark_onSurface = Color(0xFFE6E1E5)
+val NeutralGray500 = Color(0xFF6D7585)    // Text Gray 500
 
-val md_theme_dark_surfaceVariant = Color(0xFF49454F)
-val md_theme_dark_onSurfaceVariant = Color(0xFFCAC4D0)
-
-val md_theme_dark_outline = Color(0xFF938F99)
-val md_theme_dark_inverseOnSurface = Color(0xFF1C1B1F)
-val md_theme_dark_inverseSurface = Color(0xFFE6E1E5)
-val md_theme_dark_inversePrimary = Color(0xFF6750A4)
-
-val md_theme_dark_surfaceTint = Color(0xFFD0BCFF)
-val md_theme_dark_outlineVariant = Color(0xFF49454F)
-val md_theme_dark_scrim = Color(0xFF000000)
-val deep_green = Color(0xFF006A4E)
-val mid_green = Color(0xFF2d8f5f)
-val light_green = Color(0xFF3cb371)
-val gray_light = Color(0xFFf7f9fa)
-val boarder = Color(0xFFe5e7eb)
-
-val tabBackground = Color(0xFFf5f6f8)
-
-val welcomeTextColor = Color(0xFF004f3b)
-val signInTextColor = Color(0xFF2e9474)
-val greenTextColor = Color(0xFF007a56)
-val redTextColor = Color(0xFFc10007)
-
-val textGray500 = Color(0xFF6d7585)
-
-val green400 = Color(0xFFecfdf5)
-val green_light_boarder = Color(0xFFaef0d0)
-
-// Add more color tokens...
-
-// Bangladesh-specific colors
-val RamadanGreen = Color(0xFF2E7D32)
+val GreenSurface = Color(0xFFECFDF5)      // Green 400 (light surface)
+val GreenBorderLight = Color(0xFFAEF0D0)  // Green Light Border
 
 // Special green for Ramadan
+val RamadanGreen = Color(0xFF2E7D32)
 
 val splashScreenBackground = Brush.linearGradient(
-    colors = listOf(md_theme_light_primary, mid_green, light_green),
+    colors = listOf(PrimaryGreenLight, SecondaryGreen, TertiaryGreen),
     start = Offset(0f, 0f),
     end = Offset.Infinite
 )

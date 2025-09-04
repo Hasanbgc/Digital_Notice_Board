@@ -1,5 +1,6 @@
 package login.component
 
+import BorderGray
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import boarder
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -43,7 +43,7 @@ fun RoundCornerIconButton(
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .background(color = backgroundColor, shape = RoundedCornerShape(32.dp))
-            .border(1.dp,boarder, RoundedCornerShape(32.dp))
+            .border(1.dp,BorderGray, RoundedCornerShape(32.dp))
             .padding(paddingValues)
     ) {
         Image(

@@ -1,5 +1,9 @@
 package registration
 
+import AccentGreen
+import ErrorRed
+import NeutralGray500
+import TabBackgroundGray
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -18,7 +22,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardColors
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -42,21 +47,10 @@ import common.AuthTab
 import digita_notice_board.feature.auth.generated.resources.Res
 import digita_notice_board.feature.auth.generated.resources.iphone_24
 import digita_notice_board.feature.auth.generated.resources.shield
-import gray_light
-import greenTextColor
-import login.LoginScreenState
 import login.NoRippleInteractionSource
-import login.NormalUserLogin
-import login.NoticePosterLogin
 import login.component.TabWithHorizontalIcon
 import loginBackground
-import org.jetbrains.compose.resources.painterResource
-import redTextColor
-import signInTextColor
-import tabBackground
-import textGray500
-import welcomeTextColor
-import kotlin.math.log
+import registration.component.AnimatedProgressBar
 
 @Composable
 fun RegistrationScreenRoot(
@@ -70,6 +64,13 @@ fun RegistrationScreenRoot(
         state = state,
         viewModel = viewModel,
         onAction = viewModel::onAction,
+        onStateChange = {
+            viewModel.updateRegistrationState {
+                it.copy(
+                    isLoading = true
+                )
+            }
+        },
         onRegistrationSuccess = {
             onRegistrationSuccess()
         }
@@ -82,6 +83,7 @@ fun RegistrationScreen(
     safePadding: PaddingValues,
     state: RegistrationScreenState,
     viewModel: RegistrationViewModel,
+    onStateChange: (RegistrationScreenState) -> Unit,
     onAction: (RegistrationScreenAction) -> Unit,
     onRegistrationSuccess: () -> Unit
 ) {
@@ -125,7 +127,7 @@ fun RegistrationScreen(
                 Text(
                     text = "Join your local community and stay updated with important notices",
                     textAlign = TextAlign.Center,
-                    color = textGray500,
+                    color = NeutralGray500,
                     maxLines = 2,
                     style = MaterialTheme.typography.titleSmall,
                 )
@@ -152,7 +154,7 @@ fun RegistrationScreen(
                             .fillMaxWidth()
                             .height(56.dp) // Match TabRow height
                             .padding(6.dp)
-                            .background(color = tabBackground, shape = RoundedCornerShape(32.dp))
+                            .background(color = TabBackgroundGray, shape = RoundedCornerShape(32.dp))
                     )
                     {
                         if (tabPosition.isNotEmpty()) {
@@ -210,7 +212,7 @@ fun RegistrationScreen(
                                     spacing = 4.dp
                                 )
                             },
-                            selectedContentColor = greenTextColor,
+                            selectedContentColor = AccentGreen,
                             unselectedContentColor = Color.Black,
                             interactionSource = remember { NoRippleInteractionSource() }
                         )
@@ -231,24 +233,21 @@ fun RegistrationScreen(
                                     spacing = 4.dp
                                 )
                             },
-                            selectedContentColor = redTextColor,
+                            selectedContentColor = ErrorRed,
                             unselectedContentColor = Color.Black,
                             interactionSource = remember { NoRippleInteractionSource() }
                         )
                     }
                 }
-                /*when (currentTab) {
-                    AuthTab.NORMAL_USER -> NormalUserLogin(*//*onLoginSuccess = onLoginSuccess*//*
-                        state = loginScreenState,
-                        onStateChange = onStateChange,
-                        onAction =onAction
-                    )
-                    AuthTab.NOTICE_POSTER -> NoticePosterLogin(
-                        state = loginScreenState,
+                when (currentTab) {
+                    AuthTab.NORMAL_USER -> RegisterNormalUser(
+                        state = state,
+                        viewModel = viewModel,
                         onStateChange = onStateChange,
                         onAction = onAction
                     )
-                }*/
+                    AuthTab.NOTICE_POSTER -> RegisterNoticePoster()
+                }
                 Spacer(modifier = Modifier.height(16.dp))
 
             }
@@ -257,7 +256,7 @@ fun RegistrationScreen(
             Text(
                 text = "By registering you agree to our Terms of Service and Privacy Policy",
                 style = MaterialTheme.typography.bodyMedium,
-                color = textGray500,
+                color = NeutralGray500,
             )
 
         }
@@ -266,3 +265,54 @@ fun RegistrationScreen(
 
 
 }
+
+
+@Composable
+fun RegisterNormalUser(
+    state: RegistrationScreenState,
+    viewModel: RegistrationViewModel,
+    onStateChange: (RegistrationScreenState) -> Unit,
+    onAction: (RegistrationScreenAction) -> Unit
+){
+    var currentStep by remember { mutableStateOf(0) }
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)){
+        val listOfState = listOf("Phone","Verify","Location","Name","Password","Phone","Verify","Location","Name","Password")
+        AnimatedProgressBar(listOfState, currentStep)
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                if (currentStep < listOfState.size-1)
+                currentStep++
+            },
+            modifier = Modifier.padding(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Green,
+                contentColor = Color.White
+            )
+        ){
+            Text("Next")
+        }
+
+        Button(
+            onClick = {
+                if (currentStep > 0)
+                currentStep--
+            },
+            modifier = Modifier.padding(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Green,
+                contentColor = Color.White
+            )
+        ){
+            Text("Prev")
+        }
+    }
+
+
+}
+
+@Composable
+fun RegisterNoticePoster(){
+
+}
+

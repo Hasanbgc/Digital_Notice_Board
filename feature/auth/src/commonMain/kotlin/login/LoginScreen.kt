@@ -1,5 +1,17 @@
 package login
 
+import AccentGreen
+import BorderGray
+import ErrorRed
+import GreenBorderLight
+import GreenSurface
+import LightGray
+import NeutralGray500
+import PrimaryGreen
+import SecondaryGreen
+import SignInTextGreen
+import TabBackgroundGray
+import TertiaryGreen
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -70,11 +82,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import boarder
 import common.AuthTab
 import continueButtonBackgroundActive
 import continueButtonBackgroundInactive
-import deep_green
 import digita_notice_board.feature.auth.generated.resources.Res
 import digita_notice_board.feature.auth.generated.resources.facebook
 import digita_notice_board.feature.auth.generated.resources.flag_bd
@@ -82,27 +92,15 @@ import digita_notice_board.feature.auth.generated.resources.google
 import digita_notice_board.feature.auth.generated.resources.iphone_24
 import digita_notice_board.feature.auth.generated.resources.right_arrow
 import digita_notice_board.feature.auth.generated.resources.shield
-import gray_light
-import green400
-import greenTextColor
-import green_light_boarder
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import light_green
 import login.component.RoundCornerIconButton
 import login.component.TabWithHorizontalIcon
 import loginBackground
-import mid_green
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import redTextColor
 import signInButtonBackgroundActive
 import signInButtonBackgroundInactive
-import signInTextColor
-import tabBackground
-import textGray500
-import welcomeTextColor
 
 @Composable
 fun LoginScreenRoot(
@@ -156,13 +154,13 @@ fun LoginScreen(
         Text(
             text = "Welcome Back",
             textAlign = TextAlign.Center,
-            color = welcomeTextColor,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.displaySmall,
         )
         Text(
             text = "Sign in to your account",
             textAlign = TextAlign.Center,
-            color = signInTextColor,
+            color = SignInTextGreen,
             style = MaterialTheme.typography.titleSmall,
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -187,7 +185,7 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .height(56.dp) // Match TabRow height
                         .padding(6.dp)
-                        .background(color = tabBackground, shape = RoundedCornerShape(32.dp))
+                        .background(color = TabBackgroundGray, shape = RoundedCornerShape(32.dp))
                 )
                 {
                     if (tabPosition.isNotEmpty()) {
@@ -241,7 +239,7 @@ fun LoginScreen(
                                 spacing = 4.dp
                             )
                         },
-                        selectedContentColor = greenTextColor,
+                        selectedContentColor = AccentGreen,
                         unselectedContentColor = Color.Black,
                         interactionSource = remember { NoRippleInteractionSource() }
                     )
@@ -258,7 +256,7 @@ fun LoginScreen(
                                 spacing = 4.dp
                             )
                         },
-                        selectedContentColor = redTextColor,
+                        selectedContentColor = ErrorRed,
                         unselectedContentColor = Color.Black,
                         interactionSource = remember { NoRippleInteractionSource() }
                     )
@@ -284,13 +282,13 @@ fun LoginScreen(
         Text(
             text = "Digital Notice Board",
             style = MaterialTheme.typography.bodyMedium,
-            color = greenTextColor,
+            color = AccentGreen,
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = "Connecting communities across Bangladesh",
             style = MaterialTheme.typography.bodySmall,
-            color = greenTextColor
+            color = AccentGreen
         )
     }
 }
@@ -358,7 +356,7 @@ fun NormalUserLogin(
                 Row(
                     modifier = Modifier
                         .height(56.dp)
-                        .background(color = gray_light,shape = RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp))
+                        .background(color = LightGray,shape = RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp))
                         .padding(start = 16.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
@@ -376,7 +374,7 @@ fun NormalUserLogin(
             },
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Gray,
-                unfocusedIndicatorColor = boarder,
+                unfocusedIndicatorColor = BorderGray,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
             ),
@@ -391,15 +389,15 @@ fun NormalUserLogin(
             text = "We'll send you a verification code",
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.bodySmall,
-            color = textGray500
+            color = NeutralGray500
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth()
                 .height(90.dp)
-                .background(color = green400, RoundedCornerShape(16.dp))
-                .border(1.dp, green_light_boarder, RoundedCornerShape(16.dp))
+                .background(color = GreenSurface, RoundedCornerShape(16.dp))
+                .border(1.dp, GreenBorderLight, RoundedCornerShape(16.dp))
                 .padding(start = 14.dp, top = 4.dp, bottom = 4.dp, end = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -409,7 +407,7 @@ fun NormalUserLogin(
                     text = "Auto-read SMS",
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = deep_green,
+                    color = PrimaryGreen,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
@@ -417,7 +415,7 @@ fun NormalUserLogin(
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 12.sp,
-                    color = light_green
+                    color = TertiaryGreen
                 )
 
             }
@@ -428,7 +426,7 @@ fun NormalUserLogin(
                     isAutoRead = isChecked
                 },
                 colors = SwitchDefaults.colors(
-                    checkedTrackColor = mid_green,
+                    checkedTrackColor = SecondaryGreen,
                     checkedThumbColor = Color.White,
                     uncheckedTrackColor = Color.LightGray,
                     uncheckedThumbColor = Color.White,
@@ -448,7 +446,7 @@ fun NormalUserLogin(
                 text = "or",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
-                color = textGray500,
+                color = NeutralGray500,
                 modifier = Modifier.background(Color.White).padding(start = 20.dp, end = 20.dp, bottom = 2.dp),
 
             )
@@ -589,7 +587,7 @@ fun NoticePosterLogin(
                 Row(
                     modifier = Modifier
                         .height(56.dp)
-                        .background(color = gray_light,shape = RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp))
+                        .background(color = LightGray,shape = RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp))
                         .padding(start = 16.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
@@ -607,7 +605,7 @@ fun NoticePosterLogin(
             },
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Gray,
-                unfocusedIndicatorColor = boarder,
+                unfocusedIndicatorColor = BorderGray,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
             ),
@@ -654,7 +652,7 @@ fun NoticePosterLogin(
             shape = RoundedCornerShape(16.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Gray,
-                unfocusedIndicatorColor = boarder,
+                unfocusedIndicatorColor = BorderGray,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
             )
@@ -664,7 +662,7 @@ fun NoticePosterLogin(
             text = "Use your registered 4-digit PIN",
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.bodySmall,
-            color = textGray500
+            color = NeutralGray500
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -678,7 +676,7 @@ fun NoticePosterLogin(
                 text = "or",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
-                color = textGray500,
+                color = NeutralGray500,
                 modifier = Modifier.background(Color.White).padding(start = 20.dp, end = 20.dp, bottom = 2.dp),
 
                 )
@@ -713,7 +711,7 @@ fun NoticePosterLogin(
             text = "Google is recommended for institutional accounts",
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodySmall,
-            color = textGray500,
+            color = NeutralGray500,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -773,7 +771,7 @@ fun NoticePosterLogin(
             style = MaterialTheme.typography.bodyMedium.copy(
                 textDecoration = TextDecoration.Underline
             ),
-            color = redTextColor,
+            color = ErrorRed,
             modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
 
             }
