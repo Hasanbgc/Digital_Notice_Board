@@ -7,11 +7,12 @@ data class RegistrationScreenState(
 
     // Common fields
     val mobileNumber: String = "",
-    val progressState: Float = 0.0f,
+    val progressState: Int = 1, //0 - phone verification, 1 - otp verification, 2 - complete profile
 
     // Normal User specific
     val otpCode: String = "",
     val location: String = "",
+    val verifyButtonEnabled: Boolean = false,
 
     // Notice Poster specific
     val name: String = "",

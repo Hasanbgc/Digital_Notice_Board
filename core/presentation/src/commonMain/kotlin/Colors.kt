@@ -45,6 +45,11 @@ val NeutralGray500 = Color(0xFF6D7585)    // Text Gray 500
 val GreenSurface = Color(0xFFECFDF5)      // Green 400 (light surface)
 val GreenBorderLight = Color(0xFFAEF0D0)  // Green Light Border
 
+val TrackColor = Color(0xFFF2F3F5)
+val SurfaceBackground = Color(0xFFFFFEFC)
+val BorderBlue = Color(0xFFBFDCFF)
+val SurfaceBlue = Color(0xFFEFF6FF)
+
 // Special green for Ramadan
 val RamadanGreen = Color(0xFF2E7D32)
 

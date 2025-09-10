@@ -394,7 +394,8 @@ fun NormalUserLogin(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(90.dp)
                 .background(color = GreenSurface, RoundedCornerShape(16.dp))
                 .border(1.dp, GreenBorderLight, RoundedCornerShape(16.dp))

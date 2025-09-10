@@ -9,6 +9,7 @@ sealed interface RegistrationScreenAction {
         object onFindLocationClick : RegistrationScreenAction
         object onSkipClick : RegistrationScreenAction
         object onCompleteClick : RegistrationScreenAction
+        data class onOTPEntered(val otp: String): RegistrationScreenAction
     }
     sealed interface NoticePoster : RegistrationScreenAction {
         object InstituteDropDownClick : NoticePoster

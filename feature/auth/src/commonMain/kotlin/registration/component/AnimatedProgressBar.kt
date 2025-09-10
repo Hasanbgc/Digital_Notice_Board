@@ -1,6 +1,7 @@
 package registration.component
 
 import AccentGreen
+import NeutralGray500
 import SignInTextGreen
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -36,7 +37,7 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AnimatedProgressBar(steps: List<String>, currentStep: Int) {
+fun AnimatedProgressBar(steps: List<String>, currentStep: Int,trackColor: Color,progressColor: Color) {
     val totalSteps = steps.size
     Column(
         modifier = Modifier
@@ -54,12 +55,12 @@ fun AnimatedProgressBar(steps: List<String>, currentStep: Int) {
                 .fillMaxWidth()
                 .wrapContentHeight(),
             contentPadding = PaddingValues(vertical = 4.dp),
-            //horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             items(totalSteps) { index ->
                 Text(
                     text = steps[index],
-                    color = if (index <= currentStep) AccentGreen else MaterialTheme.colorScheme.onBackground,
+                    color = if (index <= currentStep) AccentGreen else NeutralGray500,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.onGloballyPositioned { coordinates ->
                         //taking the center of the text
@@ -102,8 +103,8 @@ fun AnimatedProgressBar(steps: List<String>, currentStep: Int) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(6.dp),
-                color = Color.Green,
-                trackColor = SignInTextGreen,
+                color = progressColor,
+                trackColor = trackColor,
                 strokeCap = StrokeCap.Round,
                 gapSize = 0.dp
             )
