@@ -13,6 +13,7 @@ data class RegistrationScreenState(
     val otpCode: String = "",
     val location: String = "",
     val verifyButtonEnabled: Boolean = false,
+    val otpError: Boolean = false,
 
     // Notice Poster specific
     val name: String = "",

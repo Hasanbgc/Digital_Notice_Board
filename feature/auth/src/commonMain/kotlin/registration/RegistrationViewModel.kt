@@ -41,7 +41,15 @@ class RegistrationViewModel: ViewModel() {
                     }
                 }
             }
-            is RegistrationScreenAction.NormalUser.onVerifyClick -> {}
+            is RegistrationScreenAction.NormalUser.onVerifyClick -> {
+                //check verification code by calling api
+                val isError = registrationScreenState.value.otpCode != "1234"
+                updateRegistrationState {
+                    copy(
+                        otpError = isError
+                    )
+                }
+            }
             is RegistrationScreenAction.NormalUser.onResendClick -> {}
             is RegistrationScreenAction.NormalUser.onGoBackClick -> {
                 updateRegistrationState {
@@ -54,11 +62,21 @@ class RegistrationViewModel: ViewModel() {
             is RegistrationScreenAction.NormalUser.onSkipClick -> {}
             is RegistrationScreenAction.NormalUser.onCompleteClick -> {}
             is RegistrationScreenAction.NormalUser.onOTPEntered ->{
-                updateRegistrationState {
-                    copy(
-                        otpCode = action.otp,
-                        verifyButtonEnabled = true
-                    )
+                println("OTP_Entered: ${action.otp}")
+                if(action.otp.length == 4) {
+                    updateRegistrationState {
+                        copy(
+                            otpCode = action.otp,
+                            verifyButtonEnabled = true
+                        )
+                    }
+                }else{
+                    updateRegistrationState {
+                        copy(
+                            otpCode = action.otp,
+                            verifyButtonEnabled = false
+                        )
+                    }
                 }
             }
 

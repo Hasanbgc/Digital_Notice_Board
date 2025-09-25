@@ -613,9 +613,17 @@ fun OTPCodeVerification(
             onOTPComplete = {
                 onAction(RegistrationScreenAction.NormalUser.onOTPEntered(it))
             },
-            //isError = state.error,
-
+            isError = state.otpError,
         )
+        Spacer(modifier = Modifier.height(6.dp))
+        if(state.otpError) {
+            Text(
+                text = "OTP is not correct",
+                style = MaterialTheme.typography.bodyMedium,
+                color = ErrorRed
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
         //verify code button
         Button(
