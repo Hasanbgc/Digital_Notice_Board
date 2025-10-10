@@ -39,6 +39,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
+           // implementation("androidx.compose.animation:animation:1.5.1")
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -47,7 +48,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
             implementation(libs.jetbrains.compose.navigation)
-            implementation(libs.matrial3.extended.icon)
+            implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {

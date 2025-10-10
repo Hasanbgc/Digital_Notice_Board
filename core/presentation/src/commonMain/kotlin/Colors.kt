@@ -50,6 +50,8 @@ val SurfaceBackground = Color(0xFFFFFEFC)
 val BorderBlue = Color(0xFFBFDCFF)
 val SurfaceBlue = Color(0xFFEFF6FF)
 
+val DeepGreen = Color(0xFF006B4F)
+
 // Special green for Ramadan
 val RamadanGreen = Color(0xFF2E7D32)
 

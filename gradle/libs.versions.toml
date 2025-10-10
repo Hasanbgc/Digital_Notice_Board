@@ -1,8 +1,12 @@
 [versions]
 agp = "8.11.1"
-android-compileSdk = "35"
-android-minSdk = "24"
-android-targetSdk = "35"
+
+android-CompileSdk = "36"
+android-MinSdk = "24"
+android-TargetSdk = "35"
+
+buildkonfig = "0.17.1"
+
 androidx-activity = "1.10.1"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.16.0"
@@ -31,6 +35,10 @@ kotlinSerialization = "1.7.3"
 material-extend-icon ="1.6.10"
 androidx-material = "1.12.0"
 mokoResource = "0.24.0"
+
+map-compose = "6.11.0"
+play-services-maps = "19.2.0"
+play-services-location = "21.0.1"
 
 
 [libraries]
@@ -84,6 +92,9 @@ moko-resource = {module = "dev.icerock.moko:resources", version.ref = "mokoResou
 moko-resource-compose = {module = "dev.icerock.moko:resources-compose", version.ref = "mokoResource"}
 moko-resource-compose-bridge = { group = "dev.icerock.moko", name = "resources-compose-bridge", version.ref = "mokoResource" }
 
+maps-compose = {module = "com.google.maps.android:maps-compose", version.ref = "map-compose"}
+play-services-maps = {module = "com.google.android.gms:play-services-maps", version.ref = "play-services-maps"}
+play-services-location = {module = "com.google.android.gms:play-services-location", version.ref = "play-services-location"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -97,6 +108,7 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 multiplatformResource = {id = "dev.icerock.mobile.multiplatform-resources", version.ref = "mokoResource"}
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
 
 [bundles]
 ktor = [

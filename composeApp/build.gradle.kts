@@ -1,7 +1,7 @@
-import com.android.aaptcompiler.resolvePackage
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -11,6 +11,13 @@ plugins {
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.multiplatformResource)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+}
+
+// Read local.properties file
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
 }
 
 kotlin {
@@ -42,10 +49,13 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.maps.compose)
+            implementation(libs.play.services.maps)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
+          //  implementation("androidx.compose.animation:animation:1.5.1")
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -67,11 +77,10 @@ kotlin {
             implementation(libs.moko.resource)
             implementation(libs.moko.resource.compose)
 
-            implementation(libs.androidx.compose.navigation)
             implementation(libs.jetbrains.compose.navigation)
-            implementation(libs.matrial3.extended.icon)
+            implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.androidx.compose.foundation)
+            implementation(compose.foundation)
 
             implementation(project(":core:data"))
             implementation(project(":core:domain"))
@@ -105,6 +114,9 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        
+        // Add manifest placeholders for API key
+        manifestPlaceholders["MAPS_API_KEY"] = localProperties.getProperty("MAPS_API_KEY", "YOUR_API_KEY_HERE")
     }
     packaging {
         resources {

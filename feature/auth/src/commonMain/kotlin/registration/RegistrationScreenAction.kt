@@ -13,7 +13,8 @@ sealed interface RegistrationScreenAction {
     }
     sealed interface NoticePoster : RegistrationScreenAction {
         object InstituteDropDownClick : NoticePoster
-        object InstituteTypeSelect : NoticePoster
+        data class InstituteTypeSelect(val type: String) : NoticePoster
+        object InstitutionSelect : NoticePoster
         object NIDVerification : NoticePoster
         object OnCompleteClick : NoticePoster
     }

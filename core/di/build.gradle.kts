@@ -42,6 +42,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
+          //  implementation("androidx.compose.animation:animation:1.5.1")
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
