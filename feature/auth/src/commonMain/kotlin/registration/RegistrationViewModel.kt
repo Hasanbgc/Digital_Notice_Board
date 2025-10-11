@@ -30,7 +30,7 @@ class RegistrationViewModel : ViewModel() {
             is RegistrationScreenAction.NormalUser.onSendCodeClick -> {
                 updateRegistrationState {
                     copy(
-                        isLoading = true
+                        isLoading = true,
                     )
                 }
                 viewModelScope.launch {
@@ -39,9 +39,8 @@ class RegistrationViewModel : ViewModel() {
                         registrationScreenState.value.mobileNumber.trimStart('0').ifEmpty { "" }
                     updateRegistrationState {
                         copy(
-                            isLoading = false,
+                            mobileNumber = trimmedNumber,
                             progressState = 1,
-                            mobileNumber = trimmedNumber
                         )
                     }
                 }
@@ -53,13 +52,13 @@ class RegistrationViewModel : ViewModel() {
                 if (isError) {
                     updateRegistrationState {
                         copy(
-                            otpError = isError
+                            otpError = isError,
                         )
                     }
                 } else {
                     updateRegistrationState {
                         copy(
-                            progressState = 2
+                            progressState = 2,
                         )
                     }
                 }
@@ -68,16 +67,14 @@ class RegistrationViewModel : ViewModel() {
             is RegistrationScreenAction.NormalUser.onResendClick -> {}
             is RegistrationScreenAction.NormalUser.onGoBackClick -> {
                 updateRegistrationState {
-                    copy(
-                        progressState = 0
-                    )
+                    copy()
                 }
             }
 
             is RegistrationScreenAction.NormalUser.onFindLocationClick -> {
                 updateRegistrationState {
                     copy(
-                        detectLocation = detectLocation+1
+                        detectLocation = detectLocation+1,
                     )
                 }
 
@@ -85,7 +82,7 @@ class RegistrationViewModel : ViewModel() {
             is RegistrationScreenAction.NormalUser.onSkipClick -> {
                 updateRegistrationState {
                     copy(
-                        progressState = 2
+                        progressState = 2,
                     )
                 }
             }
@@ -95,7 +92,7 @@ class RegistrationViewModel : ViewModel() {
                 println("Completing registration with location: ${state.latitude}, ${state.longitude}")
                 updateRegistrationState {
                     copy(
-                        isLoading = true
+                        isLoading = true,
                     )
                 }
                 // Simulate API call
@@ -103,9 +100,8 @@ class RegistrationViewModel : ViewModel() {
                     delay(2000)
                     updateRegistrationState {
                         copy(
-                            isLoading = false,
+                            navigateToMain = true,
                             //navigateToLogin = true,
-                            navigateToMain = true
                             // You might want to navigate to a success screen here
                         )
                     }
@@ -117,31 +113,52 @@ class RegistrationViewModel : ViewModel() {
                     updateRegistrationState {
                         copy(
                             otpCode = action.otp,
-                            verifyButtonEnabled = true
+                            verifyButtonEnabled = true,
                         )
                     }
                 } else {
                     updateRegistrationState {
                         copy(
                             otpCode = action.otp,
-                            verifyButtonEnabled = false
                         )
                     }
                 }
             }
 
-            is RegistrationScreenAction.NoticePoster.InstituteDropDownClick -> {}
+            is RegistrationScreenAction.NoticePoster.InstituteDropDownClick -> {
+                updateRegistrationState {
+                    copy(
+                        instituteDropdownClicked = true,
+                    )
+                }
+            }
             is RegistrationScreenAction.NoticePoster.InstituteTypeSelect -> {
                 updateRegistrationState {
                     copy(
-                        instituteType = action.type
+                        instituteType = action.type,
+                        moreClicked = false, //to dismiss dialog
                         //filterInstitution(action.type)
                     )
                 }
             }
-            is RegistrationScreenAction.NoticePoster.InstitutionSelect -> {}
+            is RegistrationScreenAction.NoticePoster.InstitutionSelect -> {
+                updateRegistrationState {
+                    copy(
+                        institute = action.institution,
+                        moreClicked = false, //to dismiss dialog
+                    )
+                }
+            }
             is RegistrationScreenAction.NoticePoster.NIDVerification -> {}
             is RegistrationScreenAction.NoticePoster.OnCompleteClick -> {}
+            is RegistrationScreenAction.NoticePoster.MoreClicked -> {
+                updateRegistrationState {
+                    copy(
+                        moreClicked = true
+                    )
+                }
+            }
+
         }
     }
 
@@ -227,4 +244,16 @@ class RegistrationViewModel : ViewModel() {
         )
 
     }
+
+    fun getDummyInstitutions():List<String> {
+        return listOf(
+            "SCH001 - Gomdandi Pilot High School",
+            "SCH002 - Shakpura Model High School",
+            "SCH003 - Kodurkhil Muslim High School",
+            "SCH004 - Poschim Gomdandi Union High School",
+            "SCH005 - Hazirhat Model High School"
+        )
+    }
+
+
 }

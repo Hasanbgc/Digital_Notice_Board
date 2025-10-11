@@ -8,12 +8,10 @@ import DeepGreen
 import ErrorRed
 import LightGray
 import NeutralGray500
-import SecondaryGreen
 import SurfaceBackground
 import SurfaceBlue
 import TabBackgroundGray
 import TrackColor
-import androidx.collection.SimpleArrayMap
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -39,6 +37,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,10 +47,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.filled.Verified
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -67,7 +64,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabPosition
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -76,23 +72,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.hasan.dnb.core.presentation.resources.flag_bd
 import common.AuthTab
 import continueButtonBackgroundActive
 import continueButtonBackgroundInactive
@@ -106,16 +95,12 @@ import digita_notice_board.feature.auth.generated.resources.next
 import digita_notice_board.feature.auth.generated.resources.right_arrow
 import digita_notice_board.feature.auth.generated.resources.send
 import digita_notice_board.feature.auth.generated.resources.shield
-import login.LoginScreenAction
 import login.NoRippleInteractionSource
 import login.component.TabWithHorizontalIcon
 import loginBackground
-import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import registration.component.AnimatedProgressBar
 import registration.component.OTPOutlinedTextBox
-import kotlin.coroutines.Continuation
 
 @Composable
 fun RegistrationScreenRoot(
@@ -264,7 +249,7 @@ fun RegistrationScreen(
                                 selected = currentTab == AuthTab.NORMAL_USER,
                                 onClick = {
                                     viewModel.updateRegistrationState {
-                                        copy(selectedTab = AuthTab.NORMAL_USER)
+                                        copy(selectedTab = AuthTab.NORMAL_USER,)
                                     }
                                 },
                                 modifier = Modifier.padding(4.dp),
@@ -285,7 +270,7 @@ fun RegistrationScreen(
                                 selected = currentTab == AuthTab.NOTICE_POSTER,
                                 onClick = {
                                     viewModel.updateRegistrationState {
-                                        copy(selectedTab = AuthTab.NOTICE_POSTER)
+                                        copy()
                                     }
                                 },
                                 modifier = Modifier.padding(4.dp),
@@ -477,7 +462,7 @@ fun PhoneVerification(
             onValueChange = { newValue ->
                 val filteredValue = newValue.filter { it.isDigit() }
                 if (filteredValue.length <= 11) {
-                    onStateChange(state.copy(mobileNumber = filteredValue))
+                    onStateChange(state.copy(mobileNumber = filteredValue,))
                 }
                 if (filteredValue.length >= 11) {
                     sendCodeBtnEnable = true
@@ -865,7 +850,7 @@ fun SetupLocation(
             onStateChange(
                 state.copy(
                     latitude = lat,
-                    longitude = long
+                    longitude = long,
                 )
             )
             println("Current latitude: $lat, longitude: $long")
@@ -1106,7 +1091,7 @@ fun RegisterNoticePoster(
             value = state.name,
             onValueChange = {
                 if(it.length<=4)
-                    onStateChange(state.copy(name = it))
+                    onStateChange(state.copy(name = it,))
             },
             placeholder = {
                 Text(text = "Enter your full name", color = Color.Gray)
@@ -1139,7 +1124,7 @@ fun RegisterNoticePoster(
             onValueChange = { newValue ->
                 val filteredValue = newValue.filter { it.isDigit() }
                 if (filteredValue.length <= 11) {
-                    onStateChange(state.copy(mobileNumber = filteredValue))
+                    onStateChange(state.copy(mobileNumber = filteredValue,))
                 }
                 /*if (filteredValue.length >= 11) {
                     sendCodeBtnEnable = true
@@ -1199,31 +1184,100 @@ fun RegisterNoticePoster(
             modifier = Modifier.align(Alignment.Start)
         )
         Spacer(modifier = Modifier.height(8.dp))
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                viewModel.institutionTypes().take(4).let {
+                    it.forEach { institute ->
+                        FilterChip(
+                            selected = state.instituteType == institute.label,
+                            onClick = {
+                                onAction(
+                                    RegistrationScreenAction.NoticePoster.InstituteTypeSelect(
+                                        institute.label
+                                    )
+                                )
+                            },
+                            label = {
+                                Text(text = institute.label)
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = institute.icon,
+                                    contentDescription = institute.label,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            shape = RoundedCornerShape(16.dp),
 
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ){
-            viewModel.institutionTypes().forEach { institute ->
-                    FilterChip(
-                        selected = state.instituteType == institute.label,
-                        onClick = {
-                            onAction(RegistrationScreenAction.NoticePoster.InstituteTypeSelect(institute.label))
-                        },
-                        label = {
-                            Text(text = institute.label)
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = institute.icon,
-                                contentDescription = institute.label,
-                                modifier = Modifier.size(18.dp)
                             )
-                        },
+                    }
+                }
+            }
+            Text(
+                text = "more>>",
+                modifier = Modifier
+                    .padding(bottom = 8.dp, end = 2.dp)
+                    .align(Alignment.BottomEnd)
+                    .clickable(
+                        true,
+                        onClick = {
+                            onAction(RegistrationScreenAction.NoticePoster.MoreClicked)
+                        }),
+                color = Color.Blue
+            )
+            if(state.moreClicked){
+                Dialog(
+                    onDismissRequest = {
+                        onStateChange(state.copy(moreClicked = false))
+                    }
+                ){
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
                         shape = RoundedCornerShape(16.dp),
-
-                    )
+                        color = SurfaceBackground){
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            viewModel.institutionTypes().let {
+                                it.forEach { institute ->
+                                    FilterChip(
+                                        selected = state.instituteType == institute.label,
+                                        onClick = {
+                                            onAction(
+                                                RegistrationScreenAction.NoticePoster.InstituteTypeSelect(
+                                                    institute.label
+                                                )
+                                            )
+                                        },
+                                        label = {
+                                            Text(text = institute.label)
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = institute.icon,
+                                                contentDescription = institute.label,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        },
+                                        shape = RoundedCornerShape(16.dp),
+                                        )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         //endregion
@@ -1238,19 +1292,15 @@ fun RegisterNoticePoster(
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
-                value = state.instituteType,
+                value = state.institute,
                 onValueChange = {
                     if (it.length <= 4)
-                        onStateChange(state.copy(name = it))
+                        onStateChange(state.copy(name = it,))
                 },
                 placeholder = {
                     Text(text = "Select institution id", color = Color.Gray)
                 },
-                modifier = Modifier.fillMaxWidth().clickable(
-                    true,
-                    onClick = {
-                        onAction(RegistrationScreenAction.NoticePoster.InstituteDropDownClick)
-                    }),
+                modifier = Modifier.fillMaxWidth(),
                 textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -1268,11 +1318,45 @@ fun RegisterNoticePoster(
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "drop down icon",
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(18.dp).clickable{
+                            onAction(RegistrationScreenAction.NoticePoster.InstituteDropDownClick)
+                        }
                     )
                 },
             )
             Spacer(modifier = Modifier.height(8.dp))
+
+            println("dropDownClicked ${state.instituteDropdownClicked}")
+            if(state.instituteDropdownClicked) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = SurfaceBackground,
+                    border = BorderStroke(1.dp, BorderGray)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(0.dp,200.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ){
+                        items(viewModel.getDummyInstitutions()){ school ->
+                            Text(
+                                text = school,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .background(SurfaceBackground)
+                                    .clickable{
+                                        onAction(RegistrationScreenAction.NoticePoster.InstitutionSelect(school))
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
         }
         //endregion
 

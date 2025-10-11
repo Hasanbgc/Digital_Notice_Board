@@ -14,7 +14,7 @@ data class RegistrationScreenState(
     val location: String = "",
     val verifyButtonEnabled: Boolean = false,
     val otpError: Boolean = false,
-    var detectLocation:Int = 0,
+    var detectLocation: Int = 0,
     val latitude: Double = 23.777176, // Default to Dhaka latitude
     val longitude: Double = 90.399452, // Default to Dhaka longitude
     val navigateToLogin: Boolean = false,
@@ -26,6 +26,8 @@ data class RegistrationScreenState(
     val email: String = "",
     val institute: String = "",
     val instituteType: String = "",
+    val instituteDropdownClicked: Boolean = false,
     val nid: String = "",
-    val noticePosterLoading: Boolean = false, // Separate loading for notice poster if needed
+    val noticePosterLoading: Boolean = false,
+    val moreClicked: Boolean = false, // Separate loading for notice poster if needed
 )
