@@ -9,18 +9,18 @@ plugins {
     alias(libs.plugins.buildkonfig)
 }
 
-/*val localProperties = Properties()
+val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localPropertiesFile.inputStream().use { localProperties.load(it) }
-}*/
+}
 
 buildkonfig {
     packageName = "com.hasan.dnb.core.data"
     exposeObjectWithName = "AppConfig"
 
     defaultConfigs {
-        buildConfigField(STRING, "API_KEY", "\"AIzaSyBAR5hVN43MzHaCkOLj0RM6YNQ0tLCqzpQ\"")
+        buildConfigField(STRING, "API_KEY", localProperties.getProperty("API_KEY") ?: "\"default_key\"" )
     }
 }
 
