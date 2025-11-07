@@ -50,6 +50,9 @@ kotlin {
             implementation(libs.jetbrains.compose.navigation)
             implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.bundles.coil)
+
+            implementation(project(":core:presentation"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

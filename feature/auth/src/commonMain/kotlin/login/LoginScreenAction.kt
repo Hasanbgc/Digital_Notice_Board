@@ -1,7 +1,13 @@
 package login
 
+import registration.RegistrationScreenAction
+
 sealed interface LoginScreenAction {
-    object onLoginClick: LoginScreenAction
-    object onSignInClick: LoginScreenAction
-    object onForgotPinClick: LoginScreenAction
+    object OnLoginClick: LoginScreenAction
+    object OnSignInClick: LoginScreenAction
+    object OnForgotPinClick: LoginScreenAction
+
+    object BackFromOTPVerification : LoginScreenAction
+    object OnResendOtpClick : LoginScreenAction
+    object OnVerifyOtpClick : LoginScreenAction
 }

@@ -31,6 +31,10 @@ val PrimaryGreen = Color(0xFF006A4E)      // Deep Green
 val SecondaryGreen = Color(0xFF2D8F5F)    // Mid Green
 val TertiaryGreen = Color(0xFF3CB371)     // Light Green
 
+val PrimaryBlue = Color(0xFF0052CC)       // Deep Blue
+val SecondaryBlue = Color(0xFF3399FF)     // Mid Blue
+
+
 val LightGray = Color(0xFFF7F9FA)         // Gray Light
 val BorderGray = Color(0xFFE5E7EB)        // Border
 val TabBackgroundGray = Color(0xFFF5F6F8) // Tab Background
@@ -39,11 +43,17 @@ val WelcomeTextGreen = Color(0xFF004F3B)  // Welcome Text
 val SignInTextGreen = Color(0xFF2E9474)   // Sign In Text
 val AccentGreen = Color(0xFF007A56)       // Green Text
 val ErrorRed = Color(0xFFC10007)          // Red Text
+val EmergenceyAlertRedBG = Color(0xFFF42A41)
+val EmergencyIconBG = Color(0xFFFFE2E2)
+
 
 val NeutralGray500 = Color(0xFF6D7585)    // Text Gray 500
 
 val GreenSurface = Color(0xFFECFDF5)      // Green 400 (light surface)
 val GreenBorderLight = Color(0xFFAEF0D0)  // Green Light Border
+
+val VerifyTitleColor = Color(0xFF004f3b)
+
 
 val TrackColor = Color(0xFFF2F3F5)
 val SurfaceBackground = Color(0xFFFFFEFC)
@@ -84,4 +94,10 @@ val signInButtonBackgroundActive = Brush.linearGradient(
     colors = listOf(Color(0xFFE40459), Color(0xFFE40430),Color(0xFFEC444C)),
     start = Offset(0f, 0f),   // top-left
     end = Offset.Infinite
+)
+
+val ViolateGradiant = Brush.linearGradient(
+    colors = listOf(Color(0xFF6E61FF), Color(0xFF9C28FC)),
+    start = Offset(0f, 0f),   // top-left
+    end = Offset(Float.POSITIVE_INFINITY, 0f)
 )

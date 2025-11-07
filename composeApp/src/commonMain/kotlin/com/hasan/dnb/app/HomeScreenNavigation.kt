@@ -4,6 +4,7 @@ import Profile.ProfileScreenRoot
 import Profile.ProfileViewModel
 import Settings.SettingsScreenRoot
 import Settings.SettingsViewModel
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -32,9 +33,12 @@ import home.HomeScreenRoot
 import home.HomeViewModel
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
+@Preview
 @Composable
 fun HomeScreen(
+    paddingValues: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     //val navController = rememberNavController()
@@ -72,7 +76,7 @@ fun HomeScreen(
             when(page){
                 0 -> {
                     val viewModel: HomeViewModel = viewModel()
-                    HomeScreenRoot(viewModel){
+                    HomeScreenRoot(paddingValues,viewModel){
 
                     }
                 }

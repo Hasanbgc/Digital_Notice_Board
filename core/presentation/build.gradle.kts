@@ -46,6 +46,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.bundles.coil)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -102,5 +103,5 @@ compose {
 
 dependencies {
     debugImplementation(compose.uiTooling)
-    implementation(compose.components.resources)
+    //implementation(compose.components.resources)
 }

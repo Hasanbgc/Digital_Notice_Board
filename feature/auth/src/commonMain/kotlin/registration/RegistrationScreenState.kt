@@ -2,7 +2,7 @@ package registration
 
 import common.AuthTab
 data class RegistrationScreenState(
-    val selectedTab: AuthTab = AuthTab.NOTICE_POSTER,
+    val selectedTab: AuthTab = AuthTab.NORMAL_USER,
     val isLoading: Boolean = false,
 
     // Common fields

@@ -145,7 +145,7 @@ class RegistrationViewModel : ViewModel() {
                 updateRegistrationState {
                     copy(
                         institute = action.institution,
-                        moreClicked = false, //to dismiss dialog
+                        instituteDropdownClicked = false, //to dismiss dialog
                     )
                 }
             }

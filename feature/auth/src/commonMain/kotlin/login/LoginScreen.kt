@@ -1,19 +1,32 @@
 package login
 
 import AccentGreen
+import BorderBlue
 import BorderGray
 import ErrorRed
 import GreenBorderLight
 import GreenSurface
 import LightGray
 import NeutralGray500
+import PrimaryBlue
 import PrimaryGreen
+import PrimaryText
+import PrimaryTextAlt1
+import PrimaryTextAlt2
+import SecondaryBlue
 import SecondaryGreen
 import SignInTextGreen
+import SurfaceBlue
 import TabBackgroundGray
 import TertiaryGreen
+import VerifyTitleColor
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -37,11 +50,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -69,7 +84,12 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -83,15 +103,20 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import common.AuthTab
+import common.OTPOutlinedTextBox
 import continueButtonBackgroundActive
 import continueButtonBackgroundInactive
 import digita_notice_board.feature.auth.generated.resources.Res
+import digita_notice_board.feature.auth.generated.resources.check_mark
 import digita_notice_board.feature.auth.generated.resources.facebook
+import digita_notice_board.feature.auth.generated.resources.flag_bangladesh
 import digita_notice_board.feature.auth.generated.resources.flag_bd
 import digita_notice_board.feature.auth.generated.resources.google
 import digita_notice_board.feature.auth.generated.resources.iphone_24
 import digita_notice_board.feature.auth.generated.resources.right_arrow
 import digita_notice_board.feature.auth.generated.resources.shield
+import digita_notice_board.feature.auth.generated.resources.sync
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import login.component.RoundCornerIconButton
@@ -99,6 +124,7 @@ import login.component.TabWithHorizontalIcon
 import loginBackground
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import registration.RegistrationScreenAction
 import signInButtonBackgroundActive
 import signInButtonBackgroundInactive
 
@@ -109,8 +135,8 @@ fun LoginScreenRoot(
     onLoginSuccess: () -> Unit
 ) {
     val loginScreenState by viewModel.loginScreenState.collectAsStateWithLifecycle()
-    LaunchedEffect(loginScreenState.successMessage){
-        if(loginScreenState.successMessage?.isNotBlank() == true){
+    LaunchedEffect(loginScreenState.successMessage) {
+        if (loginScreenState.successMessage?.isNotBlank() == true) {
             onLoginSuccess()
         }
     }
@@ -245,7 +271,7 @@ fun LoginScreen(
                     )
                     Tab(
                         selected = currentTab == AuthTab.NOTICE_POSTER,
-                        onClick = {onStateChange(LoginScreenState(selectedTab = AuthTab.NOTICE_POSTER)) },
+                        onClick = { onStateChange(LoginScreenState(selectedTab = AuthTab.NOTICE_POSTER)) },
                         modifier = Modifier.padding(4.dp),
                         text = {
                             TabWithHorizontalIcon(
@@ -266,8 +292,9 @@ fun LoginScreen(
                 AuthTab.NORMAL_USER -> NormalUserLogin(/*onLoginSuccess = onLoginSuccess*/
                     state = loginScreenState,
                     onStateChange = onStateChange,
-                    onAction =onAction
-                    )
+                    onAction = onAction
+                )
+
                 AuthTab.NOTICE_POSTER -> NoticePosterLogin(
                     state = loginScreenState,
                     onStateChange = onStateChange,
@@ -296,6 +323,301 @@ fun LoginScreen(
 @Preview
 @Composable
 fun NormalUserLogin(
+    state: LoginScreenState,
+    onStateChange: (LoginScreenState) -> Unit,
+    onAction: (LoginScreenAction) -> Unit
+) {
+
+    when (state.screenState) {
+        0 -> PhoneVerification(state, onStateChange, onAction)
+        1 -> OtpVerification(state, onStateChange, onAction)
+    }
+}
+
+@Composable
+fun NoticePosterLogin(
+    state: LoginScreenState,
+    onStateChange: (LoginScreenState) -> Unit,
+    onAction: (LoginScreenAction) -> Unit
+) {
+    val focusManager = LocalFocusManager.current
+    var isError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isInputSecret by remember { mutableStateOf(true) }
+    var signInBtnEnable by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(color = Color.White)
+            .verticalScroll(rememberScrollState())
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    // Clear focus on tap outside
+                    focusManager.clearFocus()
+                })
+            }
+            .padding(16.dp),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Top
+    ) {
+        Text(
+            text = "Registered Phone",
+            textAlign = TextAlign.Start,
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = state.regMobileNumber,
+            onValueChange = { newValue ->
+                val filteredValue = newValue.filter { it.isDigit() }
+                if (filteredValue.length <= 11) {
+                    onStateChange(state.copy(regMobileNumber = filteredValue))
+                }
+                if (filteredValue.length >= 10) {
+                    signInBtnEnable = true
+                } else {
+                    signInBtnEnable = false
+                }
+            },
+            placeholder = {
+                Text(text = "18xxxxxxxxx", color = Color.Gray)
+            },
+            leadingIcon = {
+                Row(
+                    modifier = Modifier
+                        .height(56.dp)
+                        .background(
+                            color = LightGray,
+                            shape = RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp)
+                        )
+                        .padding(start = 16.dp, end = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                )
+                {
+                    Image(
+                        painter = painterResource(Res.drawable.flag_bd),
+                        contentDescription = "Country Flag",
+                        modifier = Modifier
+                            .size(20.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(text = "+880")
+                }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Gray,
+                unfocusedIndicatorColor = BorderGray,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Phone,
+                imeAction = ImeAction.Done
+            ),
+            isError = isError,
+            shape = RoundedCornerShape(16.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Security PIN",
+            textAlign = TextAlign.Start,
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = state.password,
+            onValueChange = {
+                if (it.length <= 4)
+                    onStateChange(state.copy(password = it))
+            },
+            placeholder = {
+                Text(text = "Enter 4-digit PIN ", color = Color.Gray)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            trailingIcon = {
+                Icon(
+                    imageVector = if (isInputSecret) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                    contentDescription = "Password visibility",
+                    tint = Color.Gray,
+                    modifier = Modifier.clickable {
+                        isInputSecret = !isInputSecret
+                    }
+                )
+            },
+            visualTransformation = if (isInputSecret) {
+                PasswordVisualTransformation(mask = '*')
+            } else {
+                VisualTransformation.None
+            },
+            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.NumberPassword,
+                imeAction = ImeAction.Done
+            ),
+            shape = RoundedCornerShape(16.dp),
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Gray,
+                unfocusedIndicatorColor = BorderGray,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+            )
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Use your registered 4-digit PIN",
+            textAlign = TextAlign.Start,
+            style = MaterialTheme.typography.bodySmall,
+            color = NeutralGray500
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(modifier = Modifier.height(1.dp).fillMaxWidth().background(Color.LightGray)) { }
+            Text(
+                text = "or",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium,
+                color = NeutralGray500,
+                modifier = Modifier.background(Color.White)
+                    .padding(start = 20.dp, end = 20.dp, bottom = 2.dp),
+
+                )
+
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        )
+        {
+            RoundCornerIconButton(
+                text = "Google",
+                iconRes = Res.drawable.google,
+                contentDescription = "Google",
+                backgroundColor = Color.White,
+                paddingValues = PaddingValues(vertical = 10.dp, horizontal = 35.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            RoundCornerIconButton(
+                text = "Facebook",
+                iconRes = Res.drawable.facebook,
+                contentDescription = "Apple",
+                backgroundColor = Color.White,
+                paddingValues = PaddingValues(vertical = 10.dp, horizontal = 28.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Google is recommended for institutional accounts",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodySmall,
+            color = NeutralGray500,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                onAction(LoginScreenAction.OnSignInClick)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(16.dp),
+            enabled = signInBtnEnable,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent, // Make button background transparent,
+                disabledContainerColor = Color.Transparent // Make button background transparent
+            ),
+            contentPadding = PaddingValues(0.dp)
+
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .background(
+                        brush = if (signInBtnEnable) signInButtonBackgroundActive else signInButtonBackgroundInactive,
+                        shape = RoundedCornerShape(16.dp)
+                    ),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Sign in",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                if (state.loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(Res.drawable.right_arrow),
+                        contentDescription = "Continue arrow",
+                        tint = Color.White
+                    )
+                }
+            }
+
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Forgot your PIN?",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                textDecoration = TextDecoration.Underline
+            ),
+            color = ErrorRed,
+            modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
+
+            }
+        )
+    }
+}
+
+fun validatePhoneNumber(phone: String, onInvalid: (String) -> Unit): Boolean {
+    return when {
+        phone.isBlank() -> {
+            onInvalid("Phone number cannot be blank")
+            false
+        }
+
+        phone.length < 10 -> {
+            onInvalid("Phone number must be at least 10 digits")
+            false
+        }
+
+        !phone.replace(Regex("[^\\d]"), "").matches(Regex("\\d{10,15}")) -> {
+            onInvalid("Please enter a valid phone number")
+            false
+        }
+
+        else -> {
+            onInvalid("")
+            true
+        }
+    }
+}
+
+
+@Composable
+fun PhoneVerification(
     state: LoginScreenState,
     onStateChange: (LoginScreenState) -> Unit,
     onAction: (LoginScreenAction) -> Unit
@@ -343,9 +665,9 @@ fun NormalUserLogin(
                 if (filteredValue.length <= 11) {
                     onStateChange(state.copy(mobileNumber = filteredValue))
                 }
-                if(filteredValue.length >= 11){
+                if (filteredValue.length >= 11) {
                     continueBtnEnable = true
-                }else{
+                } else {
                     continueBtnEnable = false
                 }
             },
@@ -356,7 +678,10 @@ fun NormalUserLogin(
                 Row(
                     modifier = Modifier
                         .height(56.dp)
-                        .background(color = LightGray,shape = RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp))
+                        .background(
+                            color = LightGray,
+                            shape = RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp)
+                        )
                         .padding(start = 16.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
@@ -380,7 +705,10 @@ fun NormalUserLogin(
             ),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Phone,
+                imeAction = ImeAction.Done
+            ),
             isError = isError,
             shape = RoundedCornerShape(16.dp)
         )
@@ -403,7 +731,7 @@ fun NormalUserLogin(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column{
+            Column {
                 Text(
                     text = "Auto-read SMS",
                     textAlign = TextAlign.Start,
@@ -432,25 +760,27 @@ fun NormalUserLogin(
                     uncheckedTrackColor = Color.LightGray,
                     uncheckedThumbColor = Color.White,
                     uncheckedBorderColor = Color.White,
-                    ),
+                ),
                 interactionSource = remember { NoRippleInteractionSource() }
             )
         }
         Spacer(modifier = Modifier.height(24.dp))
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(20.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(20.dp),
             contentAlignment = Alignment.Center
-        ){
-            Column(modifier = Modifier.height(1.dp).fillMaxWidth().background(Color.LightGray)) {  }
+        ) {
+            Column(modifier = Modifier.height(1.dp).fillMaxWidth().background(Color.LightGray)) { }
             Text(
                 text = "or",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
                 color = NeutralGray500,
-                modifier = Modifier.background(Color.White).padding(start = 20.dp, end = 20.dp, bottom = 2.dp),
+                modifier = Modifier.background(Color.White)
+                    .padding(start = 20.dp, end = 20.dp, bottom = 2.dp),
 
-            )
+                )
 
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -482,7 +812,8 @@ fun NormalUserLogin(
         //continue button
         Button(
             onClick = {
-                onAction(LoginScreenAction.onLoginClick)
+                onAction(LoginScreenAction.OnLoginClick)
+
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -495,16 +826,15 @@ fun NormalUserLogin(
             ),
             contentPadding = PaddingValues(0.dp)
 
-        ){
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .background(
-                        brush = if(continueBtnEnable)continueButtonBackgroundActive else continueButtonBackgroundInactive,
+                        brush = if (continueBtnEnable) continueButtonBackgroundActive else continueButtonBackgroundInactive,
                         shape = RoundedCornerShape(16.dp)
-                    )
-                ,
+                    ),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -514,13 +844,13 @@ fun NormalUserLogin(
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                if(state.loading){
+                if (state.loading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         color = Color.White,
                         strokeWidth = 2.dp
                     )
-                }else {
+                } else {
                     Icon(
                         painter = painterResource(Res.drawable.right_arrow),
                         contentDescription = "Continue arrow",
@@ -535,16 +865,34 @@ fun NormalUserLogin(
 }
 
 @Composable
-fun NoticePosterLogin(
+fun OtpVerification(
     state: LoginScreenState,
     onStateChange: (LoginScreenState) -> Unit,
     onAction: (LoginScreenAction) -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
-    var isError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    var isInputSecret by remember { mutableStateOf(true) }
-    var signInBtnEnable by remember { mutableStateOf(false) }
+
+    var remainingTime by remember { mutableStateOf(60) }
+    var verifyButtonEnable by remember { mutableStateOf(false) }
+
+
+    LaunchedEffect(state.otpTimerEnabled) {
+        while (state.otpTimerEnabled && remainingTime > 0) {
+            delay(1000)
+            remainingTime--
+        }
+    }
+
+    val formattedTime by derivedStateOf {
+        val min = remainingTime / 60
+        val sec = remainingTime % 60
+        "$min:${sec.toString().padStart(2, '0')}"
+    }
+    if (remainingTime == 0) {
+        onStateChange(state.copy(otpTimerEnabled = false, otp = "1234"))
+    }
+
+
+
 
     Column(
         modifier = Modifier
@@ -552,254 +900,238 @@ fun NoticePosterLogin(
             .wrapContentHeight()
             .background(color = Color.White)
             .verticalScroll(rememberScrollState())
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    // Clear focus on tap outside
-                    focusManager.clearFocus()
-                })
-            }
             .padding(16.dp),
-        horizontalAlignment = Alignment.Start,
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Text(
-            text = "Registered Phone",
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.titleMedium,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = state.regMobileNumber,
-            onValueChange = { newValue ->
-                val filteredValue = newValue.filter { it.isDigit() }
-                if (filteredValue.length <= 11) {
-                    onStateChange(state.copy(regMobileNumber = filteredValue))
+        {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "right arrow icon",
+                tint = Color.Black,
+                modifier = Modifier.size(16.dp).clickable {
+                    onAction(LoginScreenAction.BackFromOTPVerification)
                 }
-                if(filteredValue.length >= 10){
-                    signInBtnEnable = true
-                }else{
-                    signInBtnEnable = false
-                }
-            },
-            placeholder = {
-                Text(text = "18xxxxxxxxx", color = Color.Gray)
-            },
-            leadingIcon = {
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Verify Your Number",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = VerifyTitleColor
+                )
                 Row(
                     modifier = Modifier
-                        .height(56.dp)
-                        .background(color = LightGray,shape = RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp))
-                        .padding(start = 16.dp, end = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                )
-                {
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
                     Image(
                         painter = painterResource(Res.drawable.flag_bd),
                         contentDescription = "Country Flag",
                         modifier = Modifier
                             .size(20.dp)
                     )
-                    Spacer(Modifier.width(6.dp))
-                    Text(text = "+880")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "+880 ${state.mobileNumber}",
+                        color = Color.Gray
+                    )
                 }
-            },
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Gray,
-                unfocusedIndicatorColor = BorderGray,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
-            isError = isError,
-            shape = RoundedCornerShape(16.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Security PIN",
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = state.password,
-            onValueChange = {
-                if(it.length<=4)
-                onStateChange(state.copy(password = it))
-            },
-            placeholder = {
-                Text(text = "Enter 4-digit PIN ", color = Color.Gray)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            trailingIcon = {
-                Icon(
-                    imageVector = if(isInputSecret)Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                    contentDescription = "Password visibility",
-                    tint = Color.Gray,
-                    modifier = Modifier.clickable {
-                        isInputSecret = !isInputSecret
-                    }
-                )
-            },
-            visualTransformation = if(isInputSecret){
-                PasswordVisualTransformation(mask = '*')
-            }else{
-                VisualTransformation.None
-            },
-            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done),
-            shape = RoundedCornerShape(16.dp),
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Gray,
-                unfocusedIndicatorColor = BorderGray,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-            )
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Use your registered 4-digit PIN",
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.bodySmall,
-            color = NeutralGray500
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(20.dp),
-            contentAlignment = Alignment.Center
-        ){
-            Column(modifier = Modifier.height(1.dp).fillMaxWidth().background(Color.LightGray)) {  }
-            Text(
-                text = "or",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium,
-                color = NeutralGray500,
-                modifier = Modifier.background(Color.White).padding(start = 20.dp, end = 20.dp, bottom = 2.dp),
-
-                )
-
+            }
         }
-        Spacer(modifier = Modifier.height(24.dp))
+
+        //code auto filled info box
+        Spacer(modifier = Modifier.height(16.dp))
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(70.dp)
+                .background(
+                    color = if (state.otp.isEmpty()) SurfaceBlue else GreenSurface,
+                    RoundedCornerShape(16.dp)
+                )
+                .border(
+                    1.dp,
+                    if (state.otp.isEmpty()) BorderBlue else GreenBorderLight,
+                    RoundedCornerShape(16.dp)
+                )
+                .padding(start = 14.dp, top = 4.dp, bottom = 4.dp, end = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
-        )
-        {
-            RoundCornerIconButton(
-                text = "Google",
-                iconRes = Res.drawable.google,
-                contentDescription = "Google",
-                backgroundColor = Color.White,
-                paddingValues = PaddingValues(vertical = 10.dp, horizontal = 35.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
             )
-            Spacer(modifier = Modifier.width(16.dp))
-            RoundCornerIconButton(
-                text = "Facebook",
-                iconRes = Res.drawable.facebook,
-                contentDescription = "Apple",
-                backgroundColor = Color.White,
-                paddingValues = PaddingValues(vertical = 10.dp, horizontal = 28.dp)
-            )
+            {
+                val infiniteTransition = rememberInfiniteTransition("rotation")
+
+                val rotation by infiniteTransition.animateFloat(
+                    initialValue = 360f,
+                    targetValue = 0f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 1000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "rotateAnim"
+                )
+
+                Image(
+                    painter = if (state.otp.isEmpty()) painterResource(Res.drawable.sync) else painterResource(Res.drawable.check_mark),
+                    contentDescription = "rotating icon",
+                    modifier = if (state.otp.isEmpty())
+                        Modifier.size(20.dp).rotate(rotation)
+                    else Modifier.size(20.dp),
+                    colorFilter =  if (state.otp.isNotEmpty()) ColorFilter.tint( PrimaryGreen) else ColorFilter.tint(PrimaryBlue)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(
+                        text = if (state.otp.isEmpty()) "Auto-reading SMS..." else "Code Auto-filled!",
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (state.otp.isEmpty()) PrimaryBlue else PrimaryGreen,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = if (state.otp.isEmpty()) "We''ll Find the code automatically when received" else "verification code has been entered automatically",
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 12.sp,
+                        color = if (state.otp.isEmpty()) SecondaryBlue else TertiaryGreen,
+                    )
+
+                }
+            }
+
         }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Enter the 4-digit code we sent",
+            style = MaterialTheme.typography.bodyMedium,
+            color = PrimaryTextAlt1,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OTPOutlinedTextBox(4, autoReadOTP = state.otp, onOTPComplete = {
+            onStateChange(state.copy(otp = it))
+            if (it.length == 4) {
+                onAction(LoginScreenAction.OnVerifyOtpClick)
+                verifyButtonEnable = true
+            } else {
+                verifyButtonEnable = false
+            }
+            //need to enable/disable verify button based on otp box filled up or not
+        })
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Google is recommended for institutional accounts",
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodySmall,
-            color = NeutralGray500,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        if (state.otpTimerEnabled) {
+            Text(
+                text = "Didn't receive the code?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = PrimaryTextAlt2
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Resend in $formattedTime",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = PrimaryGreen,
+            )
+        } else {
+            Row(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .background(color = Color.White)
+                    .border(1.dp, GreenBorderLight, RoundedCornerShape(16.dp))
+                    .padding(vertical = 8.dp, horizontal = 10.dp)
+                    .clickable {
+                        onAction(LoginScreenAction.OnResendOtpClick)
+                    }
+            ) {
+                Image(
+                    painter = painterResource(Res.drawable.sync),
+                    contentDescription = "rotating icon",
+                    colorFilter = ColorFilter.tint(PrimaryGreen),
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Resend Code",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = PrimaryGreen
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = {
-                onAction(LoginScreenAction.onSignInClick)
+                onAction(LoginScreenAction.OnResendOtpClick)
+
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
+            enabled = verifyButtonEnable,
             shape = RoundedCornerShape(16.dp),
-            enabled = signInBtnEnable,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent, // Make button background transparent,
-                disabledContainerColor = Color.Transparent // Make button background transparent
+                containerColor = Color.Transparent, // Make button background transparent
+                disabledContainerColor = Color.Transparent, // Make button background transparent
             ),
             contentPadding = PaddingValues(0.dp)
 
-        ){
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .background(
-                        brush = if(signInBtnEnable)signInButtonBackgroundActive else signInButtonBackgroundInactive,
+                        brush = if (verifyButtonEnable) continueButtonBackgroundActive else continueButtonBackgroundInactive,
                         shape = RoundedCornerShape(16.dp)
                     ),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Sign in",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                if(state.loading){
+                if (state.loading) {
+                    verifyButtonEnable = false
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         color = Color.White,
                         strokeWidth = 2.dp
                     )
-                }else {
-                    Icon(
-                        painter = painterResource(Res.drawable.right_arrow),
-                        contentDescription = "Continue arrow",
-                        tint = Color.White
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Verifing",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+
+                } else {
+                    //verifyButtonEnable = true
+                    Text(
+                        text = "Verify & Continue",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
                     )
                 }
             }
 
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Forgot your PIN?",
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                textDecoration = TextDecoration.Underline
-            ),
-            color = ErrorRed,
-            modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
 
-            }
-        )
     }
-}
 
-fun validatePhoneNumber(phone: String, onInvalid: (String) -> Unit): Boolean {
-    return when {
-        phone.isBlank() -> {
-            onInvalid("Phone number cannot be blank")
-            false
-        }
-
-        phone.length < 10 -> {
-            onInvalid("Phone number must be at least 10 digits")
-            false
-        }
-
-        !phone.replace(Regex("[^\\d]"), "").matches(Regex("\\d{10,15}")) -> {
-            onInvalid("Please enter a valid phone number")
-            false
-        }
-
-        else -> {
-            onInvalid("")
-            true
-        }
-    }
 }

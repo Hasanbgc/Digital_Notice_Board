@@ -80,6 +80,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import common.AuthTab
@@ -100,7 +101,7 @@ import login.component.TabWithHorizontalIcon
 import loginBackground
 import org.jetbrains.compose.resources.painterResource
 import registration.component.AnimatedProgressBar
-import registration.component.OTPOutlinedTextBox
+import common.OTPOutlinedTextBox
 
 @Composable
 fun RegistrationScreenRoot(
@@ -270,7 +271,7 @@ fun RegistrationScreen(
                                 selected = currentTab == AuthTab.NOTICE_POSTER,
                                 onClick = {
                                     viewModel.updateRegistrationState {
-                                        copy()
+                                        copy(selectedTab = AuthTab.NOTICE_POSTER)
                                     }
                                 },
                                 modifier = Modifier.padding(4.dp),
@@ -1222,7 +1223,7 @@ fun RegisterNoticePoster(
                 }
             }
             Text(
-                text = "more>>",
+                text = "more...",
                 modifier = Modifier
                     .padding(bottom = 8.dp, end = 2.dp)
                     .align(Alignment.BottomEnd)
@@ -1231,6 +1232,7 @@ fun RegisterNoticePoster(
                         onClick = {
                             onAction(RegistrationScreenAction.NoticePoster.MoreClicked)
                         }),
+                fontSize = 16.sp,
                 color = Color.Blue
             )
             if(state.moreClicked){
