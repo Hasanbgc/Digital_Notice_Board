@@ -51,6 +51,8 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.bundles.coil)
+            //implementation(libs.constraintLayout.compose)
+            implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
             implementation(project(":core:presentation"))
         }

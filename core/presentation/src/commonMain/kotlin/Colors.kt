@@ -101,3 +101,10 @@ val ViolateGradiant = Brush.linearGradient(
     start = Offset(0f, 0f),   // top-left
     end = Offset(Float.POSITIVE_INFINITY, 0f)
 )
+
+val FileCardGradiant = Brush.linearGradient(
+    colors= listOf(Color(0xFFF9FAFC),Color(0xFFEFF6FF),Color(0xFF4E3DF7))
+)
+val ShareButtonGradiant = Brush.linearGradient(
+    colors= listOf(Color(0xFF3378FF),Color(0xFF4E3DF7))
+)

@@ -1,15 +1,19 @@
 package home
 
+import AccentGreen
 import EmergenceyAlertRedBG
 import EmergencyIconBG
 import ErrorRed
+import FileCardGradiant
 import NeonEffect
 import PrimaryText
 import PrimaryTextAlt2
+import ShareButtonGradiant
 import ViolateGradiant
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,11 +37,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.HeartBroken
 import androidx.compose.material.icons.outlined.LocationCity
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -176,7 +187,7 @@ fun HomeScreen(
             }
 
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        /*Spacer(modifier = Modifier.height(8.dp))
 
         EmergencyNotice(
             poster = Poster.Emergency(
@@ -192,7 +203,7 @@ fun HomeScreen(
                 Topic.FIRE
             ), onNavigateToDetail = onNavigateToDetail
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(8.dp))*/
         NormalNotice(
             poster = Poster.Normal(
                 0,
@@ -214,7 +225,7 @@ fun HomeScreen(
                     institution = "Chittagong University",
                     designation = "Student"
                 ),
-                attachments = emptyList(),
+                attachments = listOf("Job_description.pdf", "Application_Form.docx"),
                 isFavorite = false,
                 shareCount = 23,
                 commentCount = 45,
@@ -378,16 +389,19 @@ fun NormalNotice(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(modifier = Modifier
-            .fillMaxWidth().animateContentSize(animationSpec = tween(durationMillis = 300))
+            .fillMaxWidth()
+            .heightIn(min = 500.dp)
+            .animateContentSize(animationSpec = tween(durationMillis = 300))
             .clickable { isExpanded = !isExpanded})
         {
 
             WaveFilledShape(
                 Modifier.size(40.dp).align(Alignment.TopEnd),
-                colors = listOf(Color.Green,Color.Yellow)
+                colors = listOf(Color.Green,AccentGreen)
             )
             Column(modifier = Modifier
-                .fillMaxWidth().padding(8.dp)) {
+                .fillMaxWidth().padding(12.dp).align(Alignment.TopStart))
+            {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ProfileImageWithPlaceholder(
                         modifier = Modifier.size(46.dp),
@@ -436,7 +450,7 @@ fun NormalNotice(
                         1 -> {
                             Card(modifier = Modifier
                                 .fillMaxWidth()
-                                .height(120.dp),
+                                .height(100.dp),
                                 shape = RoundedCornerShape(8.dp),
                             ) {
                                 AsyncImage(
@@ -454,7 +468,7 @@ fun NormalNotice(
                             ) {
                                 Card(modifier = Modifier
                                     .weight(1f)
-                                    .height(120.dp),
+                                    .height(100.dp),
                                     shape = RoundedCornerShape(8.dp),
                                 ) {
                                     AsyncImage(
@@ -467,7 +481,7 @@ fun NormalNotice(
 
                                 Card(modifier = Modifier
                                         .weight(1f)
-                                    .height(120.dp),
+                                    .height(100.dp),
                                     shape = RoundedCornerShape(8.dp),
                                 ) {
                                     Box(modifier = Modifier.fillMaxSize()) {
@@ -497,7 +511,83 @@ fun NormalNotice(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                for (attachment in poster.attachments) {
+                    Card(
+                        elevation = CardDefaults.cardElevation(1.dp),
+                        border = BorderStroke(0.5.dp, Color.LightGray),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .background(brush = FileCardGradiant)
+                            .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Icon(
+                                imageVector = Icons.Default.AttachFile,
+                                contentDescription = "File",
+                                modifier = Modifier
+                                    .background(brush = ShareButtonGradiant, shape = RoundedCornerShape(8.dp))
+                                    .padding(8.dp),
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = attachment,
+                                modifier = Modifier.padding()
+                            )
+
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                imageVector = Icons.Outlined.FileDownload,
+                                contentDescription = "Close",
+                                tint = Color.Blue
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                //Spacer(modifier = Modifier.height(14.dp))
             }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .background(brush = FileCardGradiant)
+                    .padding(16.dp)
+                    .align(Alignment.BottomCenter),
+                )
+            {
+                    Card(
+                        modifier = Modifier.wrapContentSize(),
+                        shape = RoundedCornerShape(20.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                    ) {
+                        Row(
+                            modifier = Modifier.wrapContentSize().padding(horizontal = 14.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ){
+                            Icon(
+                                imageVector = Icons.Outlined.HeartBroken,
+                                contentDescription = "like",
+                                modifier = Modifier.size(20.dp),
+                                tint = Color.Black
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "123",
+                                fontSize = 14.sp,
+                                color = Color.Black
+                            )
+                        }
+                    }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
 
         }
     }

@@ -39,7 +39,7 @@ mokoResource = "0.24.0"
 map-compose = "6.11.0"
 play-services-maps = "19.2.0"
 play-services-location = "21.0.1"
-
+constraintlayout-compose ="1.9.3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -95,6 +95,9 @@ moko-resource-compose-bridge = { group = "dev.icerock.moko", name = "resources-c
 maps-compose = {module = "com.google.maps.android:maps-compose", version.ref = "map-compose"}
 play-services-maps = {module = "com.google.android.gms:play-services-maps", version.ref = "play-services-maps"}
 play-services-location = {module = "com.google.android.gms:play-services-location", version.ref = "play-services-location"}
+
+constraintLayout-compose = { group = "org.jetbrains.compose.ui", name = "ui-constraintlayout", version.ref = "constraintlayout-compose" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
