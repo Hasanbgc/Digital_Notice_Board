@@ -103,8 +103,14 @@ val ViolateGradiant = Brush.linearGradient(
 )
 
 val FileCardGradiant = Brush.linearGradient(
-    colors= listOf(Color(0xFFF9FAFC),Color(0xFFEFF6FF),Color(0xFF4E3DF7))
+    colors= listOf(Color(0xFFF8FCFC),Color(0xFFF2F4FC))
 )
+
+val ButtonCardGradiant = Brush.linearGradient(
+    colors= listOf(Color(0xFFECF4FC),Color(0xFFCCE4FC))
+)
+
+
 val ShareButtonGradiant = Brush.linearGradient(
     colors= listOf(Color(0xFF3378FF),Color(0xFF4E3DF7))
 )

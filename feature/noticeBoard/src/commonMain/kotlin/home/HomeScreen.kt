@@ -1,16 +1,17 @@
 package home
 
 import AccentGreen
+import ButtonCardGradiant
 import EmergenceyAlertRedBG
 import EmergencyIconBG
 import ErrorRed
 import FileCardGradiant
 import NeonEffect
+import PrimaryBlue
 import PrimaryText
 import PrimaryTextAlt2
 import ShareButtonGradiant
 import ViolateGradiant
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -39,15 +40,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Comment
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.HeartBroken
-import androidx.compose.material.icons.outlined.LocationCity
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.MonitorHeart
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -62,32 +59,32 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.Key.Companion.R
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.PlatformContext
 import coil3.compose.AsyncImage
 import cornerStretchAnimation
 import digita_notice_board.feature.noticeboard.generated.resources.Res
+import digita_notice_board.feature.noticeboard.generated.resources.chat
+import digita_notice_board.feature.noticeboard.generated.resources.document
 import digita_notice_board.feature.noticeboard.generated.resources.fire_outlined
+import digita_notice_board.feature.noticeboard.generated.resources.flag
 import digita_notice_board.feature.noticeboard.generated.resources.flood
+import digita_notice_board.feature.noticeboard.generated.resources.heart
 import digita_notice_board.feature.noticeboard.generated.resources.load_shedding
 import digita_notice_board.feature.noticeboard.generated.resources.road_construction
+import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
 import home.component.CurvedCornerTriangle
 import home.component.ProfileImageWithPlaceholder
 import home.component.WaveFilledShape
-import io.ktor.client.request.invoke
-import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -376,6 +373,7 @@ fun EmergencyNotice(
 }
 
 @Composable
+
 fun NormalNotice(
     poster: Poster.Normal,
     onNavigateToDetail: (String) -> Unit
@@ -390,7 +388,7 @@ fun NormalNotice(
     ) {
         Box(modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 500.dp)
+            .heightIn(min = 470.dp)
             .animateContentSize(animationSpec = tween(durationMillis = 300))
             .clickable { isExpanded = !isExpanded})
         {
@@ -527,7 +525,7 @@ fun NormalNotice(
                             verticalAlignment = Alignment.CenterVertically
                         ){
                             Icon(
-                                imageVector = Icons.Default.AttachFile,
+                                painter = painterResource(Res.drawable.document),
                                 contentDescription = "File",
                                 modifier = Modifier
                                     .background(brush = ShareButtonGradiant, shape = RoundedCornerShape(8.dp))
@@ -544,50 +542,116 @@ fun NormalNotice(
                             Icon(
                                 imageVector = Icons.Outlined.FileDownload,
                                 contentDescription = "Close",
-                                tint = Color.Blue
+                                tint = PrimaryBlue
                             )
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-                //Spacer(modifier = Modifier.height(14.dp))
+
             }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .background(brush = FileCardGradiant)
+                    .background(brush = ButtonCardGradiant)
                     .padding(16.dp)
                     .align(Alignment.BottomCenter),
                 )
             {
-                    Card(
-                        modifier = Modifier.wrapContentSize(),
-                        shape = RoundedCornerShape(20.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                Card(
+                    modifier = Modifier.wrapContentSize(),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.wrapContentSize()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Row(
-                            modifier = Modifier.wrapContentSize().padding(horizontal = 14.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ){
-                            Icon(
-                                imageVector = Icons.Outlined.HeartBroken,
-                                contentDescription = "like",
-                                modifier = Modifier.size(20.dp),
-                                tint = Color.Black
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "123",
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            )
-                        }
+                        Icon(
+                            painter = painterResource(Res.drawable.heart),
+                            contentDescription = "like",
+                            modifier = Modifier.size(14.dp),
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "123",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
                     }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Card(
+                    modifier = Modifier.wrapContentSize(),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.wrapContentSize()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.share),
+                            contentDescription = "shared",
+                            modifier = Modifier.size(14.dp),
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "123",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Card(
+                    modifier = Modifier.wrapContentSize(),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.wrapContentSize()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.chat),
+                            contentDescription = "comments",
+                            modifier = Modifier.size(15.dp),
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "45",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    painter = painterResource(Res.drawable.flag),
+                    contentDescription = "right_arrow",
+                    tint = Color.Black,
+                    modifier = Modifier.size(20.dp)
+                        .align(Alignment.CenterVertically)
+                    ,
+                )
             }
-            Spacer(modifier = Modifier.height(12.dp))
 
         }
     }
