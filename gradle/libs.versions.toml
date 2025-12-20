@@ -40,6 +40,7 @@ map-compose = "6.11.0"
 play-services-maps = "19.2.0"
 play-services-location = "21.0.1"
 constraintlayout-compose ="1.9.3"
+kottie = "2.2.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -97,6 +98,7 @@ play-services-maps = {module = "com.google.android.gms:play-services-maps", vers
 play-services-location = {module = "com.google.android.gms:play-services-location", version.ref = "play-services-location"}
 
 constraintLayout-compose = { group = "org.jetbrains.compose.ui", name = "ui-constraintlayout", version.ref = "constraintlayout-compose" }
+kottie = {module = "io.github.ismai117:kottie",version.ref = "kottie"} #lottie-wrapper
 
 
 [plugins]

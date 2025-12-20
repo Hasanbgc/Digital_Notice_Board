@@ -23,7 +23,19 @@ class HomeViewModel: ViewModel() {
             HomeScreenAction.OnEmergencyAlertDismiss -> {}
             is HomeScreenAction.OnEmergencyPosterClicked -> {}
             is HomeScreenAction.OnImageClicked -> {}
-            is HomeScreenAction.OnLikeClicked -> {}
+            is HomeScreenAction.OnLikeClicked -> {
+                _homeScreenState.update {
+                    it.copy(
+                        poster = it.poster.map { poster ->
+                            if (poster is Poster.Normal && poster.id == action.id) {
+                                poster.copy(liked = if (action.liked)Like.LIKED else Like.UNLIKED ) // or !poster.liked to toggle
+                            } else {
+                                poster // Return unchanged poster
+                            }
+                        }
+                    )
+                }
+            }
             is HomeScreenAction.OnShareClicked -> {}
             is HomeScreenAction.OnCommentClicked -> {}
             HomeScreenAction.OnSavedClicked -> {}

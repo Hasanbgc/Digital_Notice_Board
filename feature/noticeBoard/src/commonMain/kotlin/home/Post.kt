@@ -1,19 +1,20 @@
 package home
 
 sealed class Poster {
-       data class Emergency(
-           val id: Int,
-           val title: String,
-           val description: String,
-           val date: String,
-           val distance: String,
-           val time: String,
-           val imageUrl: String,
-           val location: String,
-           val type:Type,
-           val topic: Topic,
-           var isExpanded: Boolean = false
+    data class Emergency(
+        val id: Int,
+        val title: String,
+        val description: String,
+        val date: String,
+        val distance: String,
+        val time: String,
+        val imageUrl: String,
+        val location: String,
+        val type: Type,
+        val topic: Topic,
+        var isExpanded: Boolean = false
     ) : Poster()
+
     data class Normal(
         val id: Int,
         val title: String,
@@ -23,7 +24,7 @@ sealed class Poster {
         val time: String,
         val imageUrlList: List<String>,
         val location: String,
-        val type:Type,
+        val type: Type,
         val profile: Profile,
         val attachments: List<String>,
         val isFavorite: Boolean,
@@ -32,7 +33,8 @@ sealed class Poster {
         val likeCount: Int,
         val isSaved: Boolean,
         val viewCount: Int,
-        var isExpanded: Boolean = false
+        var isExpanded: Boolean = false,
+        var liked: Like = Like.IDLE
     ) : Poster()
 
 }
@@ -69,4 +71,10 @@ enum class Topic {
     MISSING_PERSON,
     HEALTH_ALERT,
     WEATHER_WARNING
+}
+
+enum class Like{
+    IDLE,
+    LIKED,
+    UNLIKED
 }

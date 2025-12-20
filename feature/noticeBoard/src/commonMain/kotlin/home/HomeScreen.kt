@@ -6,6 +6,7 @@ import EmergenceyAlertRedBG
 import EmergencyIconBG
 import ErrorRed
 import FileCardGradiant
+import KottieAnimation
 import NeonEffect
 import PrimaryBlue
 import PrimaryText
@@ -52,6 +53,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -85,7 +87,14 @@ import digita_notice_board.feature.noticeboard.generated.resources.warning
 import home.component.CurvedCornerTriangle
 import home.component.ProfileImageWithPlaceholder
 import home.component.WaveFilledShape
+import kottieAnimationState.KottieAnimationState
+import kottieComposition.KottieCompositionResult
+import kottieComposition.KottieCompositionSpec
+import kottieComposition.animateKottieCompositionAsState
+import kottieComposition.rememberKottieComposition
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import utils.KottieConstants
 
 @Composable
 fun HomeScreenRoot(
@@ -98,16 +107,18 @@ fun HomeScreenRoot(
     HomeScreen(
         paddingValues = paddingValues,
         state = state,
+        onAction = viewModel::onAction,
         onNavigateToDetail = onNavigateToDetail
     )
 
 }
 
-//@Preview
+
 @Composable
 fun HomeScreen(
     paddingValues: PaddingValues,
     state: HomeScreenState,
+    onAction: (HomeScreenAction) -> Unit,
     onNavigateToDetail: (String) -> Unit
 ) {
     // UI code
@@ -138,9 +149,9 @@ fun HomeScreen(
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        if (state.poster.isEmpty()) {  //temporary only test purpose, it must be isNotEmpty()
-            var emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
-            emergencyNoticeCount = 2  //temporary only test purpose, it should be deleted
+        if (state.poster.isNotEmpty()) {
+            val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
+
             if (emergencyNoticeCount > 0) {
                 Row(
                     modifier = Modifier
@@ -184,79 +195,54 @@ fun HomeScreen(
             }
 
         }
-        /*Spacer(modifier = Modifier.height(8.dp))
-
-        EmergencyNotice(
-            poster = Poster.Emergency(
-                0,
-                "Flash Flood Warning",
-                "Heavy rainfall causing flood in low-laying areas. lorem ipsum dolor sit amet, consectetur adipiscing elit.  ",
-                "5/11/2025",
-                "2km away",
-                "5 min ago",
-                "",
-                "Dhanmondi Area",
-                Type.MEDIUM,
-                Topic.FIRE
-            ), onNavigateToDetail = onNavigateToDetail
-        )
-        Spacer(modifier = Modifier.height(8.dp))*/
-        NormalNotice(
-            poster = Poster.Normal(
-                0,
-                "University Admission Test Result Published",
-                description = "Results for the 2024 admission test are now available. Students can check their results using their registration number and celebrate their achievements!",
-                date = "5/11/2025",
-                distance = "2km away",
-                time = "5 min ago",
-                imageUrlList = listOf(
-                    "https://picsum.photos/id/10/400/300",
-                    "https://picsum.photos/id/20/400/300",
-                    "https://picsum.photos/id/30/400/300",
-                ),
-                location = "Dhanmondi Area",
-                type = Type.URGENT,
-                profile = Profile(
-                    name = "John Doe",
-                    imageUrl = "https://picsum.photos/id/10/400/300",
-                    institution = "Chittagong University",
-                    designation = "Student"
-                ),
-                attachments = listOf("Job_description.pdf", "Application_Form.docx"),
-                isFavorite = false,
-                shareCount = 23,
-                commentCount = 45,
-                likeCount = 123,
-                isSaved = false,
-                viewCount = 1250,
-                isExpanded = false
-            ),
-            onNavigateToDetail = onNavigateToDetail
-        )
-
+        Spacer(modifier = Modifier.height(8.dp))
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)
+            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 24.dp)
         )
         {
+            val emergencyNotice = state.poster.filterIsInstance<Poster.Emergency>()
             items(
-                items = state.poster,
+                items = emergencyNotice,
+                key = { notice -> notice.id.also{
+                    println("key e: $it")
+                } }
             ) { notice ->
-                when (notice) {
-                    is Poster.Emergency -> {
-                        EmergencyNotice(
-                            poster = notice,
-                            onNavigateToDetail = onNavigateToDetail
-                        )
-                    }
 
-                    is Poster.Normal -> {
-                        NormalNotice(
-                            poster = notice,
-                            onNavigateToDetail = onNavigateToDetail
-                        )
-                    }
+                EmergencyNotice(
+                    poster = notice,
+                    onNavigateToDetail = onNavigateToDetail
+                )
+            }
+            val normalNotice = state.poster.filterIsInstance<Poster.Normal>()
+            item {
+                Column(modifier = Modifier.padding(top = 12.dp, bottom = 10.dp)) {
+                    Text(
+                        text = "Personalized Feed",
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Notices tailored to your interests and location",
+                        fontSize = 12.sp,
+                        color = PrimaryTextAlt2
+                    )
                 }
+            }
+            items(
+                items = normalNotice,
+                key = { notice -> notice.id.also{
+                    println("key: $it")
+                }}
+            ) { notice ->
+                NormalNotice(
+                    poster = notice,
+                    onAction = onAction,
+                    onNavigateToDetail = onNavigateToDetail
+                )
             }
         }
     }
@@ -267,9 +253,19 @@ fun HomeScreen(
 fun EmergencyNotice(
     poster: Poster.Emergency,
     onNavigateToDetail: (String) -> Unit
-)
-{
-
+) {
+    var animation by remember { mutableStateOf("") }
+    val icon = getIcon(poster)
+    LaunchedEffect(Unit) {
+        animation = Res.readBytes(icon).decodeToString()
+    }
+    val composition = rememberKottieComposition(
+        spec = KottieCompositionSpec.JsonString(animation)
+    )
+    val animationState by animateKottieCompositionAsState(
+        composition = composition,
+        iterations = KottieConstants.IterateForever
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -283,29 +279,46 @@ fun EmergencyNotice(
     )
     {
 
-        Image(
-            painter = getIcon(poster),
-            contentDescription = "emergency",
-            modifier = Modifier
-                .size(30.dp)
+        KottieAnimation(
+            composition = composition,
+            modifier = Modifier.size(30.dp)
                 .clip(shape = CircleShape)
                 .background(color = EmergencyIconBG)
-                .padding(8.dp)
-
+                .padding(4.dp),
+            progress = { animationState.progress }
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(start = 8.dp)
-        ) {
-            Text(
-                text = poster.title,
-                fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(6.dp))
+        Column(modifier = Modifier.padding(start = 8.dp)) {
 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            {
+                Text(
+                    text = poster.title,
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f),
+                    maxLines = if (poster.isExpanded) Int.MAX_VALUE else 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Card(
+                    Modifier.wrapContentSize(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = EmergencyIconBG)
+                )
+                {
+                    Text(
+                        text = poster.type.name,
+                        fontSize = 12.sp,
+                        color = ErrorRed,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    )
+                }
+
+            }
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = poster.description,
                 fontSize = 12.sp,
@@ -315,8 +328,9 @@ fun EmergencyNotice(
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-            Row {
+            Row(modifier = Modifier.fillMaxWidth()) {
                 Row(
+                    modifier = Modifier.weight(0.7f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -329,7 +343,9 @@ fun EmergencyNotice(
                     Text(
                         text = "${poster.distance}, ${poster.location}",
                         fontSize = 12.sp,
-                        color = PrimaryTextAlt2
+                        color = PrimaryTextAlt2,
+                        maxLines = if (poster.isExpanded) Int.MAX_VALUE else 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
@@ -339,7 +355,7 @@ fun EmergencyNotice(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Timer,
-                        contentDescription = "location",
+                        contentDescription = "timer",
                         modifier = Modifier.size(12.dp),
                         tint = PrimaryTextAlt2
                     )
@@ -352,33 +368,22 @@ fun EmergencyNotice(
                 }
             }
         }
-
-        //Spacer(modifier = Modifier.weight(1f))
-
-        Card(
-            Modifier.wrapContentSize(),
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = EmergencyIconBG)
-        )
-        {
-            Text(
-                text = poster.type.name,
-                fontSize = 12.sp,
-                color = ErrorRed,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            )
-        }
-
     }
 }
 
 @Composable
-
 fun NormalNotice(
     poster: Poster.Normal,
+    onAction: (HomeScreenAction) -> Unit,
     onNavigateToDetail: (String) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
+    var showSeeMore by remember { mutableStateOf(false) }
+    var toggleLiked by remember { mutableStateOf(false) }
+    val animationLike = getAnimation("files/love.json", 1)
+    //val animationUnlike = getAnimation("file/heart.json",1)
+
+
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -386,87 +391,93 @@ fun NormalNotice(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 470.dp)
-            .animateContentSize(animationSpec = tween(durationMillis = 300))
-            .clickable { isExpanded = !isExpanded})
-        {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateContentSize(animationSpec = tween(durationMillis = 300))
+        ) {
 
             WaveFilledShape(
                 Modifier.size(40.dp).align(Alignment.TopEnd),
-                colors = listOf(Color.Green,AccentGreen)
+                colors = listOf(Color.Green, AccentGreen)
             )
-            Column(modifier = Modifier
-                .fillMaxWidth().padding(12.dp).align(Alignment.TopStart))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopStart)
+            )
             {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    ProfileImageWithPlaceholder(
-                        modifier = Modifier.size(46.dp),
-                        imageUrl = poster.profile.imageUrl,
-                        institutionName = poster.profile.institution,
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column(
-                        modifier = Modifier.wrapContentSize(
-                            align = Alignment.TopStart,
-                            unbounded = false
-                        )
-                    ) {
-                        Text(
-                            text = poster.profile.name,
-                            fontSize = MaterialTheme.typography.titleSmall.fontSize,
-                            color = PrimaryText,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = poster.profile.designation,
-                            fontSize = 12.sp,
-                            color = PrimaryTextAlt2
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = poster.title,
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = poster.description,
-                    fontSize = 12.sp,
-                    color = PrimaryTextAlt2,
-                    maxLines = if (isExpanded) Int.MAX_VALUE else 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp)
+                ) {
 
-                Spacer(modifier = Modifier.height(8.dp))
-                if (poster.imageUrlList.isNotEmpty()) {
-                    when (poster.imageUrlList.size) {
-                        1 -> {
-                            Card(modifier = Modifier
-                                .fillMaxWidth()
-                                .height(100.dp),
-                                shape = RoundedCornerShape(8.dp),
-                            ) {
-                                AsyncImage(
-                                    model = poster.imageUrlList[0],
-                                    contentDescription = "image",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        ProfileImageWithPlaceholder(
+                            modifier = Modifier.size(46.dp),
+                            imageUrl = poster.profile.imageUrl,
+                            institutionName = poster.profile.institution,
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column(
+                            modifier = Modifier.wrapContentSize(
+                                align = Alignment.TopStart,
+                                unbounded = false
+                            )
+                        ) {
+                            Text(
+                                text = poster.profile.name,
+                                fontSize = MaterialTheme.typography.titleSmall.fontSize,
+                                color = PrimaryText,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = poster.profile.designation,
+                                fontSize = 12.sp,
+                                color = PrimaryTextAlt2
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = poster.title,
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = poster.description,
+                        fontSize = 12.sp,
+                        color = PrimaryTextAlt2,
+                        maxLines = if (isExpanded) Int.MAX_VALUE else 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.clickable { isExpanded = !isExpanded },
+                        onTextLayout = {
+                            if (it.hasVisualOverflow) {
+                                showSeeMore = true
                             }
                         }
+                    )
+                    if (showSeeMore && !isExpanded) {
+                        Text(
+                            text = "see more",
+                            color = Color.Blue,
+                            modifier = Modifier.clickable { isExpanded = true }
+                        )
+                    }
 
-                        else -> {
-                            Row(modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Card(modifier = Modifier
-                                    .weight(1f)
-                                    .height(100.dp),
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if (poster.imageUrlList.isNotEmpty()) {
+                        when (poster.imageUrlList.size) {
+                            1 -> {
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(100.dp),
                                     shape = RoundedCornerShape(8.dp),
                                 ) {
                                     AsyncImage(
@@ -476,204 +487,392 @@ fun NormalNotice(
                                         contentScale = ContentScale.Crop
                                     )
                                 }
+                            }
 
-                                Card(modifier = Modifier
-                                        .weight(1f)
-                                    .height(100.dp),
-                                    shape = RoundedCornerShape(8.dp),
+                            else -> {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Box(modifier = Modifier.fillMaxSize()) {
+                                    Card(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(100.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                    ) {
                                         AsyncImage(
-                                            model = poster.imageUrlList[1],
+                                            model = poster.imageUrlList[0],
                                             contentDescription = "image",
                                             modifier = Modifier.fillMaxSize(),
                                             contentScale = ContentScale.Crop
                                         )
-                                        if(poster.imageUrlList.size > 2) {
-                                            Box(
-                                                modifier = Modifier.fillMaxSize()
-                                                    .background(color = Color.Black.copy(alpha = 0.6f)),
-                                                contentAlignment = Alignment.Center,
-                                            ) {
-                                                Text(
-                                                    text = "+${poster.imageUrlList.size - 2}",
-                                                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                                                    color = Color.White
-                                                )
+                                    }
+
+                                    Card(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(100.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                    ) {
+                                        Box(modifier = Modifier.fillMaxSize()) {
+                                            AsyncImage(
+                                                model = poster.imageUrlList[1],
+                                                contentDescription = "image",
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                            if (poster.imageUrlList.size > 2) {
+                                                Box(
+                                                    modifier = Modifier.fillMaxSize()
+                                                        .background(color = Color.Black.copy(alpha = 0.6f)),
+                                                    contentAlignment = Alignment.Center,
+                                                ) {
+                                                    Text(
+                                                        text = "+${poster.imageUrlList.size - 2}",
+                                                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                                        color = Color.White
+                                                    )
+                                                }
                                             }
                                         }
                                     }
-                                }
 
+                                }
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    //for (attachment in poster.attachments) {
+                    for (attachment in poster.attachments) {
+                        AttachmentCard(attachment = attachment)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-                for (attachment in poster.attachments) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .background(brush = ButtonCardGradiant)
+                        .padding(16.dp)
+                )
+                {
                     Card(
-                        elevation = CardDefaults.cardElevation(1.dp),
-                        border = BorderStroke(0.5.dp, Color.LightGray),
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp)
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .clickable(onClick = {
+                                toggleLiked = !toggleLiked
+                                onAction(HomeScreenAction.OnLikeClicked(poster.id, toggleLiked)) }
+                            ),
+                        shape = RoundedCornerShape(20.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
                     ) {
-                        Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .background(brush = FileCardGradiant)
-                            .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Icon(
-                                painter = painterResource(Res.drawable.document),
-                                contentDescription = "File",
-                                modifier = Modifier
-                                    .background(brush = ShareButtonGradiant, shape = RoundedCornerShape(8.dp))
-                                    .padding(8.dp),
-                                tint = Color.White
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(
-                                text = attachment,
-                                modifier = Modifier.padding()
-                            )
+                        Row(
+                            modifier = Modifier.wrapContentSize()
+                                .padding(horizontal = 14.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            when(poster.liked) {
+                                Like.IDLE -> {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.heart),
+                                        contentDescription = "like",
+                                        modifier = Modifier.size(14.dp),
+                                        tint = Color.Black
+                                    )
+                                }
+                                Like.LIKED -> {
+                                    val animationLike = getAnimation("files/love.json", 1)
+                                    KottieAnimation(
+                                        composition = animationLike.first,
+                                        modifier = Modifier.size(40.dp),
+                                        progress = { animationLike.second.progress }
+                                    )
+                                }
+                                Like.UNLIKED -> {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.heart),
+                                        contentDescription = "like",
+                                        modifier = Modifier.size(14.dp),
+                                        tint = Color.Black
+                                    )
+                                }
 
-                            Spacer(modifier = Modifier.weight(1f))
-                            Icon(
-                                imageVector = Icons.Outlined.FileDownload,
-                                contentDescription = "Close",
-                                tint = PrimaryBlue
+                            }
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "123",
+                                fontSize = 14.sp,
+                                color = Color.Black
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+                    Spacer(modifier = Modifier.width(12.dp))
 
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .background(brush = ButtonCardGradiant)
-                    .padding(16.dp)
-                    .align(Alignment.BottomCenter),
-                )
-            {
-                Card(
-                    modifier = Modifier.wrapContentSize(),
-                    shape = RoundedCornerShape(20.dp),
-                    elevation = CardDefaults.cardElevation(4.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    Row(
-                        modifier = Modifier.wrapContentSize()
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                    Card(
+                        modifier = Modifier.wrapContentSize(),
+                        shape = RoundedCornerShape(20.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
                     ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.heart),
-                            contentDescription = "like",
-                            modifier = Modifier.size(14.dp),
-                            tint = Color.Black
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "123",
-                            fontSize = 14.sp,
-                            color = Color.Black
-                        )
+                        Row(
+                            modifier = Modifier.wrapContentSize()
+                                .padding(horizontal = 14.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.share),
+                                contentDescription = "shared",
+                                modifier = Modifier.size(14.dp),
+                                tint = Color.Black
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "123",
+                                fontSize = 14.sp,
+                                color = Color.Black
+                            )
+                        }
                     }
-                }
-                Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
 
-                Card(
-                    modifier = Modifier.wrapContentSize(),
-                    shape = RoundedCornerShape(20.dp),
-                    elevation = CardDefaults.cardElevation(4.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    Row(
-                        modifier = Modifier.wrapContentSize()
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                    Card(
+                        modifier = Modifier.wrapContentSize(),
+                        shape = RoundedCornerShape(20.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
                     ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.share),
-                            contentDescription = "shared",
-                            modifier = Modifier.size(14.dp),
-                            tint = Color.Black
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "123",
-                            fontSize = 14.sp,
-                            color = Color.Black
-                        )
+                        Row(
+                            modifier = Modifier.wrapContentSize()
+                                .padding(horizontal = 14.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.chat),
+                                contentDescription = "comments",
+                                modifier = Modifier.size(15.dp),
+                                tint = Color.Black
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "45",
+                                fontSize = 14.sp,
+                                color = Color.Black
+                            )
+                        }
                     }
-                }
-                Spacer(modifier = Modifier.width(12.dp))
 
-                Card(
-                    modifier = Modifier.wrapContentSize(),
-                    shape = RoundedCornerShape(20.dp),
-                    elevation = CardDefaults.cardElevation(4.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    Row(
-                        modifier = Modifier.wrapContentSize()
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.chat),
-                            contentDescription = "comments",
-                            modifier = Modifier.size(15.dp),
-                            tint = Color.Black
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "45",
-                            fontSize = 14.sp,
-                            color = Color.Black
-                        )
-                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(
+                        painter = painterResource(Res.drawable.flag),
+                        contentDescription = "right_arrow",
+                        tint = Color.Black,
+                        modifier = Modifier.size(20.dp)
+                            .align(Alignment.CenterVertically),
+                    )
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(
-                    painter = painterResource(Res.drawable.flag),
-                    contentDescription = "right_arrow",
-                    tint = Color.Black,
-                    modifier = Modifier.size(20.dp)
-                        .align(Alignment.CenterVertically)
-                    ,
-                )
             }
 
         }
     }
 }
 
+@Composable
+fun AttachmentCard(
+    attachment: String
+) {
+    Card(
+        elevation = CardDefaults.cardElevation(1.dp),
+        border = BorderStroke(0.5.dp, Color.LightGray),
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(brush = FileCardGradiant)
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.document),
+                contentDescription = "File",
+                modifier = Modifier
+                    .background(brush = ShareButtonGradiant, shape = RoundedCornerShape(8.dp))
+                    .padding(8.dp),
+                tint = Color.White
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = attachment,
+                modifier = Modifier.padding()
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+            Icon(
+                imageVector = Icons.Outlined.FileDownload,
+                contentDescription = "Close",
+                tint = PrimaryBlue
+            )
+        }
+    }
+}
+
 
 @Composable
-fun getIcon(poster: Poster.Emergency) = when (poster.topic) {
-    Topic.FIRE -> painterResource(Res.drawable.fire_outlined)
-    Topic.FLOOD -> painterResource(Res.drawable.flood)
-    Topic.LOAD_SHEDDING -> painterResource(Res.drawable.load_shedding)
-    Topic.ROAD_CONSTRUCTION -> painterResource(Res.drawable.road_construction)
-    Topic.EARTHQUAKE -> TODO()
-    Topic.GAS_LEAK -> TODO()
-    Topic.ACCIDENT -> TODO()
-    Topic.STORM -> TODO()
-    Topic.CYCLONE -> TODO()
-    Topic.WATER_SUPPLY_DISRUPTION -> TODO()
-    Topic.ELECTRICITY_OUTAGE -> TODO()
-    Topic.TRAFFIC_JAM -> TODO()
-    Topic.POLICE_ALERT -> TODO()
-    Topic.MISSING_PERSON -> TODO()
-    Topic.HEALTH_ALERT -> TODO()
-    Topic.WEATHER_WARNING -> TODO()
+fun getIcon(poster: Poster.Emergency): String {
+    return when (poster.topic) {
+        Topic.FIRE -> "files/fire.json"
+        Topic.FLOOD -> TODO() // painterResource(Res.drawable.flood)
+        Topic.LOAD_SHEDDING -> TODO() // painterResource(Res.drawable.load_shedding)
+        Topic.ROAD_CONSTRUCTION -> TODO() // painterResource(Res.drawable.road_construction)
+        Topic.EARTHQUAKE -> TODO()
+        Topic.GAS_LEAK -> TODO()
+        Topic.ACCIDENT -> TODO()
+        Topic.STORM -> TODO()
+        Topic.CYCLONE -> TODO()
+        Topic.WATER_SUPPLY_DISRUPTION -> TODO()
+        Topic.ELECTRICITY_OUTAGE -> TODO()
+        Topic.TRAFFIC_JAM -> TODO()
+        Topic.POLICE_ALERT -> TODO()
+        Topic.MISSING_PERSON -> TODO()
+        Topic.HEALTH_ALERT -> TODO()
+        Topic.WEATHER_WARNING -> TODO()
+    }
 }
+
+@Composable
+fun getAnimation(
+    filePath: String,
+    iterations: Int = 1
+): Pair<KottieCompositionResult, KottieAnimationState> {
+    var animation by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        animation = Res.readBytes(filePath).decodeToString()
+    }
+    val composition = rememberKottieComposition(
+        spec = KottieCompositionSpec.JsonString(animation)
+    )
+    val animationState by animateKottieCompositionAsState(
+        composition = composition,
+        iterations = iterations
+    )
+    return Pair(composition, animationState)
+}
+
+//@Preview
+@Composable
+fun HomeScreenPreview() {
+    MaterialTheme {
+        HomeScreen(
+            paddingValues = PaddingValues(0.dp),
+            state = HomeScreenState(
+                isLoading = false,
+                poster = listOf(
+                    Poster.Normal(
+                        0,
+                        "University Admission Test Result Published",
+                        description = "Results for the 2024 admission test are now available. Students can check their results using their registration number and celebrate their achievements!,Results for the 2024 admission test are now available. Students can check their results using their registration number and celebrate their achievements!",
+                        date = "5/11/2025",
+                        distance = "2km away",
+                        time = "5 min ago",
+                        imageUrlList = listOf(
+                            "https://picsum.photos/id/10/400/300",
+                            "https://picsum.photos/id/20/400/300",
+                            "https://picsum.photos/id/30/400/300",
+                        ),
+                        location = "Dhanmondi Area",
+                        type = Type.URGENT,
+                        profile = Profile(
+                            name = "John Doe",
+                            imageUrl = "https://picsum.photos/id/10/400/300",
+                            institution = "Chittagong University",
+                            designation = "Student"
+                        ),
+                        attachments = listOf("Job_description.pdf", "Application_Form.docx"),
+                        isFavorite = false,
+                        shareCount = 23,
+                        commentCount = 45,
+                        likeCount = 123,
+                        isSaved = false,
+                        viewCount = 1250,
+                        isExpanded = false
+                    )
+                ),
+                error = null,
+                isEmergencyPosterExpanded = false
+            ),
+            onAction = {},
+            onNavigateToDetail = { },
+        )
+    }
+}
+
+@Preview
+@Composable
+fun NormalPosterPreview() {
+    NormalNotice(
+        Poster.Normal(
+            0,
+            "University Admission Test Result Published",
+            description = "Results for the 2024 admission test are now available. Students can check their results using their registration number and celebrate their achievements!,Results for the 2024 admission test are now available. Students can check their results using their registration number and celebrate their achievements!",
+            date = "5/11/2025",
+            distance = "2km away",
+            time = "5 min ago",
+            imageUrlList = listOf(
+                "https://picsum.photos/id/10/400/300",
+                "https://picsum.photos/id/20/400/300",
+                "https://picsum.photos/id/30/400/300",
+            ),
+            location = "Dhanmondi Area",
+            type = Type.URGENT,
+            profile = Profile(
+                name = "John Doe",
+                imageUrl = "https://picsum.photos/id/10/400/300",
+                institution = "Chittagong University",
+                designation = "Student"
+            ),
+            attachments = listOf(
+                "Job_description.pdf",
+                "Application_Form.docx",
+                "Application_Form.docx"
+            ),
+            isFavorite = false,
+            shareCount = 23,
+            commentCount = 45,
+            likeCount = 123,
+            isSaved = false,
+            viewCount = 1250,
+            isExpanded = false
+        ),
+        onAction = { },
+        onNavigateToDetail = { }
+    )
+}
+
+@Preview
+@Composable
+fun EmergencyPosterPreview() {
+    EmergencyNotice(
+        poster = Poster.Emergency(
+            0,
+            "Flash Flood Warning, Please Stay Away From There",
+            "Heavy rainfall causing flood in low-laying areas. lorem ipsum dolor sit amet, consectetur adipiscing elit.  ",
+            "5/11/2025",
+            "2km away",
+            "5 min ago",
+            "",
+            "Dhanmondi Area, Near Dhaka University",
+            Type.MEDIUM,
+            Topic.FIRE
+        ),
+        onNavigateToDetail = { }
+    )
+}
+
+
