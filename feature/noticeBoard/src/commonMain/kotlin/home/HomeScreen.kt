@@ -51,6 +51,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,6 +63,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.Key.Companion.R
 import androidx.compose.ui.layout.ContentScale
@@ -85,6 +87,7 @@ import digita_notice_board.feature.noticeboard.generated.resources.road_construc
 import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
 import home.component.CurvedCornerTriangle
+import home.component.FloatingAddButton
 import home.component.ProfileImageWithPlaceholder
 import home.component.WaveFilledShape
 import kottieAnimationState.KottieAnimationState
@@ -121,128 +124,144 @@ fun HomeScreen(
     onAction: (HomeScreenAction) -> Unit,
     onNavigateToDetail: (String) -> Unit
 ) {
-    // UI code
-    Column(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = "Notice Board",
-                modifier = Modifier
-                    .align(Alignment.Start),
-                style = TextStyle(
-                    brush = ViolateGradiant,
-                    fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-            )
-            Text(
-                text = "Stay updated with important notices",
-                modifier = Modifier
-                    .align(Alignment.Start),
-                color = PrimaryTextAlt2,
-                fontSize = 12.sp
-            )
-
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        floatingActionButton = {
+            FloatingAddButton(
+                modifier = Modifier.size(70.dp),
+            ){
+                onAction(HomeScreenAction.PostANoticeClicked)
+            }
         }
+    ) {
 
-        Spacer(modifier = Modifier.height(8.dp))
-        if (state.poster.isNotEmpty()) {
-            val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
-
-            if (emergencyNoticeCount > 0) {
-                Row(
+        // UI code
+        Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = "Notice Board",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .background(color = EmergenceyAlertRedBG)
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-
-                )
-                {
-                    Icon(
-                        painter = painterResource(Res.drawable.warning),
-                        contentDescription = "warning",
-                        modifier = Modifier.size(20.dp).cornerStretchAnimation(),
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Emergency Alerts",
-                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
-                        )
-                        Text(
-                            text = "$emergencyNoticeCount active emergencies in your area",
-                            fontSize = 12.sp,
-                            color = Color.White
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "right_arrow",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(bottom = 24.dp)
-        )
-        {
-            val emergencyNotice = state.poster.filterIsInstance<Poster.Emergency>()
-            items(
-                items = emergencyNotice,
-                key = { notice -> notice.id.also{
-                    println("key e: $it")
-                } }
-            ) { notice ->
-
-                EmergencyNotice(
-                    poster = notice,
-                    onNavigateToDetail = onNavigateToDetail
-                )
-            }
-            val normalNotice = state.poster.filterIsInstance<Poster.Normal>()
-            item {
-                Column(modifier = Modifier.padding(top = 12.dp, bottom = 10.dp)) {
-                    Text(
-                        text = "Personalized Feed",
-                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                        .align(Alignment.Start),
+                    style = TextStyle(
+                        brush = ViolateGradiant,
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight.SemiBold
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Notices tailored to your interests and location",
-                        fontSize = 12.sp,
-                        color = PrimaryTextAlt2
+
+                )
+                Text(
+                    text = "Stay updated with important notices",
+                    modifier = Modifier
+                        .align(Alignment.Start),
+                    color = PrimaryTextAlt2,
+                    fontSize = 12.sp
+                )
+
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            if (state.poster.isNotEmpty()) {
+                val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
+
+                if (emergencyNoticeCount > 0) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .background(color = EmergenceyAlertRedBG)
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+
+                    )
+                    {
+                        Icon(
+                            painter = painterResource(Res.drawable.warning),
+                            contentDescription = "warning",
+                            modifier = Modifier.size(20.dp).cornerStretchAnimation(),
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = "Emergency Alerts",
+                                fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "$emergencyNoticeCount active emergencies in your area",
+                                fontSize = 12.sp,
+                                color = Color.White
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "right_arrow",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 24.dp)
+            )
+            {
+                val emergencyNotice = state.poster.filterIsInstance<Poster.Emergency>()
+                items(
+                    items = emergencyNotice,
+                    key = { notice ->
+                        notice.id.also {
+                            println("key e: $it")
+                        }
+                    }
+                ) { notice ->
+
+                    EmergencyNotice(
+                        poster = notice,
+                        onNavigateToDetail = onNavigateToDetail
                     )
                 }
-            }
-            items(
-                items = normalNotice,
-                key = { notice -> notice.id.also{
-                    println("key: $it")
-                }}
-            ) { notice ->
-                NormalNotice(
-                    poster = notice,
-                    onAction = onAction,
-                    onNavigateToDetail = onNavigateToDetail
-                )
+                val normalNotice = state.poster.filterIsInstance<Poster.Normal>()
+                item {
+                    Column(modifier = Modifier.padding(top = 12.dp, bottom = 10.dp)) {
+                        Text(
+                            text = "Personalized Feed",
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Notices tailored to your interests and location",
+                            fontSize = 12.sp,
+                            color = PrimaryTextAlt2
+                        )
+                    }
+                }
+                items(
+                    items = normalNotice,
+                    key = { notice ->
+                        notice.id.also {
+                            println("key: $it")
+                        }
+                    }
+                ) { notice ->
+                    NormalNotice(
+                        poster = notice,
+                        onAction = onAction,
+                        onNavigateToDetail = onNavigateToDetail
+                    )
+                }
             }
         }
     }
@@ -587,7 +606,10 @@ fun NormalNotice(
                                     val animationLike = getAnimation("files/love.json", 1)
                                     KottieAnimation(
                                         composition = animationLike.first,
-                                        modifier = Modifier.size(40.dp),
+                                        modifier = Modifier.size(14.dp).graphicsLayer{
+                                            scaleX = 5.4f
+                                            scaleY = 5.9f
+                                        },
                                         progress = { animationLike.second.progress }
                                     )
                                 }
@@ -748,7 +770,8 @@ fun getIcon(poster: Poster.Emergency): String {
 @Composable
 fun getAnimation(
     filePath: String,
-    iterations: Int = 1
+    iterations: Int = 1,
+    reverse: Boolean = false
 ): Pair<KottieCompositionResult, KottieAnimationState> {
     var animation by remember { mutableStateOf("") }
 
@@ -760,7 +783,8 @@ fun getAnimation(
     )
     val animationState by animateKottieCompositionAsState(
         composition = composition,
-        iterations = iterations
+        iterations = iterations,
+        reverseOnRepeat = reverse
     )
     return Pair(composition, animationState)
 }
