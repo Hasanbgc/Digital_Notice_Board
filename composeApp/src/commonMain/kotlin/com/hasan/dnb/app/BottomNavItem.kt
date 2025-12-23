@@ -51,7 +51,7 @@ val bottomNavItems = listOf(
 
 @Composable
 fun SwipeableBottomNavigationBar(
-    selectedIndex:Int,
+    selectedIndex: BottomNavItem,
     onItemClick: (Int) -> Unit,
     modifier: Modifier
 ) {
@@ -62,7 +62,7 @@ fun SwipeableBottomNavigationBar(
         modifier = modifier
     ) {
         bottomNavItems.forEachIndexed { index, item ->
-            val isSelected = selectedIndex == index
+            val isSelected = selectedIndex == item
 
             NavigationBarItem(
                 icon = {

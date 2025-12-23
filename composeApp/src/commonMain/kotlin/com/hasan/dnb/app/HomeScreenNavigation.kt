@@ -16,7 +16,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,13 +43,11 @@ fun HomeScreen(
     paddingValues: PaddingValues,
     modifier: Modifier = Modifier
 ) {
-    //val navController = rememberNavController()
+    val pagerState = rememberPagerState(pageCount = { bottomNavItems.size })
 
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        initialPageOffsetFraction = 0f,
-        pageCount = { bottomNavItems.size }
-    )
+    val currentScreen by remember {
+        derivedStateOf { bottomNavItems[pagerState.currentPage] }
+    }
     // Get the coroutine scope from Compose
     val scope = rememberCoroutineScope()
 
@@ -58,7 +58,7 @@ fun HomeScreen(
     Scaffold(
         bottomBar = {
             SwipeableBottomNavigationBar(
-                selectedIndex = pagerState.currentPage,
+                selectedIndex = currentScreen,
                 onItemClick = { index ->
                     scope.launch {
                         pagerState.animateScrollToPage(index)
@@ -73,20 +73,21 @@ fun HomeScreen(
             state = pagerState,
             modifier = Modifier.fillMaxSize().padding(paddingValues)
         ){page ->
-            when(page){
-                0 -> {
+            val destination = bottomNavItems[page].destination
+            when(destination){
+                MainDestination.Home -> {
                     val viewModel: HomeViewModel = viewModel()
                     HomeScreenRoot(paddingValues,viewModel){
 
                     }
                 }
-                1 -> {
+                MainDestination.Profile -> {
                     val viewModel: ProfileViewModel = viewModel()
                     ProfileScreenRoot(viewModel){
 
                     }
                 }
-                2 -> {
+                MainDestination.Settings -> {
                     val viewModel: SettingsViewModel = viewModel()
                     SettingsScreenRoot(viewModel){
 
@@ -94,29 +95,6 @@ fun HomeScreen(
                 }
             }
 
-        /*NavHost(
-            navController = navController,
-            startDestination = MainDestination.Home,
-            modifier = modifier.fillMaxSize().padding(paddingValues)
-        ) {
-           composable<MainDestination.Home>{
-               val viewModel: HomeViewModel = viewModel()
-               HomeScreenRoot(viewModel){
-
-               }
-           }
-            composable<MainDestination.Profile> {
-                val viewModel: ProfileViewModel = viewModel()
-                ProfileScreenRoot(viewModel){
-
-                }
-            }
-            composable<MainDestination.Settings> {
-                val viewModel: SettingsViewModel = viewModel()
-                SettingsScreenRoot(viewModel){
-
-                }
-            }*/
         }
     }
 }
