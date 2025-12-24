@@ -11,16 +11,16 @@ class HomeViewModel: ViewModel() {
     val _homeScreenState = MutableStateFlow(HomeScreenState())
     val state = _homeScreenState.asStateFlow()
 
-    fun updateHomeState(state: HomeScreenState){
+   /* fun updateHomeState(state: HomeScreenState){
         _homeScreenState.update { it.copy(
             isLoading = state.isLoading,
             poster = state.poster,
             error = state.error
         ) }
-    }
+    }*/
     fun onAction(action: HomeScreenAction) {
         when (action) {
-            HomeScreenAction.OnEmergencyAlertDismiss -> {}
+            HomeScreenAction.OnEmergencyAlertDismiss -> toggleEmergencyAlert(true)
             is HomeScreenAction.OnEmergencyPosterClicked -> {}
             is HomeScreenAction.OnImageClicked -> {}
             is HomeScreenAction.OnLikeClicked -> {
@@ -42,7 +42,18 @@ class HomeViewModel: ViewModel() {
             is HomeScreenAction.OnProfileClicked -> {}
             is HomeScreenAction.OnLocationClicked -> {}
             is HomeScreenAction.PostANoticeClicked -> {}
+            is HomeScreenAction.OnNotificationClicked -> toggleEmergencyAlert(false)
         }
     }
+
+    fun toggleEmergencyAlert(toggle:Boolean){
+        _homeScreenState.update {
+            it.copy(
+                emergencyAlertClosed = toggle
+            )
+        }
+
+    }
+
 
 }

@@ -11,5 +11,5 @@ sealed interface HomeScreenAction {
     data class OnProfileClicked(val id:Int): HomeScreenAction
     data class OnLocationClicked(val id:Int): HomeScreenAction
     object PostANoticeClicked: HomeScreenAction
-
+    data object OnNotificationClicked: HomeScreenAction
 }

@@ -41,6 +41,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Comment
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.HeartBroken
@@ -137,33 +138,60 @@ fun HomeScreen(
 
         // UI code
         Column(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = "Notice Board",
-                    modifier = Modifier
-                        .align(Alignment.Start),
-                    style = TextStyle(
-                        brush = ViolateGradiant,
-                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                        fontWeight = FontWeight.SemiBold
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                Column(
+                    modifier = Modifier.wrapContentHeight().padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                )
+                {
+                    Text(
+                        text = "Notice Board",
+                        modifier = Modifier
+                            .align(Alignment.Start),
+                        style = TextStyle(
+                            brush = ViolateGradiant,
+                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                            fontWeight = FontWeight.SemiBold
+                        )
+
+                    )
+                    Text(
+                        text = "Stay updated with important notices",
+                        modifier = Modifier
+                            .align(Alignment.Start),
+                        color = PrimaryTextAlt2,
+                        fontSize = 12.sp
                     )
 
-                )
-                Text(
-                    text = "Stay updated with important notices",
-                    modifier = Modifier
-                        .align(Alignment.Start),
-                    color = PrimaryTextAlt2,
-                    fontSize = 12.sp
-                )
-
+                }
+                Row(
+                    modifier = Modifier.wrapContentHeight().padding(8.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    if(state.emergencyAlertClosed) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "notification",
+                            tint = EmergenceyAlertRedBG,
+                            modifier = Modifier
+                                .size(30.dp)
+                                .clickable(
+                                    onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
+                                )
+                        )
+                    }
+                }
             }
 
+
             Spacer(modifier = Modifier.height(8.dp))
-            if (state.poster.isNotEmpty()) {
+            if (state.poster.isNotEmpty() && !state.emergencyAlertClosed) {
                 val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
 
                 if (emergencyNoticeCount > 0) {
@@ -203,7 +231,11 @@ fun HomeScreen(
                             imageVector = Icons.Default.Close,
                             contentDescription = "right_arrow",
                             tint = Color.White,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable(
+                                    onClick = {onAction(HomeScreenAction.OnEmergencyAlertDismiss)}
+                                )
                         )
                     }
                 }
@@ -218,6 +250,9 @@ fun HomeScreen(
             )
             {
                 val emergencyNotice = state.poster.filterIsInstance<Poster.Emergency>()
+                val normalNotice = state.poster.filterIsInstance<Poster.Normal>()
+
+                if(!state.emergencyAlertClosed) {
                 items(
                     items = emergencyNotice,
                     key = { notice ->
@@ -227,12 +262,13 @@ fun HomeScreen(
                     }
                 ) { notice ->
 
-                    EmergencyNotice(
-                        poster = notice,
-                        onNavigateToDetail = onNavigateToDetail
-                    )
+                        EmergencyNotice(
+                            poster = notice,
+                            onNavigateToDetail = onNavigateToDetail
+                        )
+
                 }
-                val normalNotice = state.poster.filterIsInstance<Poster.Normal>()
+
                 item {
                     Column(modifier = Modifier.padding(top = 12.dp, bottom = 10.dp)) {
                         Text(
@@ -247,6 +283,7 @@ fun HomeScreen(
                             color = PrimaryTextAlt2
                         )
                     }
+                }
                 }
                 items(
                     items = normalNotice,

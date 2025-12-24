@@ -4,7 +4,10 @@ data class HomeScreenState(
     val isLoading: Boolean = false,
     val poster: List<Poster> = posterList,
     val error: String? = null,
+
+    //internal state
     val isEmergencyPosterExpanded: Boolean = false,
+    val emergencyAlertClosed: Boolean = false
 )
 val posterList = listOf(
     Poster.Emergency(
