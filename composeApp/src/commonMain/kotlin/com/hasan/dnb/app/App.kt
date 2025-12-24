@@ -26,9 +26,9 @@ fun App() {
 
         NavHost(
             navController = navController,
-            startDestination = AppDestination.Main,
+            startDestination = AppDestination.Auth,
         ) {
-            composable<AppDestination.Splash> {
+            /*composable<AppDestination.Splash> {
                 val viewModel: SplashViewModel = viewModel()
                 SplashScreenRoot(viewModel) { destination ->
                     when (destination) {
@@ -43,7 +43,7 @@ fun App() {
                         else -> {}
                     }
                 }
-            }
+            }*/
             composable<AppDestination.Auth> {
                 val viewModel: LoginViewModel = viewModel()
                 LoginScreenRoot(innerPadding,viewModel) {

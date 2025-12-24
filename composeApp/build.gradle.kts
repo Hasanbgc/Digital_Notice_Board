@@ -51,11 +51,14 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.maps.compose)
             implementation(libs.play.services.maps)
+            implementation(libs.androidx.core.splashScreen)
+            implementation(compose.material3)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
           //  implementation("androidx.compose.animation:animation:1.5.1")
+            implementation(libs.android.material)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -81,6 +84,8 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
             implementation(compose.foundation)
+
+            implementation(libs.androidx.core.splashScreen)
 
             implementation(project(":core:data"))
             implementation(project(":core:domain"))
