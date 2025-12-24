@@ -21,13 +21,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import home.HomeScreenRoot
 import home.HomeViewModel
 import kotlinx.coroutines.launch
-import navigation.MainDestination
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
 fun HomeScreen(
-    paddingValues: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val pagerState = rememberPagerState(pageCount = { bottomNavItems.size })

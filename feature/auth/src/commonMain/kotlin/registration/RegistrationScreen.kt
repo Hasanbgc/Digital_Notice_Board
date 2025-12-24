@@ -59,6 +59,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabPosition
@@ -105,27 +106,29 @@ import common.OTPOutlinedTextBox
 
 @Composable
 fun RegistrationScreenRoot(
-    paddingValues: PaddingValues,
     viewModel: RegistrationViewModel,
+    onBack: () -> Unit,
     onRegistrationSuccess: () -> Unit
 ) {
-    val state by viewModel.registrationScreenState.collectAsStateWithLifecycle()
-    RegistrationScreen(
-        safePadding = paddingValues,
-        state = state,
-        viewModel = viewModel,
-        onAction = viewModel::onAction,
-        onStateChange = { updatedState ->
-            viewModel.updateRegistrationState(
-                updateState = {
-                    updatedState
-                }
-            )
-        },
-        onRegistrationSuccess = {
-            onRegistrationSuccess()
-        }
-    )
+    Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
+        val state by viewModel.registrationScreenState.collectAsStateWithLifecycle()
+        RegistrationScreen(
+            safePadding = paddingValues,
+            state = state,
+            viewModel = viewModel,
+            onAction = viewModel::onAction,
+            onStateChange = { updatedState ->
+                viewModel.updateRegistrationState(
+                    updateState = {
+                        updatedState
+                    }
+                )
+            },
+            onRegistrationSuccess = {
+                onRegistrationSuccess()
+            }
+        )
+    }
 
 }
 
@@ -250,7 +253,7 @@ fun RegistrationScreen(
                                 selected = currentTab == AuthTab.NORMAL_USER,
                                 onClick = {
                                     viewModel.updateRegistrationState {
-                                        copy(selectedTab = AuthTab.NORMAL_USER,)
+                                        copy(selectedTab = AuthTab.NORMAL_USER)
                                     }
                                 },
                                 modifier = Modifier.padding(4.dp),
@@ -463,7 +466,7 @@ fun PhoneVerification(
             onValueChange = { newValue ->
                 val filteredValue = newValue.filter { it.isDigit() }
                 if (filteredValue.length <= 11) {
-                    onStateChange(state.copy(mobileNumber = filteredValue,))
+                    onStateChange(state.copy(mobileNumber = filteredValue))
                 }
                 if (filteredValue.length >= 11) {
                     sendCodeBtnEnable = true
@@ -1091,15 +1094,18 @@ fun RegisterNoticePoster(
         OutlinedTextField(
             value = state.name,
             onValueChange = {
-                if(it.length<=4)
-                    onStateChange(state.copy(name = it,))
+                if (it.length <= 4)
+                    onStateChange(state.copy(name = it))
             },
             placeholder = {
                 Text(text = "Enter your full name", color = Color.Gray)
             },
             modifier = Modifier.fillMaxWidth(),
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            ),
             shape = RoundedCornerShape(16.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Gray,
@@ -1125,7 +1131,7 @@ fun RegisterNoticePoster(
             onValueChange = { newValue ->
                 val filteredValue = newValue.filter { it.isDigit() }
                 if (filteredValue.length <= 11) {
-                    onStateChange(state.copy(mobileNumber = filteredValue,))
+                    onStateChange(state.copy(mobileNumber = filteredValue))
                 }
                 /*if (filteredValue.length >= 11) {
                     sendCodeBtnEnable = true
@@ -1185,9 +1191,10 @@ fun RegisterNoticePoster(
             modifier = Modifier.align(Alignment.Start)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
             contentAlignment = Alignment.BottomCenter
         ) {
             FlowRow(
@@ -1235,18 +1242,19 @@ fun RegisterNoticePoster(
                 fontSize = 16.sp,
                 color = Color.Blue
             )
-            if(state.moreClicked){
+            if (state.moreClicked) {
                 Dialog(
                     onDismissRequest = {
                         onStateChange(state.copy(moreClicked = false))
                     }
-                ){
+                ) {
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight(),
                         shape = RoundedCornerShape(16.dp),
-                        color = SurfaceBackground){
+                        color = SurfaceBackground
+                    ) {
                         FlowRow(
                             modifier = Modifier.fillMaxWidth().padding(16.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1274,7 +1282,7 @@ fun RegisterNoticePoster(
                                             )
                                         },
                                         shape = RoundedCornerShape(16.dp),
-                                        )
+                                    )
                                 }
                             }
                         }
@@ -1285,7 +1293,7 @@ fun RegisterNoticePoster(
         //endregion
 
         //region institution id
-        if(state.instituteType.isNotEmpty()) {
+        if (state.instituteType.isNotEmpty()) {
             Text(
                 text = "Institution ID",
                 textAlign = TextAlign.Start,
@@ -1297,7 +1305,7 @@ fun RegisterNoticePoster(
                 value = state.institute,
                 onValueChange = {
                     if (it.length <= 4)
-                        onStateChange(state.copy(name = it,))
+                        onStateChange(state.copy(name = it))
                 },
                 placeholder = {
                     Text(text = "Select institution id", color = Color.Gray)
@@ -1320,7 +1328,7 @@ fun RegisterNoticePoster(
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "drop down icon",
-                        modifier = Modifier.size(18.dp).clickable{
+                        modifier = Modifier.size(18.dp).clickable {
                             onAction(RegistrationScreenAction.NoticePoster.InstituteDropDownClick)
                         }
                     )
@@ -1329,7 +1337,7 @@ fun RegisterNoticePoster(
             Spacer(modifier = Modifier.height(8.dp))
 
             println("dropDownClicked ${state.instituteDropdownClicked}")
-            if(state.instituteDropdownClicked) {
+            if (state.instituteDropdownClicked) {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1341,18 +1349,22 @@ fun RegisterNoticePoster(
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(0.dp,200.dp),
+                            .heightIn(0.dp, 200.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ){
-                        items(viewModel.getDummyInstitutions()){ school ->
+                    ) {
+                        items(viewModel.getDummyInstitutions()) { school ->
                             Text(
                                 text = school,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(16.dp)
                                     .background(SurfaceBackground)
-                                    .clickable{
-                                        onAction(RegistrationScreenAction.NoticePoster.InstitutionSelect(school))
+                                    .clickable {
+                                        onAction(
+                                            RegistrationScreenAction.NoticePoster.InstitutionSelect(
+                                                school
+                                            )
+                                        )
                                     }
                             )
                         }
@@ -1372,8 +1384,8 @@ fun RegisterNoticePoster(
             elevation = CardDefaults.elevatedCardElevation(0.dp),
             colors = CardDefaults.cardColors(SurfaceBlue),
             border = BorderStroke(1.dp, BorderBlue)
-        ){
-            Row(modifier = Modifier.fillMaxSize().padding(12.dp)){
+        ) {
+            Row(modifier = Modifier.fillMaxSize().padding(12.dp)) {
                 Icon(
                     painter = painterResource(Res.drawable.shield),
                     contentDescription = "shield icon",
@@ -1384,7 +1396,7 @@ fun RegisterNoticePoster(
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.SpaceBetween
-                ){
+                ) {
                     Text(
                         text = "NID Verifivation Required",
                         style = MaterialTheme.typography.titleSmall,
@@ -1410,7 +1422,7 @@ fun RegisterNoticePoster(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = DeepGreen, // Make button background transparent
                         ),
-                    ){
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Verified,
                             contentDescription = "NID Verification",
@@ -1445,7 +1457,7 @@ fun RegisterNoticePoster(
                 containerColor = DeepGreen, // Make button background transparent
                 disabledContainerColor = Color(0xFF9CDCBC), // Make button background transparent
             ),
-        ){
+        ) {
             Icon(
                 painter = painterResource(Res.drawable.check_mark),
                 contentDescription = "NID Verification",

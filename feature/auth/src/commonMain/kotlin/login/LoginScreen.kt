@@ -82,6 +82,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -130,27 +131,33 @@ import signInButtonBackgroundInactive
 
 @Composable
 fun LoginScreenRoot(
-    paddingValues: PaddingValues,
     viewModel: LoginViewModel,
+    onBack: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
-    val loginScreenState by viewModel.loginScreenState.collectAsStateWithLifecycle()
-    LaunchedEffect(loginScreenState.successMessage) {
-        if (loginScreenState.successMessage?.isNotBlank() == true) {
-            onLoginSuccess()
-        }
-    }
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
 
-    LoginScreen(
-        paddingValues = paddingValues,
-        loginScreenState = loginScreenState,
-        onStateChange = {
-            viewModel.updateLoginState(it)
-        },
-        onAction = {
-            viewModel.onAction(it)
-        },
-    )
+
+        val loginScreenState by viewModel.loginScreenState.collectAsStateWithLifecycle()
+        LaunchedEffect(loginScreenState.successMessage) {
+            if (loginScreenState.successMessage?.isNotBlank() == true) {
+                onLoginSuccess()
+            }
+        }
+
+        LoginScreen(
+            paddingValues = paddingValues,
+            loginScreenState = loginScreenState,
+            onStateChange = {
+                viewModel.updateLoginState(it)
+            },
+            onAction = {
+                viewModel.onAction(it)
+            },
+        )
+    }
 
 }
 

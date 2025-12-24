@@ -86,6 +86,10 @@ kotlin {
             implementation(compose.foundation)
 
             implementation(libs.androidx.core.splashScreen)
+            //navigation
+            implementation(libs.jetbrains.navigation3.ui)
+            implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
+            implementation(libs.jetbrains.material3.adaptiveNavigation3)
 
             implementation(project(":core:data"))
             implementation(project(":core:domain"))
