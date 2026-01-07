@@ -37,7 +37,7 @@ val config = SavedStateConfiguration {
 @Preview
 fun AppNavigation() {
 
-    val backStack = rememberNavBackStack(config, AppDestination.Auth)
+    val backStack = rememberNavBackStack(config, AppDestination.Main)
 
     NavDisplay(
         backStack = backStack,

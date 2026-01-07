@@ -1,8 +1,7 @@
 package home.component
 
 import KottieAnimation
-import PrimaryBlue
-import ViolateGradiant
+import presentation.ViolateGradiant
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,7 +29,7 @@ fun FloatingAddButton(modifier: Modifier = Modifier, icon: Int = 0, onClick: () 
         val anim = getAnimation("files/breathing.json", KottieConstants.IterateForever, true)
         KottieAnimation(
             composition = anim.first,
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             progress = { anim.second.progress }
         )
         FloatingActionButton(

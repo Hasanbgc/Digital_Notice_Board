@@ -1,3 +1,5 @@
+package presentation
+
 class Constant {
     companion object{
         const val MAIN = "main"

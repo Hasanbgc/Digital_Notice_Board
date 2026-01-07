@@ -1,5 +1,6 @@
-import com.hasan.cmpwithbookpedia.core.domain.ResultError
-import com.hasan.cmpwithbookpedia.core.domain.Results
+package data
+import domain.ResultError
+import domain.Results
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.SocketTimeoutException
@@ -10,7 +11,7 @@ import kotlin.coroutines.coroutineContext
 
 suspend inline fun  <reified T>safeCall(
     execute:() -> HttpResponse
-):Results<T, ResultError.Remote> {
+): Results<T, ResultError.Remote> {
     val result = try {
         execute()
     }catch (e: SocketTimeoutException) {

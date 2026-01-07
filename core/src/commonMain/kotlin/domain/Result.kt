@@ -1,4 +1,4 @@
-package com.hasan.cmpwithbookpedia.core.domain
+package domain
 
 sealed interface Results<out D,out E: ResultError> {
     data class Success<out D>(val data:D):Results<D, Nothing>

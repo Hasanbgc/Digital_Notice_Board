@@ -51,7 +51,7 @@ kotlin {
             implementation(libs.play.services.maps)
             implementation(libs.play.services.location)
 
-            implementation(project(":core:presentation"))
+            implementation(project(":core"))
         }
         val iosMain by creating {
             //dependsOn(commonMain)

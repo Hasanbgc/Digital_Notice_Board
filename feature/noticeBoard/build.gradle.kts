@@ -39,7 +39,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-           // implementation("androidx.compose.animation:animation:1.5.1")
+            implementation(libs.androidx.compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -53,7 +53,7 @@ kotlin {
             implementation(libs.bundles.coil)
             implementation(libs.kottie)
 
-            implementation(project(":core:presentation"))
+            implementation(project(":core"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

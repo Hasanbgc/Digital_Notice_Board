@@ -35,23 +35,39 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-           // implementation("androidx.compose.animation:animation:1.5.1")
+            //  implementation("androidx.compose.animation:animation:1.5.1")
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.bundles.coil)
 
+            //koin
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+
+            //coil
+            implementation(libs.bundles.coil)
+            implementation(libs.coil.network.ktor3)
+            //ktor
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
             //navigation
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
             implementation(libs.jetbrains.material3.adaptiveNavigation3)
+
 
         }
         commonTest.dependencies {
@@ -60,12 +76,16 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.ktor.client.cio)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
 
 android {
-    namespace = "com.hasan.dnb.core.presentation"
+    namespace = "com.hasan.dnb.core"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
@@ -88,26 +108,17 @@ android {
     }
 }
 
-// ADD THIS: Compose Resources Configuration
-compose {
-    resources {
-        publicResClass = true
-        packageOfResClass = "com.hasan.dnb.core.presentation.resources"
-        generateResClass = always
-    }
-
-    desktop {
-        application {
-            nativeDistributions {
-                targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-                packageName = "com.hasan.dnb.core.presentation"
-                packageVersion = "1.0.0"
-            }
-        }
-    }
-}
-
 dependencies {
     debugImplementation(compose.uiTooling)
-    //implementation(compose.components.resources)
+}
+
+compose.desktop {
+    application {
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "com.hasan.dnb.core"
+            packageVersion = "1.0.0"
+        }
+    }
 }

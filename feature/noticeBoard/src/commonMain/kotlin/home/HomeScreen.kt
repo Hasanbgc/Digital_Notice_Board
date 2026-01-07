@@ -1,22 +1,29 @@
 package home
 
-import AccentGreen
-import ButtonCardGradiant
-import EmergenceyAlertRedBG
-import EmergencyIconBG
-import ErrorRed
-import FileCardGradiant
+import presentation.AccentGreen
+import presentation.ButtonCardGradiant
+import presentation.EmergenceyAlertRedBG
+import presentation.EmergencyIconBG
+import presentation.ErrorRed
+import presentation.FileCardGradiant
 import KottieAnimation
-import NeonEffect
-import PrimaryBlue
-import PrimaryText
-import PrimaryTextAlt2
-import ShareButtonGradiant
-import ViolateGradiant
+import presentation.NeonEffect
+import presentation.PrimaryBlue
+import presentation.PrimaryText
+import presentation.PrimaryTextAlt2
+import presentation.ShareButtonGradiant
+import presentation.ViolateGradiant
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +35,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,14 +46,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.outlined.Comment
 import androidx.compose.material.icons.outlined.FileDownload
-import androidx.compose.material.icons.outlined.HeartBroken
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -65,8 +68,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.key.Key.Companion.R
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -75,19 +76,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import cornerStretchAnimation
+import presentation.cornerStretchAnimation
 import digita_notice_board.feature.noticeboard.generated.resources.Res
 import digita_notice_board.feature.noticeboard.generated.resources.chat
 import digita_notice_board.feature.noticeboard.generated.resources.document
-import digita_notice_board.feature.noticeboard.generated.resources.fire_outlined
 import digita_notice_board.feature.noticeboard.generated.resources.flag
-import digita_notice_board.feature.noticeboard.generated.resources.flood
 import digita_notice_board.feature.noticeboard.generated.resources.heart
-import digita_notice_board.feature.noticeboard.generated.resources.load_shedding
-import digita_notice_board.feature.noticeboard.generated.resources.road_construction
 import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
-import home.component.CurvedCornerTriangle
 import home.component.FloatingAddButton
 import home.component.ProfileImageWithPlaceholder
 import home.component.WaveFilledShape
@@ -102,14 +98,12 @@ import utils.KottieConstants
 
 @Composable
 fun HomeScreenRoot(
-    paddingValues: PaddingValues,
     viewModel: HomeViewModel,
     onNavigateToDetail: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     HomeScreen(
-        paddingValues = paddingValues,
         state = state,
         onAction = viewModel::onAction,
         onNavigateToDetail = onNavigateToDetail
@@ -120,184 +114,215 @@ fun HomeScreenRoot(
 
 @Composable
 fun HomeScreen(
-    paddingValues: PaddingValues,
     state: HomeScreenState,
     onAction: (HomeScreenAction) -> Unit,
     onNavigateToDetail: (String) -> Unit
 ) {
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingAddButton(
-                modifier = Modifier.size(70.dp),
-            ){
+                modifier = Modifier.size(70.dp).offset(x = 0.dp, y = (-30).dp),
+            ) {
                 onAction(HomeScreenAction.PostANoticeClicked)
             }
         }
     ) {
-
-        // UI code
-        Column(modifier = Modifier.fillMaxSize()) {
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                Column(
-                    modifier = Modifier.wrapContentHeight().padding(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+        SharedTransitionLayout {
+            // UI code
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 )
                 {
-                    Text(
-                        text = "Notice Board",
-                        modifier = Modifier
-                            .align(Alignment.Start),
-                        style = TextStyle(
-                            brush = ViolateGradiant,
-                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                            fontWeight = FontWeight.SemiBold
-                        )
-
-                    )
-                    Text(
-                        text = "Stay updated with important notices",
-                        modifier = Modifier
-                            .align(Alignment.Start),
-                        color = PrimaryTextAlt2,
-                        fontSize = 12.sp
-                    )
-
-                }
-                Row(
-                    modifier = Modifier.wrapContentHeight().padding(8.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-                    if(state.emergencyAlertClosed) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "notification",
-                            tint = EmergenceyAlertRedBG,
-                            modifier = Modifier
-                                .size(30.dp)
-                                .clickable(
-                                    onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
-                                )
-                        )
-                    }
-                }
-            }
-
-
-            Spacer(modifier = Modifier.height(8.dp))
-            if (state.poster.isNotEmpty() && !state.emergencyAlertClosed) {
-                val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
-
-                if (emergencyNoticeCount > 0) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .background(color = EmergenceyAlertRedBG)
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-
+                    Column(
+                        modifier = Modifier.wrapContentHeight().padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     )
                     {
-                        Icon(
-                            painter = painterResource(Res.drawable.warning),
-                            contentDescription = "warning",
-                            modifier = Modifier.size(20.dp).cornerStretchAnimation(),
-                            tint = Color.White
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "Emergency Alerts",
-                                fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.White
-                            )
-                            Text(
-                                text = "$emergencyNoticeCount active emergencies in your area",
-                                fontSize = 12.sp,
-                                color = Color.White
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.weight(1f))
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "right_arrow",
-                            tint = Color.White,
+                        Text(
+                            text = "Notice Board",
                             modifier = Modifier
-                                .size(20.dp)
-                                .clickable(
-                                    onClick = {onAction(HomeScreenAction.OnEmergencyAlertDismiss)}
+                                .align(Alignment.Start),
+                            style = TextStyle(
+                                brush = ViolateGradiant,
+                                fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                                fontWeight = FontWeight.SemiBold
+                            )
+
+                        )
+                        Text(
+                            text = "Stay updated with important notices",
+                            modifier = Modifier
+                                .align(Alignment.Start),
+                            color = PrimaryTextAlt2,
+                            fontSize = 12.sp
+                        )
+
+                    }
+                    Row(
+                        modifier = Modifier.wrapContentHeight().padding(8.dp),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        //if (state.emergencyAlertClosed) {
+                        AnimatedVisibility(state.emergencyAlertClosed) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "notification",
+                                tint = EmergenceyAlertRedBG,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clickable(
+                                        onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
+                                    ).sharedElement(
+                                        sharedContentState = rememberSharedContentState("notification"),
+                                        animatedVisibilityScope = this@AnimatedVisibility
+                                    )
+                            )
+                        }
+                    }
+                }
+
+
+                Spacer(modifier = Modifier.height(8.dp))
+                if (state.poster.isNotEmpty() && !state.emergencyAlertClosed) {
+                    val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
+
+                    if (emergencyNoticeCount > 0) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .background(color = EmergenceyAlertRedBG)
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+
+                        )
+                        {
+                            Icon(
+                                painter = painterResource(Res.drawable.warning),
+                                contentDescription = "warning",
+                                modifier = Modifier.size(20.dp).cornerStretchAnimation(),
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "Emergency Alerts",
+                                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White
                                 )
-                        )
-                    }
-                }
+                                Text(
+                                    text = "$emergencyNoticeCount active emergencies in your area",
+                                    fontSize = 12.sp,
+                                    color = Color.White
+                                )
+                            }
 
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = 24.dp)
-            )
-            {
-                val emergencyNotice = state.poster.filterIsInstance<Poster.Emergency>()
-                val normalNotice = state.poster.filterIsInstance<Poster.Normal>()
-
-                if(!state.emergencyAlertClosed) {
-                items(
-                    items = emergencyNotice,
-                    key = { notice ->
-                        notice.id.also {
-                            println("key e: $it")
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "right_arrow",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable(
+                                        onClick = { onAction(HomeScreenAction.OnEmergencyAlertDismiss) }
+                                    )
+                            )
                         }
                     }
-                ) { notice ->
 
-                        EmergencyNotice(
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp)
+                )
+                {
+                    val emergencyNotice = state.poster.filterIsInstance<Poster.Emergency>()
+                    val normalNotice = state.poster.filterIsInstance<Poster.Normal>()
+
+                    item {
+                        AnimatedVisibility(
+                            visible = !state.emergencyAlertClosed,
+                            enter = fadeIn() + slideInVertically(
+                                animationSpec = spring(
+                                    dampingRatio = 0.5f,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            ),
+                            exit = fadeOut() +
+                                    slideOutVertically ()
+
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                emergencyNotice.forEach { notice ->
+                                    EmergencyNotice(
+                                        poster = notice,
+                                        onNavigateToDetail = onNavigateToDetail
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    item {
+                        AnimatedVisibility(
+                            visible = !state.emergencyAlertClosed,
+                            enter = fadeIn() + slideInVertically(
+                                animationSpec = spring(
+                                    dampingRatio = 0.5f,
+                                    stiffness = 100f
+                                )
+                            ),
+                            exit = fadeOut() + slideOutVertically()
+
+                        ) {
+                            Column(modifier = Modifier.padding(top = 12.dp, bottom = 10.dp)) {
+                                Text(
+                                    text = "Personalized Feed",
+                                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Notices tailored to your interests and location",
+                                    fontSize = 12.sp,
+                                    color = PrimaryTextAlt2
+                                )
+                            }
+                        }
+                    }
+                    //}
+                    items(
+                        items = normalNotice,
+                        key = { notice ->
+                            notice.id.also {
+                                println("key: $it")
+                            }
+                        }
+                    ) { notice ->
+                        NormalNotice(
                             poster = notice,
-                            onNavigateToDetail = onNavigateToDetail
-                        )
-
-                }
-
-                item {
-                    Column(modifier = Modifier.padding(top = 12.dp, bottom = 10.dp)) {
-                        Text(
-                            text = "Personalized Feed",
-                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Notices tailored to your interests and location",
-                            fontSize = 12.sp,
-                            color = PrimaryTextAlt2
+                            onAction = onAction,
+                            onNavigateToDetail = onNavigateToDetail,
+                            modifier = Modifier.animateItem(
+                                placementSpec = spring(
+                                    dampingRatio = 0.5f,
+                                    stiffness = Spring.StiffnessLow
+                                ),
+                            )
                         )
                     }
-                }
-                }
-                items(
-                    items = normalNotice,
-                    key = { notice ->
-                        notice.id.also {
-                            println("key: $it")
-                        }
-                    }
-                ) { notice ->
-                    NormalNotice(
-                        poster = notice,
-                        onAction = onAction,
-                        onNavigateToDetail = onNavigateToDetail
-                    )
                 }
             }
         }
@@ -429,6 +454,7 @@ fun EmergencyNotice(
 
 @Composable
 fun NormalNotice(
+    modifier: Modifier = Modifier,
     poster: Poster.Normal,
     onAction: (HomeScreenAction) -> Unit,
     onNavigateToDetail: (String) -> Unit
@@ -441,7 +467,7 @@ fun NormalNotice(
 
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -618,7 +644,8 @@ fun NormalNotice(
                             .wrapContentSize()
                             .clickable(onClick = {
                                 toggleLiked = !toggleLiked
-                                onAction(HomeScreenAction.OnLikeClicked(poster.id, toggleLiked)) }
+                                onAction(HomeScreenAction.OnLikeClicked(poster.id, toggleLiked))
+                            }
                             ),
                         shape = RoundedCornerShape(20.dp),
                         elevation = CardDefaults.cardElevation(4.dp),
@@ -630,7 +657,7 @@ fun NormalNotice(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            when(poster.liked) {
+                            when (poster.liked) {
                                 Like.IDLE -> {
                                     Icon(
                                         painter = painterResource(Res.drawable.heart),
@@ -639,17 +666,19 @@ fun NormalNotice(
                                         tint = Color.Black
                                     )
                                 }
+
                                 Like.LIKED -> {
                                     val animationLike = getAnimation("files/love.json", 1)
                                     KottieAnimation(
                                         composition = animationLike.first,
-                                        modifier = Modifier.size(14.dp).graphicsLayer{
+                                        modifier = Modifier.size(14.dp).graphicsLayer {
                                             scaleX = 5.4f
                                             scaleY = 5.9f
                                         },
                                         progress = { animationLike.second.progress }
                                     )
                                 }
+
                                 Like.UNLIKED -> {
                                     Icon(
                                         painter = painterResource(Res.drawable.heart),
@@ -831,7 +860,6 @@ fun getAnimation(
 fun HomeScreenPreview() {
     MaterialTheme {
         HomeScreen(
-            paddingValues = PaddingValues(0.dp),
             state = HomeScreenState(
                 isLoading = false,
                 poster = listOf(
@@ -878,6 +906,7 @@ fun HomeScreenPreview() {
 @Composable
 fun NormalPosterPreview() {
     NormalNotice(
+        modifier = Modifier,
         Poster.Normal(
             0,
             "University Admission Test Result Published",

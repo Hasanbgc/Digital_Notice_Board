@@ -91,9 +91,7 @@ kotlin {
             implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
             implementation(libs.jetbrains.material3.adaptiveNavigation3)
 
-            implementation(project(":core:data"))
-            implementation(project(":core:domain"))
-            implementation(project(":core:presentation"))
+            implementation(project(":core"))
             implementation(project(":feature:auth"))
             implementation(project(":feature:noticeBoard"))
 

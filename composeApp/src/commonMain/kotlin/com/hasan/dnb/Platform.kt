@@ -1,6 +1,7 @@
 package com.hasan.dnb
 
 import androidx.compose.runtime.Composable
+import data.HttpClientFactory
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
