@@ -1,15 +1,17 @@
 package com.hasan.dnb.app
 
+
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class AppDestination {
-    @Serializable
-    data object Splash : AppDestination()
+sealed class AppDestination : NavKey {
     @Serializable
     data object Auth : AppDestination()
+
     @Serializable
     data object Registration : AppDestination()
+
     @Serializable
     data object Main : AppDestination()
 }

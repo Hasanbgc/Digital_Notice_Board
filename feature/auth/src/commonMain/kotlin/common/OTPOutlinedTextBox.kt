@@ -1,8 +1,8 @@
 package common
 
-import AccentGreen
-import BorderGray
-import ErrorRed
+import presentation.AccentGreen
+import presentation.BorderGray
+import presentation.ErrorRed
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size

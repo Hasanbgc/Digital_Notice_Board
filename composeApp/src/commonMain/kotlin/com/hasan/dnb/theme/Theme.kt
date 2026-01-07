@@ -1,16 +1,16 @@
 package com.hasan.dnb.theme
 
-import BorderGray
-import ErrorRed
-import GreenSurface
-import LightGray
-import NeutralGray500
-import PrimaryGreen
-import SecondaryGreen
-import SignInTextGreen
-import TabBackgroundGray
-import TertiaryGreen
-import WelcomeTextGreen
+import presentation.BorderGray
+import presentation.ErrorRed
+import presentation.GreenSurface
+import presentation.LightGray
+import presentation.NeutralGray500
+import presentation.PrimaryGreen
+import presentation.SecondaryGreen
+import presentation.SignInTextGreen
+import presentation.TabBackgroundGray
+import presentation.TertiaryGreen
+import presentation.WelcomeTextGreen
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography

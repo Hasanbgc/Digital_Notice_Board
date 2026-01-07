@@ -18,13 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import splashScreenBackground
+import presentation.splashScreenBackground
 import digita_notice_board.composeapp.generated.resources.Res
 import digita_notice_board.composeapp.generated.resources.app_name
 import digita_notice_board.composeapp.generated.resources.dnb_logo
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import presentation.Constant
 
 @Composable
 fun SplashScreenRoot(

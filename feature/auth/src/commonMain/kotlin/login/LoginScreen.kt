@@ -1,25 +1,24 @@
 package login
 
-import AccentGreen
-import BorderBlue
-import BorderGray
-import ErrorRed
-import GreenBorderLight
-import GreenSurface
-import LightGray
-import NeutralGray500
-import PrimaryBlue
-import PrimaryGreen
-import PrimaryText
-import PrimaryTextAlt1
-import PrimaryTextAlt2
-import SecondaryBlue
-import SecondaryGreen
-import SignInTextGreen
-import SurfaceBlue
-import TabBackgroundGray
-import TertiaryGreen
-import VerifyTitleColor
+import presentation.AccentGreen
+import presentation.BorderBlue
+import presentation.BorderGray
+import presentation.ErrorRed
+import presentation.GreenBorderLight
+import presentation.GreenSurface
+import presentation.LightGray
+import presentation.NeutralGray500
+import presentation.PrimaryBlue
+import presentation.PrimaryGreen
+import presentation.PrimaryTextAlt1
+import presentation.PrimaryTextAlt2
+import presentation.SecondaryBlue
+import presentation.SecondaryGreen
+import presentation.SignInTextGreen
+import presentation.SurfaceBlue
+import presentation.TabBackgroundGray
+import presentation.TertiaryGreen
+import presentation.VerifyTitleColor
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -82,14 +81,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -100,16 +98,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import common.AuthTab
 import common.OTPOutlinedTextBox
-import continueButtonBackgroundActive
-import continueButtonBackgroundInactive
+import presentation.continueButtonBackgroundActive
+import presentation.continueButtonBackgroundInactive
 import digita_notice_board.feature.auth.generated.resources.Res
 import digita_notice_board.feature.auth.generated.resources.check_mark
 import digita_notice_board.feature.auth.generated.resources.facebook
-import digita_notice_board.feature.auth.generated.resources.flag_bangladesh
 import digita_notice_board.feature.auth.generated.resources.flag_bd
 import digita_notice_board.feature.auth.generated.resources.google
 import digita_notice_board.feature.auth.generated.resources.iphone_24
@@ -121,36 +117,41 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import login.component.RoundCornerIconButton
 import login.component.TabWithHorizontalIcon
-import loginBackground
+import presentation.loginBackground
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import registration.RegistrationScreenAction
-import signInButtonBackgroundActive
-import signInButtonBackgroundInactive
+import presentation.signInButtonBackgroundActive
+import presentation.signInButtonBackgroundInactive
 
 @Composable
 fun LoginScreenRoot(
-    paddingValues: PaddingValues,
     viewModel: LoginViewModel,
+    onBack: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
-    val loginScreenState by viewModel.loginScreenState.collectAsStateWithLifecycle()
-    LaunchedEffect(loginScreenState.successMessage) {
-        if (loginScreenState.successMessage?.isNotBlank() == true) {
-            onLoginSuccess()
-        }
-    }
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
 
-    LoginScreen(
-        paddingValues = paddingValues,
-        loginScreenState = loginScreenState,
-        onStateChange = {
-            viewModel.updateLoginState(it)
-        },
-        onAction = {
-            viewModel.onAction(it)
-        },
-    )
+
+        val loginScreenState by viewModel.loginScreenState.collectAsStateWithLifecycle()
+        LaunchedEffect(loginScreenState.successMessage) {
+            if (loginScreenState.successMessage?.isNotBlank() == true) {
+                onLoginSuccess()
+            }
+        }
+
+        LoginScreen(
+            paddingValues = paddingValues,
+            loginScreenState = loginScreenState,
+            onStateChange = {
+                viewModel.updateLoginState(it)
+            },
+            onAction = {
+                viewModel.onAction(it)
+            },
+        )
+    }
 
 }
 

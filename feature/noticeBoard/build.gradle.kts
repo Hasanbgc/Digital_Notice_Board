@@ -39,7 +39,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-           // implementation("androidx.compose.animation:animation:1.5.1")
+            implementation(libs.androidx.compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -51,10 +51,9 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.bundles.coil)
-            //implementation(libs.constraintLayout.compose)
-            implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+            implementation(libs.kottie)
 
-            implementation(project(":core:presentation"))
+            implementation(project(":core"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
