@@ -43,18 +43,22 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,6 +66,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,7 +91,9 @@ import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
 import home.component.FloatingAddButton
 import home.component.ProfileImageWithPlaceholder
+import home.component.RoundGradientButton
 import home.component.WaveFilledShape
+import kotlinx.coroutines.launch
 import kottieAnimationState.KottieAnimationState
 import kottieComposition.KottieCompositionResult
 import kottieComposition.KottieCompositionSpec
@@ -94,6 +101,10 @@ import kottieComposition.animateKottieCompositionAsState
 import kottieComposition.rememberKottieComposition
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import presentation.NeutralGray500
+import presentation.PrimaryTextAlt1
+import presentation.continueButtonBackgroundActive
+import presentation.signInButtonBackgroundActive
 import utils.KottieConstants
 
 @Composable
@@ -118,7 +129,9 @@ fun HomeScreen(
     onAction: (HomeScreenAction) -> Unit,
     onNavigateToDetail: (String) -> Unit
 ) {
-
+    var searchToggle by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val lazyListState = rememberLazyListState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
@@ -170,25 +183,57 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        //if (state.emergencyAlertClosed) {
+                        RoundGradientButton(
+                            modifier = Modifier.wrapContentSize(),
+                            text = "Search",
+                            icon = Icons.Default.Search,
+                            iconTint = Color.White,
+                            gradientColors = continueButtonBackgroundActive,
+                            shape = RoundedCornerShape(30.dp),
+                            onClick = { searchToggle = !searchToggle }
+                        )
+
+                        Spacer(Modifier.width(4.dp))
                         AnimatedVisibility(state.emergencyAlertClosed) {
-                            Icon(
-                                imageVector = Icons.Default.Notifications,
-                                contentDescription = "notification",
-                                tint = EmergenceyAlertRedBG,
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .clickable(
-                                        onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
-                                    ).sharedElement(
-                                        sharedContentState = rememberSharedContentState("notification"),
-                                        animatedVisibilityScope = this@AnimatedVisibility
-                                    )
+                            RoundGradientButton(
+                                modifier = Modifier.wrapContentSize(),
+                                text = "notification",
+                                icon = Icons.Outlined.Notifications,
+                                iconTint = Color.White,
+                                gradientColors = signInButtonBackgroundActive,
+                                shape = RoundedCornerShape(30.dp),
+                                onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
                             )
                         }
                     }
                 }
 
+                if(searchToggle) {
+                    OutlinedTextField(
+                        value = state.searchQuery,
+                        onValueChange = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                        modifier = Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 8.dp),
+                        placeholder = {
+                            Text(
+                                text = "Search",
+                                fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                fontWeight = FontWeight.Medium,
+                                color = NeutralGray500,
+                            )
+                        },
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "search",
+                                tint = PrimaryTextAlt1,
+                                modifier = Modifier.clickable {
+                                    onAction(HomeScreenAction.OnSearchQueryChanged(""))
+                                }
+                            )
+                        },
+                        shape = RoundedCornerShape(30.dp)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
                 if (state.poster.isNotEmpty() && !state.emergencyAlertClosed) {
@@ -200,9 +245,13 @@ fun HomeScreen(
                                 .fillMaxWidth()
                                 .wrapContentHeight()
                                 .background(color = EmergenceyAlertRedBG)
-                                .padding(12.dp),
+                                .padding(12.dp)
+                                .clickable{
+                                    scope.launch {
+                                        lazyListState.animateScrollToItem(0)
+                                    }
+                                },
                             verticalAlignment = Alignment.CenterVertically
-
                         )
                         {
                             Icon(
@@ -244,6 +293,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 LazyColumn(
+                    state = lazyListState,
                     modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(bottom = 24.dp)
@@ -262,7 +312,7 @@ fun HomeScreen(
                                 )
                             ),
                             exit = fadeOut() +
-                                    slideOutVertically ()
+                                    slideOutVertically()
 
                         ) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -855,7 +905,7 @@ fun getAnimation(
     return Pair(composition, animationState)
 }
 
-//@Preview
+@Preview
 @Composable
 fun HomeScreenPreview() {
     MaterialTheme {

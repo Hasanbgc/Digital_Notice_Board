@@ -23,19 +23,7 @@ class HomeViewModel: ViewModel() {
             HomeScreenAction.OnEmergencyAlertDismiss -> toggleEmergencyAlert(true)
             is HomeScreenAction.OnEmergencyPosterClicked -> {}
             is HomeScreenAction.OnImageClicked -> {}
-            is HomeScreenAction.OnLikeClicked -> {
-                _homeScreenState.update {
-                    it.copy(
-                        poster = it.poster.map { poster ->
-                            if (poster is Poster.Normal && poster.id == action.id) {
-                                poster.copy(liked = if (action.liked)Like.LIKED else Like.UNLIKED ) // or !poster.liked to toggle
-                            } else {
-                                poster // Return unchanged poster
-                            }
-                        }
-                    )
-                }
-            }
+            is HomeScreenAction.OnLikeClicked -> updateLike(action.id, action.liked)
             is HomeScreenAction.OnShareClicked -> {}
             is HomeScreenAction.OnCommentClicked -> {}
             HomeScreenAction.OnSavedClicked -> {}
@@ -43,6 +31,7 @@ class HomeViewModel: ViewModel() {
             is HomeScreenAction.OnLocationClicked -> {}
             is HomeScreenAction.PostANoticeClicked -> {}
             is HomeScreenAction.OnNotificationClicked -> toggleEmergencyAlert(false)
+            is HomeScreenAction.OnSearchQueryChanged -> updateQuery(action.query)
         }
     }
 
@@ -54,6 +43,26 @@ class HomeViewModel: ViewModel() {
         }
 
     }
+    fun updateQuery(query:String) {
+        _homeScreenState.update {
+            it.copy(
+                searchQuery = query
+            )
+        }
+    }
 
+    fun updateLike(id:Int, liked:Boolean){
+        _homeScreenState.update {
+            it.copy(
+                poster = it.poster.map { poster ->
+                    if (poster is Poster.Normal && poster.id == id) {
+                        poster.copy(liked = if (liked)Like.LIKED else Like.UNLIKED ) // or !poster.liked to toggle
+                    } else {
+                        poster // Return unchanged poster
+                    }
+                }
+            )
+        }
+    }
 
 }

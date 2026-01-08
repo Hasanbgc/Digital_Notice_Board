@@ -12,4 +12,5 @@ sealed interface HomeScreenAction {
     data class OnLocationClicked(val id:Int): HomeScreenAction
     object PostANoticeClicked: HomeScreenAction
     data object OnNotificationClicked: HomeScreenAction
+    data class OnSearchQueryChanged(val query:String): HomeScreenAction
 }
