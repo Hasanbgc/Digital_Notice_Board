@@ -88,6 +88,7 @@ import digita_notice_board.feature.noticeboard.generated.resources.Res
 import digita_notice_board.feature.noticeboard.generated.resources.chat
 import digita_notice_board.feature.noticeboard.generated.resources.document
 import digita_notice_board.feature.noticeboard.generated.resources.flag
+import digita_notice_board.feature.noticeboard.generated.resources.flaged
 import digita_notice_board.feature.noticeboard.generated.resources.heart
 import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
@@ -107,6 +108,7 @@ import presentation.BorderGray
 import presentation.GradientGreen
 import presentation.NeutralGray500
 import presentation.PrimaryTextAlt1
+import presentation.TertiaryGreen
 import presentation.TrackColor
 import presentation.continueButtonBackgroundActive
 import presentation.signInButtonBackgroundActive
@@ -838,9 +840,9 @@ fun NormalNotice(
 
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
-                    painter = painterResource(Res.drawable.flag),
+                    painter = painterResource(if(poster.isSaved)Res.drawable.flaged else Res.drawable.flag),
                     contentDescription = "right_arrow",
-                    tint = if(poster.isSaved) PrimaryBlue else Color.Black,
+                    tint = if(poster.isSaved) TertiaryGreen else Color.Black,
                     modifier = Modifier.size(20.dp)
                         .align(Alignment.CenterVertically)
                         .clickable {

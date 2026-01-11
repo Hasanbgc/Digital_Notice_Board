@@ -63,9 +63,12 @@ val BorderBlue = Color(0xFFBFDCFF)
 val SurfaceBlue = Color(0xFFEFF6FF)
 
 val DeepGreen = Color(0xFF006B4F)
+val BottleGreen = Color(0xFF0C7779)
 
 // Special green for Ramadan
 val RamadanGreen = Color(0xFF2E7D32)
+
+val Violate = Color(0xFF6E61FF)
 
 val splashScreenBackground = Brush.linearGradient(
     colors = listOf(PrimaryGreenLight, SecondaryGreen, TertiaryGreen),
@@ -120,4 +123,7 @@ val ButtonCardGradiant = Brush.linearGradient(
 
 val ShareButtonGradiant = Brush.linearGradient(
     colors= listOf(Color(0xFF3378FF),Color(0xFF4E3DF7))
+)
+val GradientIndicatorBg = Brush.linearGradient(
+    colors = listOf(Color(0xFFe1e7ff),Color(0xFFf1e8ff))
 )
