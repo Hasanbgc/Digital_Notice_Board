@@ -7,7 +7,7 @@ sealed interface HomeScreenAction {
     data class OnLikeClicked(val id:Int,val liked:Boolean = false): HomeScreenAction
     data class OnShareClicked(val id:Int): HomeScreenAction
     data class OnCommentClicked(val id:Int): HomeScreenAction
-    object OnSavedClicked: HomeScreenAction
+    data class OnSavedClicked(val id:Int): HomeScreenAction
     data class OnProfileClicked(val id:Int): HomeScreenAction
     data class OnLocationClicked(val id:Int): HomeScreenAction
     object PostANoticeClicked: HomeScreenAction

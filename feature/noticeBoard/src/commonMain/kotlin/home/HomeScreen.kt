@@ -48,12 +48,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -101,8 +103,11 @@ import kottieComposition.animateKottieCompositionAsState
 import kottieComposition.rememberKottieComposition
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import presentation.BorderGray
+import presentation.GradientGreen
 import presentation.NeutralGray500
 import presentation.PrimaryTextAlt1
+import presentation.TrackColor
 import presentation.continueButtonBackgroundActive
 import presentation.signInButtonBackgroundActive
 import utils.KottieConstants
@@ -141,7 +146,7 @@ fun HomeScreen(
                 onAction(HomeScreenAction.PostANoticeClicked)
             }
         }
-    ) {
+    ) { paddingValues ->
         SharedTransitionLayout {
             // UI code
             Column(modifier = Modifier.fillMaxSize()) {
@@ -188,7 +193,7 @@ fun HomeScreen(
                             text = "Search",
                             icon = Icons.Default.Search,
                             iconTint = Color.White,
-                            gradientColors = continueButtonBackgroundActive,
+                            gradientColors = GradientGreen,
                             shape = RoundedCornerShape(30.dp),
                             onClick = { searchToggle = !searchToggle }
                         )
@@ -296,7 +301,9 @@ fun HomeScreen(
                     state = lazyListState,
                     modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(bottom = 24.dp)
+                    contentPadding =  PaddingValues(
+                        bottom = paddingValues.calculateBottomPadding() + 120.dp
+                    )
                 )
                 {
                     val emergencyNotice = state.poster.filterIsInstance<Poster.Emergency>()
@@ -523,29 +530,22 @@ fun NormalNotice(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize(animationSpec = tween(durationMillis = 300))
-        ) {
-
-            WaveFilledShape(
-                Modifier.size(40.dp).align(Alignment.TopEnd),
-                colors = listOf(Color.Green, AccentGreen)
-            )
+        )
+        {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.TopStart)
-            )
-            {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp)
-                ) {
+                    .padding(12.dp)
+            ) {
 
-
+                Row(verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                    ){
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         ProfileImageWithPlaceholder(
                             modifier = Modifier.size(46.dp),
@@ -573,42 +573,94 @@ fun NormalNotice(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = poster.title,
-                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = poster.description,
-                        fontSize = 12.sp,
-                        color = PrimaryTextAlt2,
-                        maxLines = if (isExpanded) Int.MAX_VALUE else 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.clickable { isExpanded = !isExpanded },
-                        onTextLayout = {
-                            if (it.hasVisualOverflow) {
-                                showSeeMore = true
-                            }
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top= 5.dp)
+                        ){
+                        Row(verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceAround,
+                            modifier = Modifier.background(
+                                brush = GradientGreen,
+                                shape = RoundedCornerShape(8.dp)
+                            ).padding(vertical = 4.dp, horizontal = 8.dp)
+                            ){
+                            Icon(
+                                imageVector = Icons.Outlined.Notifications,
+                                contentDescription = "notification",
+                                tint = Color.White,
+                                modifier = Modifier.size(14.dp)
+                                )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = "Education",
+                                fontSize = 12.sp,
+                                color = Color.White,
+                            )
                         }
-                    )
-                    if (showSeeMore && !isExpanded) {
-                        Text(
-                            text = "see more",
-                            color = Color.Blue,
-                            modifier = Modifier.clickable { isExpanded = true }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "location",
+                            modifier = Modifier.size(20.dp)
                         )
                     }
+                }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-                    if (poster.imageUrlList.isNotEmpty()) {
-                        when (poster.imageUrlList.size) {
-                            1 -> {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = poster.title,
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = poster.description,
+                    fontSize = 12.sp,
+                    color = PrimaryTextAlt2,
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.clickable { isExpanded = !isExpanded },
+                    onTextLayout = {
+                        if (it.hasVisualOverflow) {
+                            showSeeMore = true
+                        }
+                    }
+                )
+                if (showSeeMore && !isExpanded) {
+                    Text(
+                        text = "see more",
+                        color = Color.Blue,
+                        modifier = Modifier.clickable { isExpanded = true }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                if (poster.imageUrlList.isNotEmpty()) {
+                    when (poster.imageUrlList.size) {
+                        1 -> {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(100.dp),
+                                shape = RoundedCornerShape(8.dp),
+                            ) {
+                                AsyncImage(
+                                    model = poster.imageUrlList[0],
+                                    contentDescription = "image",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+
+                        else -> {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
                                 Card(
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .weight(1f)
                                         .height(100.dp),
                                     shape = RoundedCornerShape(8.dp),
                                 ) {
@@ -619,202 +671,183 @@ fun NormalNotice(
                                         contentScale = ContentScale.Crop
                                     )
                                 }
-                            }
 
-                            else -> {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                Card(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(100.dp),
+                                    shape = RoundedCornerShape(8.dp),
                                 ) {
-                                    Card(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(100.dp),
-                                        shape = RoundedCornerShape(8.dp),
-                                    ) {
+                                    Box(modifier = Modifier.fillMaxSize()) {
                                         AsyncImage(
-                                            model = poster.imageUrlList[0],
+                                            model = poster.imageUrlList[1],
                                             contentDescription = "image",
                                             modifier = Modifier.fillMaxSize(),
                                             contentScale = ContentScale.Crop
                                         )
-                                    }
-
-                                    Card(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(100.dp),
-                                        shape = RoundedCornerShape(8.dp),
-                                    ) {
-                                        Box(modifier = Modifier.fillMaxSize()) {
-                                            AsyncImage(
-                                                model = poster.imageUrlList[1],
-                                                contentDescription = "image",
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentScale = ContentScale.Crop
-                                            )
-                                            if (poster.imageUrlList.size > 2) {
-                                                Box(
-                                                    modifier = Modifier.fillMaxSize()
-                                                        .background(color = Color.Black.copy(alpha = 0.6f)),
-                                                    contentAlignment = Alignment.Center,
-                                                ) {
-                                                    Text(
-                                                        text = "+${poster.imageUrlList.size - 2}",
-                                                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                                                        color = Color.White
-                                                    )
-                                                }
+                                        if (poster.imageUrlList.size > 2) {
+                                            Box(
+                                                modifier = Modifier.fillMaxSize()
+                                                    .background(color = Color.Black.copy(alpha = 0.6f)),
+                                                contentAlignment = Alignment.Center,
+                                            ) {
+                                                Text(
+                                                    text = "+${poster.imageUrlList.size - 2}",
+                                                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                                    color = Color.White
+                                                )
                                             }
                                         }
                                     }
-
                                 }
+
                             }
                         }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                    //for (attachment in poster.attachments) {
-                    for (attachment in poster.attachments) {
-                        AttachmentCard(attachment = attachment)
-                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .background(brush = ButtonCardGradiant)
-                        .padding(16.dp)
-                )
-                {
-                    Card(
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .clickable(onClick = {
-                                toggleLiked = !toggleLiked
-                                onAction(HomeScreenAction.OnLikeClicked(poster.id, toggleLiked))
-                            }
-                            ),
-                        shape = RoundedCornerShape(20.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
-                    ) {
-                        Row(
-                            modifier = Modifier.wrapContentSize()
-                                .padding(horizontal = 14.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            when (poster.liked) {
-                                Like.IDLE -> {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.heart),
-                                        contentDescription = "like",
-                                        modifier = Modifier.size(14.dp),
-                                        tint = Color.Black
-                                    )
-                                }
 
-                                Like.LIKED -> {
-                                    val animationLike = getAnimation("files/love.json", 1)
-                                    KottieAnimation(
-                                        composition = animationLike.first,
-                                        modifier = Modifier.size(14.dp).graphicsLayer {
-                                            scaleX = 5.4f
-                                            scaleY = 5.9f
-                                        },
-                                        progress = { animationLike.second.progress }
-                                    )
-                                }
-
-                                Like.UNLIKED -> {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.heart),
-                                        contentDescription = "like",
-                                        modifier = Modifier.size(14.dp),
-                                        tint = Color.Black
-                                    )
-                                }
-
-                            }
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "123",
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Card(
-                        modifier = Modifier.wrapContentSize(),
-                        shape = RoundedCornerShape(20.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
-                    ) {
-                        Row(
-                            modifier = Modifier.wrapContentSize()
-                                .padding(horizontal = 14.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.share),
-                                contentDescription = "shared",
-                                modifier = Modifier.size(14.dp),
-                                tint = Color.Black
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "123",
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Card(
-                        modifier = Modifier.wrapContentSize(),
-                        shape = RoundedCornerShape(20.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
-                    ) {
-                        Row(
-                            modifier = Modifier.wrapContentSize()
-                                .padding(horizontal = 14.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.chat),
-                                contentDescription = "comments",
-                                modifier = Modifier.size(15.dp),
-                                tint = Color.Black
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "45",
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(
-                        painter = painterResource(Res.drawable.flag),
-                        contentDescription = "right_arrow",
-                        tint = Color.Black,
-                        modifier = Modifier.size(20.dp)
-                            .align(Alignment.CenterVertically),
-                    )
+                Spacer(modifier = Modifier.height(12.dp))
+                //for (attachment in poster.attachments) {
+                for (attachment in poster.attachments) {
+                    AttachmentCard(attachment = attachment)
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .background(brush = ButtonCardGradiant)
+                    .padding(16.dp)
+            )
+            {
+                Card(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable(onClick = {
+                            toggleLiked = !toggleLiked
+                            onAction(HomeScreenAction.OnLikeClicked(poster.id, toggleLiked))
+                        }
+                        ),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.wrapContentSize()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        when (poster.liked) {
+                            Like.IDLE -> {
+                                Icon(
+                                    painter = painterResource(Res.drawable.heart),
+                                    contentDescription = "like",
+                                    modifier = Modifier.size(14.dp),
+                                    tint = Color.Black
+                                )
+                            }
 
+                            Like.LIKED -> {
+                                val animationLike = getAnimation("files/love.json", 1)
+                                KottieAnimation(
+                                    composition = animationLike.first,
+                                    modifier = Modifier.size(14.dp).graphicsLayer {
+                                        scaleX = 5.4f
+                                        scaleY = 5.9f
+                                    },
+                                    progress = { animationLike.second.progress }
+                                )
+                            }
+
+                            Like.UNLIKED -> {
+                                Icon(
+                                    painter = painterResource(Res.drawable.heart),
+                                    contentDescription = "like",
+                                    modifier = Modifier.size(14.dp),
+                                    tint = Color.Black
+                                )
+                            }
+
+                        }
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "123",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Card(
+                    modifier = Modifier.wrapContentSize(),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.wrapContentSize()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.share),
+                            contentDescription = "shared",
+                            modifier = Modifier.size(14.dp),
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "123",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Card(
+                    modifier = Modifier.wrapContentSize(),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.wrapContentSize()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.chat),
+                            contentDescription = "comments",
+                            modifier = Modifier.size(15.dp),
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "45",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    painter = painterResource(Res.drawable.flag),
+                    contentDescription = "right_arrow",
+                    tint = if(poster.isSaved) PrimaryBlue else Color.Black,
+                    modifier = Modifier.size(20.dp)
+                        .align(Alignment.CenterVertically)
+                        .clickable {
+                            onAction(HomeScreenAction.OnSavedClicked(poster.id))
+                        },
+                )
+            }
         }
     }
 }
@@ -824,8 +857,7 @@ fun AttachmentCard(
     attachment: String
 ) {
     Card(
-        elevation = CardDefaults.cardElevation(1.dp),
-        border = BorderStroke(0.5.dp, Color.LightGray),
+        border = BorderStroke(0.5.dp, BorderGray),
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp)
     ) {

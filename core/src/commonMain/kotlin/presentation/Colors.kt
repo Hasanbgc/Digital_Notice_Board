@@ -87,6 +87,11 @@ val continueButtonBackgroundActive = Brush.linearGradient(
     start = Offset(0f, 0f),   // top-left
     end = Offset.Infinite
 )
+val GradientGreen = Brush.linearGradient(
+    colors = listOf(PrimaryGreen, SecondaryGreen,TertiaryGreen),
+    start = Offset(0f, 0f),   // top-left
+    end = Offset.Infinite
+)
 val signInButtonBackgroundInactive = Brush.linearGradient(
     colors = listOf(Color(0xFFF47CA4), Color(0xFFF47CB4),Color(0xFFF47C94)),
     start = Offset(0f, 0f),   // top-left
@@ -105,11 +110,11 @@ val ViolateGradiant = Brush.linearGradient(
 )
 
 val FileCardGradiant = Brush.linearGradient(
-    colors= listOf(Color(0xFFF8FCFC),Color(0xFFF2F4FC))
+    colors= listOf(Color(0xFFF9Fafb),Color(0xFFF2F4FC))
 )
 
 val ButtonCardGradiant = Brush.linearGradient(
-    colors= listOf(Color(0xFFECF4FC),Color(0xFFCCE4FC))
+    colors= listOf(Color(0xFFECF4FC),Color(0xFFECF4FC))
 )
 
 

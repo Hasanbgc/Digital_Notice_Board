@@ -26,7 +26,7 @@ class HomeViewModel: ViewModel() {
             is HomeScreenAction.OnLikeClicked -> updateLike(action.id, action.liked)
             is HomeScreenAction.OnShareClicked -> {}
             is HomeScreenAction.OnCommentClicked -> {}
-            HomeScreenAction.OnSavedClicked -> {}
+            is HomeScreenAction.OnSavedClicked -> savePost(action.id)
             is HomeScreenAction.OnProfileClicked -> {}
             is HomeScreenAction.OnLocationClicked -> {}
             is HomeScreenAction.PostANoticeClicked -> {}
@@ -57,6 +57,20 @@ class HomeViewModel: ViewModel() {
                 poster = it.poster.map { poster ->
                     if (poster is Poster.Normal && poster.id == id) {
                         poster.copy(liked = if (liked)Like.LIKED else Like.UNLIKED ) // or !poster.liked to toggle
+                    } else {
+                        poster // Return unchanged poster
+                    }
+                }
+            )
+        }
+    }
+
+    fun savePost(id:Int){
+        _homeScreenState.update {
+            it.copy(
+                poster = it.poster.map { poster ->
+                    if (poster is Poster.Normal && poster.id == id) {
+                        poster.copy(isSaved = !poster.isSaved) // or !poster.liked to toggle
                     } else {
                         poster // Return unchanged poster
                     }
