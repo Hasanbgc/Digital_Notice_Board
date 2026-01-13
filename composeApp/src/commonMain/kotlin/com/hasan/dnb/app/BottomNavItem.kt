@@ -82,7 +82,7 @@ fun SwipeableBottomNavigationBar(
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
             .height(70.dp)
-            .clip(RoundedCornerShape(64.dp))   // ✅ CLIP FIRST
+            .clip(RoundedCornerShape(64.dp))
     ) {
         // 🔹 Frosted glass background
         Box(
@@ -107,7 +107,7 @@ fun SwipeableBottomNavigationBar(
         // 🔹 Navigation bar
         NavigationBar(
             modifier = Modifier
-                .matchParentSize()              // ✅ important
+                .matchParentSize()
                 .background(Color.Transparent),
             containerColor = Color.Transparent,
             tonalElevation = 0.dp,

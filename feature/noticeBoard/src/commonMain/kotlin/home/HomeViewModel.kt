@@ -2,6 +2,7 @@ package home
 
 import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
+import home.dialog.DialogState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -11,18 +12,14 @@ class HomeViewModel: ViewModel() {
     val _homeScreenState = MutableStateFlow(HomeScreenState())
     val state = _homeScreenState.asStateFlow()
 
-   /* fun updateHomeState(state: HomeScreenState){
-        _homeScreenState.update { it.copy(
-            isLoading = state.isLoading,
-            poster = state.poster,
-            error = state.error
-        ) }
-    }*/
+   val _dialogState = MutableStateFlow<DialogState?>(null)
+    val dialogState = _dialogState.asStateFlow()
+
     fun onAction(action: HomeScreenAction) {
         when (action) {
             HomeScreenAction.OnEmergencyAlertDismiss -> toggleEmergencyAlert(true)
             is HomeScreenAction.OnEmergencyPosterClicked -> {}
-            is HomeScreenAction.OnImageClicked -> {}
+            is HomeScreenAction.OnImageClicked -> showImageDialog(action.imageList,action.id)
             is HomeScreenAction.OnLikeClicked -> updateLike(action.id, action.liked)
             is HomeScreenAction.OnShareClicked -> {}
             is HomeScreenAction.OnCommentClicked -> {}
@@ -32,6 +29,8 @@ class HomeViewModel: ViewModel() {
             is HomeScreenAction.PostANoticeClicked -> {}
             is HomeScreenAction.OnNotificationClicked -> toggleEmergencyAlert(false)
             is HomeScreenAction.OnSearchQueryChanged -> updateQuery(action.query)
+            is HomeScreenAction.OnDismissDialog -> dismissDialog()
+
         }
     }
 
@@ -77,6 +76,17 @@ class HomeViewModel: ViewModel() {
                 }
             )
         }
+    }
+
+    fun showImageDialog(imageList:List<String>,index:Int){
+        _dialogState.value = DialogState(
+            imageUrl =imageList,
+            imagePosition = index,
+            isDialogOpen = true
+        )
+    }
+    fun dismissDialog(){
+        _dialogState.value = null
     }
 
 }

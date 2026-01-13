@@ -1,18 +1,6 @@
 package home
 
-import presentation.AccentGreen
-import presentation.ButtonCardGradiant
-import presentation.EmergenceyAlertRedBG
-import presentation.EmergencyIconBG
-import presentation.ErrorRed
-import presentation.FileCardGradiant
 import KottieAnimation
-import presentation.NeonEffect
-import presentation.PrimaryBlue
-import presentation.PrimaryText
-import presentation.PrimaryTextAlt2
-import presentation.ShareButtonGradiant
-import presentation.ViolateGradiant
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.animateContentSize
@@ -49,13 +37,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -74,6 +62,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
@@ -83,7 +72,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import presentation.cornerStretchAnimation
 import digita_notice_board.feature.noticeboard.generated.resources.Res
 import digita_notice_board.feature.noticeboard.generated.resources.chat
 import digita_notice_board.feature.noticeboard.generated.resources.document
@@ -95,7 +83,7 @@ import digita_notice_board.feature.noticeboard.generated.resources.warning
 import home.component.FloatingAddButton
 import home.component.ProfileImageWithPlaceholder
 import home.component.RoundGradientButton
-import home.component.WaveFilledShape
+import home.dialog.ImageFullScreenDialog
 import kotlinx.coroutines.launch
 import kottieAnimationState.KottieAnimationState
 import kottieComposition.KottieCompositionResult
@@ -105,13 +93,22 @@ import kottieComposition.rememberKottieComposition
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import presentation.BorderGray
+import presentation.ButtonCardGradiant
+import presentation.EmergenceyAlertRedBG
+import presentation.EmergencyIconBG
+import presentation.ErrorRed
+import presentation.FileCardGradiant
 import presentation.GradientGreen
+import presentation.NeonEffect
 import presentation.NeutralGray500
+import presentation.PrimaryBlue
+import presentation.PrimaryText
 import presentation.PrimaryTextAlt1
+import presentation.PrimaryTextAlt2
+import presentation.ShareButtonGradiant
 import presentation.TertiaryGreen
-import presentation.TrackColor
-import presentation.continueButtonBackgroundActive
-import presentation.signInButtonBackgroundActive
+import presentation.ViolateGradiant
+import presentation.cornerStretchAnimation
 import utils.KottieConstants
 
 @Composable
@@ -119,7 +116,9 @@ fun HomeScreenRoot(
     viewModel: HomeViewModel,
     onNavigateToDetail: (String) -> Unit
 ) {
+
     val state by viewModel.state.collectAsStateWithLifecycle()
+    ImageFullScreenDialog(viewModel)
 
     HomeScreen(
         state = state,
@@ -152,6 +151,7 @@ fun HomeScreen(
         SharedTransitionLayout {
             // UI code
             Column(modifier = Modifier.fillMaxSize()) {
+                val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -202,15 +202,27 @@ fun HomeScreen(
 
                         Spacer(Modifier.width(4.dp))
                         AnimatedVisibility(state.emergencyAlertClosed) {
-                            RoundGradientButton(
-                                modifier = Modifier.wrapContentSize(),
-                                text = "notification",
-                                icon = Icons.Outlined.Notifications,
-                                iconTint = Color.White,
-                                gradientColors = signInButtonBackgroundActive,
-                                shape = RoundedCornerShape(30.dp),
-                                onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
-                            )
+                            BadgedBox(
+                                badge = {
+                                    Badge(
+                                        containerColor = ErrorRed,
+                                        contentColor = Color.White
+                                    ) {
+                                        Text(emergencyNoticeCount.toString())
+                                    }
+                                }
+                            ){
+                                RoundGradientButton(
+                                    modifier = Modifier.wrapContentSize(),
+                                    text = "notification",
+                                    icon = Icons.Outlined.Notifications,
+                                    iconTint = Color.White,
+                                    gradientColors = SolidColor(EmergenceyAlertRedBG),
+                                    shape = RoundedCornerShape(30.dp),
+                                    onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
+                                )
+                            }
+
                         }
                     }
                 }
@@ -244,8 +256,6 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 if (state.poster.isNotEmpty() && !state.emergencyAlertClosed) {
-                    val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
-
                     if (emergencyNoticeCount > 0) {
                         Row(
                             modifier = Modifier
@@ -649,7 +659,9 @@ fun NormalNotice(
                                 AsyncImage(
                                     model = poster.imageUrlList[0],
                                     contentDescription = "image",
-                                    modifier = Modifier.fillMaxSize(),
+                                    modifier = Modifier.fillMaxSize().clickable{
+                                        onAction(HomeScreenAction.OnImageClicked(poster.imageUrlList,0))
+                                    },
                                     contentScale = ContentScale.Crop
                                 )
                             }
@@ -669,7 +681,9 @@ fun NormalNotice(
                                     AsyncImage(
                                         model = poster.imageUrlList[0],
                                         contentDescription = "image",
-                                        modifier = Modifier.fillMaxSize(),
+                                        modifier = Modifier.fillMaxSize().clickable{
+                                            onAction(HomeScreenAction.OnImageClicked(poster.imageUrlList,0))
+                                        },
                                         contentScale = ContentScale.Crop
                                     )
                                 }
@@ -684,7 +698,9 @@ fun NormalNotice(
                                         AsyncImage(
                                             model = poster.imageUrlList[1],
                                             contentDescription = "image",
-                                            modifier = Modifier.fillMaxSize(),
+                                            modifier = Modifier.fillMaxSize().clickable{
+                                                onAction(HomeScreenAction.OnImageClicked(poster.imageUrlList,1))
+                                            },
                                             contentScale = ContentScale.Crop
                                         )
                                         if (poster.imageUrlList.size > 2) {
