@@ -919,8 +919,8 @@ fun getIcon(poster: Poster.Emergency): String {
         Topic.LOAD_SHEDDING -> TODO() // painterResource(Res.drawable.load_shedding)
         Topic.ROAD_CONSTRUCTION -> TODO() // painterResource(Res.drawable.road_construction)
         Topic.EARTHQUAKE -> TODO()
-        Topic.GAS_LEAK -> TODO()
-        Topic.ACCIDENT -> TODO()
+        Topic.GAS_LEAK -> "files/gas_leak.json"
+        Topic.ACCIDENT -> "files/accident.json"
         Topic.STORM -> TODO()
         Topic.CYCLONE -> TODO()
         Topic.WATER_SUPPLY_DISRUPTION -> TODO()
