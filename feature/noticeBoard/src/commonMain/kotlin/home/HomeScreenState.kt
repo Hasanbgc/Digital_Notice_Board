@@ -9,7 +9,8 @@ data class HomeScreenState(
     val isEmergencyPosterExpanded: Boolean = false,
     val emergencyAlertClosed: Boolean = false,
     val searchQuery:String = "",
-    val scrollToTop: Boolean = false
+    val scrollToTop: Boolean = false,
+    val openBottomSheet: Boolean = false
 )
 val posterList = listOf(
     Poster.Emergency(

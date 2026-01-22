@@ -24,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,31 +33,30 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import home.HomeScreenAction
-import home.HomeViewModel
 import kotlinx.coroutines.launch
 import presentation.NeutralGray500
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageFullScreenDialog(
-    viewModel: HomeViewModel
+    state: DialogState?,
+    onAction: (HomeScreenAction) -> Unit
 ) {
-    val state by viewModel.dialogState.collectAsStateWithLifecycle()
+
 
     state?.let {
         Dialog(
             onDismissRequest = {
-                viewModel.onAction(HomeScreenAction.OnDismissDialog)
+                onAction(HomeScreenAction.OnDismissDialog)
             },
             properties = DialogProperties(
                 usePlatformDefaultWidth = false
             )
         ) {
             DialogWithCarousal(it.imageUrl + it.imageUrl + it.imageUrl, it.imagePosition){
-                viewModel.onAction(HomeScreenAction.OnDismissDialog)
+                onAction(HomeScreenAction.OnDismissDialog)
             }
         }
     }

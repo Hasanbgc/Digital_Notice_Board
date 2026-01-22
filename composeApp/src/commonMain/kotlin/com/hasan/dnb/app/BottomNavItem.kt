@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import presentation.BottleGreen
 import presentation.DeepGreen
 import presentation.GradientGreen
-import presentation.GradientIndicatorBg
 import presentation.PrimaryBlue
 import presentation.PrimaryTextAlt2
 import presentation.SecondaryBlue

@@ -46,11 +46,13 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -80,6 +82,7 @@ import digita_notice_board.feature.noticeboard.generated.resources.flaged
 import digita_notice_board.feature.noticeboard.generated.resources.heart
 import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
+import home.BottomSheet.CreateNoticeBottomSheet
 import home.component.FloatingAddButton
 import home.component.ProfileImageWithPlaceholder
 import home.component.RoundGradientButton
@@ -111,6 +114,7 @@ import presentation.ViolateGradiant
 import presentation.cornerStretchAnimation
 import utils.KottieConstants
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenRoot(
     viewModel: HomeViewModel,
@@ -118,12 +122,25 @@ fun HomeScreenRoot(
 ) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ImageFullScreenDialog(viewModel)
+    val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
+    val createNoticeState by viewModel.createNoticeState.collectAsStateWithLifecycle()
+
 
     HomeScreen(
         state = state,
         onAction = viewModel::onAction,
         onNavigateToDetail = onNavigateToDetail
+    )
+
+    ImageFullScreenDialog(
+        state = dialogState,
+        onAction = viewModel::onAction
+    )
+
+    CreateNoticeBottomSheet(
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        state = createNoticeState,
+        onAction = viewModel::onCreateNoticeAction
     )
 
 }
@@ -211,7 +228,7 @@ fun HomeScreen(
                                         Text(emergencyNoticeCount.toString())
                                     }
                                 }
-                            ){
+                            ) {
                                 RoundGradientButton(
                                     modifier = Modifier.wrapContentSize(),
                                     text = "notification",
@@ -227,7 +244,7 @@ fun HomeScreen(
                     }
                 }
 
-                if(searchToggle) {
+                if (searchToggle) {
                     OutlinedTextField(
                         value = state.searchQuery,
                         onValueChange = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
@@ -263,7 +280,7 @@ fun HomeScreen(
                                 .wrapContentHeight()
                                 .background(color = EmergenceyAlertRedBG)
                                 .padding(12.dp)
-                                .clickable{
+                                .clickable {
                                     scope.launch {
                                         lazyListState.animateScrollToItem(0)
                                     }
@@ -313,7 +330,7 @@ fun HomeScreen(
                     state = lazyListState,
                     modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding =  PaddingValues(
+                    contentPadding = PaddingValues(
                         bottom = paddingValues.calculateBottomPadding() + 120.dp
                     )
                 )
@@ -532,7 +549,6 @@ fun NormalNotice(
     var showSeeMore by remember { mutableStateOf(false) }
     var toggleLiked by remember { mutableStateOf(false) }
     val animationLike = getAnimation("files/love.json", 1)
-    //val animationUnlike = getAnimation("file/heart.json",1)
 
 
     Card(
@@ -554,10 +570,11 @@ fun NormalNotice(
                     .padding(12.dp)
             ) {
 
-                Row(verticalAlignment = Alignment.Top,
+                Row(
+                    verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
-                    ){
+                ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         ProfileImageWithPlaceholder(
                             modifier = Modifier.size(46.dp),
@@ -585,24 +602,27 @@ fun NormalNotice(
                             )
                         }
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top= 5.dp)
-                        ){
-                        Row(verticalAlignment = Alignment.CenterVertically,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 5.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceAround,
                             modifier = Modifier.background(
                                 brush = GradientGreen,
                                 shape = RoundedCornerShape(8.dp)
                             ).padding(vertical = 4.dp, horizontal = 8.dp)
-                            ){
+                        ) {
                             Icon(
                                 imageVector = Icons.Outlined.Notifications,
                                 contentDescription = "notification",
                                 tint = Color.White,
                                 modifier = Modifier.size(14.dp)
-                                )
+                            )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = "Education",
+                            Text(
+                                text = "Education",
                                 fontSize = 12.sp,
                                 color = Color.White,
                             )
@@ -659,8 +679,13 @@ fun NormalNotice(
                                 AsyncImage(
                                     model = poster.imageUrlList[0],
                                     contentDescription = "image",
-                                    modifier = Modifier.fillMaxSize().clickable{
-                                        onAction(HomeScreenAction.OnImageClicked(poster.imageUrlList,0))
+                                    modifier = Modifier.fillMaxSize().clickable {
+                                        onAction(
+                                            HomeScreenAction.OnImageClicked(
+                                                poster.imageUrlList,
+                                                0
+                                            )
+                                        )
                                     },
                                     contentScale = ContentScale.Crop
                                 )
@@ -681,8 +706,13 @@ fun NormalNotice(
                                     AsyncImage(
                                         model = poster.imageUrlList[0],
                                         contentDescription = "image",
-                                        modifier = Modifier.fillMaxSize().clickable{
-                                            onAction(HomeScreenAction.OnImageClicked(poster.imageUrlList,0))
+                                        modifier = Modifier.fillMaxSize().clickable {
+                                            onAction(
+                                                HomeScreenAction.OnImageClicked(
+                                                    poster.imageUrlList,
+                                                    0
+                                                )
+                                            )
                                         },
                                         contentScale = ContentScale.Crop
                                     )
@@ -698,8 +728,13 @@ fun NormalNotice(
                                         AsyncImage(
                                             model = poster.imageUrlList[1],
                                             contentDescription = "image",
-                                            modifier = Modifier.fillMaxSize().clickable{
-                                                onAction(HomeScreenAction.OnImageClicked(poster.imageUrlList,1))
+                                            modifier = Modifier.fillMaxSize().clickable {
+                                                onAction(
+                                                    HomeScreenAction.OnImageClicked(
+                                                        poster.imageUrlList,
+                                                        1
+                                                    )
+                                                )
                                             },
                                             contentScale = ContentScale.Crop
                                         )
@@ -856,9 +891,9 @@ fun NormalNotice(
 
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
-                    painter = painterResource(if(poster.isSaved)Res.drawable.flaged else Res.drawable.flag),
+                    painter = painterResource(if (poster.isSaved) Res.drawable.flaged else Res.drawable.flag),
                     contentDescription = "right_arrow",
-                    tint = if(poster.isSaved) TertiaryGreen else Color.Black,
+                    tint = if (poster.isSaved) TertiaryGreen else Color.Black,
                     modifier = Modifier.size(20.dp)
                         .align(Alignment.CenterVertically)
                         .clickable {

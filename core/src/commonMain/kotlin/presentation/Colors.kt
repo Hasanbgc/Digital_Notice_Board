@@ -127,3 +127,7 @@ val ShareButtonGradiant = Brush.linearGradient(
 val GradientIndicatorBg = Brush.linearGradient(
     colors = listOf(Color(0xFFe1e7ff),Color(0xFFf1e8ff))
 )
+val GradientInactiveBg = Brush.linearGradient(
+    colors = listOf(LightBorder,LightBorderAlt)
+
+)
