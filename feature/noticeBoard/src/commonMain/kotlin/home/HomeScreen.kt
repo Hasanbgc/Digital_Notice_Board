@@ -59,6 +59,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,6 +84,8 @@ import digita_notice_board.feature.noticeboard.generated.resources.heart
 import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
 import home.BottomSheet.CreateNoticeBottomSheet
+import home.BottomSheet.CreateNoticeScreenAction
+import home.component.CustomSearchBar
 import home.component.FloatingAddButton
 import home.component.ProfileImageWithPlaceholder
 import home.component.RoundGradientButton
@@ -153,6 +156,7 @@ fun HomeScreen(
     onNavigateToDetail: (String) -> Unit
 ) {
     var searchToggle by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
     Scaffold(
@@ -244,34 +248,23 @@ fun HomeScreen(
                     }
                 }
 
-                if (searchToggle) {
-                    OutlinedTextField(
-                        value = state.searchQuery,
-                        onValueChange = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
-                        modifier = Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 8.dp),
-                        placeholder = {
-                            Text(
-                                text = "Search",
-                                fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                                fontWeight = FontWeight.Medium,
-                                color = NeutralGray500,
-                            )
-                        },
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "search",
-                                tint = PrimaryTextAlt1,
-                                modifier = Modifier.clickable {
-                                    onAction(HomeScreenAction.OnSearchQueryChanged(""))
-                                }
-                            )
-                        },
-                        shape = RoundedCornerShape(30.dp)
+
+                AnimatedVisibility(
+                    visible = searchToggle,
+                ) {
+                    CustomSearchBar(
+                        query = state.searchQuery,
+                        expanded = expanded,
+                        onExpandedChange = { expanded = it },
+                        onQueryChange = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                        onSearch = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                        onHistoryClick = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                        onSuggestionClick = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
                 if (state.poster.isNotEmpty() && !state.emergencyAlertClosed) {
                     if (emergencyNoticeCount > 0) {
                         Row(

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -72,7 +73,7 @@ fun CustomSearchBar(
             query.isNotEmpty() && filteredSuggestion.isNotEmpty() && expanded
         }
     }
-    val showSearchResult by remember (query, expanded) {
+    val showSearchResult by remember(query, expanded) {
         derivedStateOf {
             query.isNotEmpty() && expanded
         }
@@ -108,7 +109,7 @@ fun CustomSearchBar(
                             }
                         }
                         if (expanded) {
-                            IconButton(onClick = { onExpandedChange(false)  }) {
+                            IconButton(onClick = { onExpandedChange(false) }) {
                                 Icon(
                                     Icons.Default.ArrowBack,
                                     contentDescription = "Back"
@@ -116,20 +117,20 @@ fun CustomSearchBar(
                             }
                         }
                     }
-                },
-
-                )
+                }
+            )
         },
         expanded = expanded,
-        onExpandedChange = {onExpandedChange(it)},
+        onExpandedChange = { onExpandedChange(it) },
         shape = RoundedCornerShape(28.dp),
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        modifier = modifier,
         tonalElevation = 6.dp,
         shadowElevation = 2.dp,
-    ){
-        when{
-            showHistory ->{
-                searchHistoryContent(
+        windowInsets = WindowInsets(0.dp)
+    ) {
+        when {
+            showHistory -> {
+                SearchHistoryContent(
                     history = history,
                     onHistoryClick = { query ->
                         onHistoryClick(query)
@@ -139,7 +140,8 @@ fun CustomSearchBar(
                     onHistoryRemoved = {},
                 )
             }
-            showSuggestion ->{
+
+            showSuggestion -> {
                 SuggestionsContent(
                     suggestions = filteredSuggestion,
                     onSuggestionClick = {
@@ -147,7 +149,8 @@ fun CustomSearchBar(
                     }
                 )
             }
-            showSearchResult ->{
+
+            showSearchResult -> {
                 SearchResultContent(
                     searchResult = searchResults,
                     onSearchResultClick = {
@@ -161,21 +164,21 @@ fun CustomSearchBar(
 }
 
 @Composable
-private fun searchHistoryContent(
+private fun SearchHistoryContent(
     history: List<String>,
     onHistoryClick: (String) -> Unit,
     onHistoryRemoved: (String) -> Unit,
-){
-    if(history.isEmpty()){
+) {
+    if (history.isEmpty()) {
         EmptyStateContent(
             message = "No Search History",
             icon = Icons.Default.SearchOff,
         )
-    }else{
-        LazyColumn{
-            items(history){ historyItem ->
+    } else {
+        LazyColumn {
+            items(history) { historyItem ->
                 ListItem(
-                    headlineContent = {Text(text = historyItem)},
+                    headlineContent = { Text(text = historyItem) },
                     leadingContent = {
                         Icon(
                             imageVector = Icons.Default.History,
@@ -203,23 +206,23 @@ private fun SuggestionsContent(
     suggestions: List<String>,
     onSuggestionClick: (String) -> Unit,
 ) {
-    if(suggestions.isEmpty()) {
+    if (suggestions.isEmpty()) {
         EmptyStateContent(
             message = "No Suggestions",
             icon = Icons.Default.SearchOff,
         )
-    }else{
-        LazyColumn{
-            items(suggestions){ suggestionItem ->
+    } else {
+        LazyColumn {
+            items(suggestions) { suggestionItem ->
                 ListItem(
-                    headlineContent = {Text(suggestionItem)},
+                    headlineContent = { Text(suggestionItem) },
                     leadingContent = {
                         Icon(
                             imageVector = Icons.Default.Lightbulb,
                             contentDescription = null
                         )
                     },
-                    modifier = Modifier.clickable { onSuggestionClick(suggestionItem)}
+                    modifier = Modifier.clickable { onSuggestionClick(suggestionItem) }
                 )
             }
         }
@@ -231,21 +234,22 @@ private fun SearchResultContent(
     searchResult: List<String>,
     onSearchResultClick: (String) -> Unit,
 ) {
-    if(searchResult.isEmpty()) {
+    if (searchResult.isEmpty()) {
         EmptyStateContent(
             message = "No Search Result",
             icon = Icons.Default.SearchOff,
         )
-    }else{
-        LazyColumn{
+    } else {
+        LazyColumn {
             items(searchResult) { searchResultItem ->
                 ListItem(
-                    headlineContent = {Text(searchResultItem)},
+                    headlineContent = { Text(searchResultItem) },
                     leadingContent = {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null
-                        )},
+                        )
+                    },
                     modifier = Modifier.clickable { onSearchResultClick(searchResultItem) }
                 )
             }
