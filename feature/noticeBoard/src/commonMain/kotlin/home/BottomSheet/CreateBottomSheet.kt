@@ -139,7 +139,9 @@ fun CreateNoticeBottomSheet(
                         }
 
                         NoticeCreationStep.PICK_CATEGORY -> {}
-                        NoticeCreationStep.ADD_NOTICE_BODY -> {}
+                        NoticeCreationStep.ADD_NOTICE_BODY -> {
+                            NoteBodyScreen(state = state, onAction = onAction)
+                        }
                         else -> {}
                     }
                 }

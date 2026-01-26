@@ -69,6 +69,12 @@ val BottleGreen = Color(0xFF0C7779)
 val RamadanGreen = Color(0xFF2E7D32)
 
 val Violate = Color(0xFF6E61FF)
+val BGRedIcon = Color(0xFFfed0d6)
+val BGRed = Color(0xFFffe8ec)
+val BGGreenIcon = Color(0xFFd3ecde)
+val BGGreen = Color(0xFFe8f5ee)
+
+
 
 val splashScreenBackground = Brush.linearGradient(
     colors = listOf(PrimaryGreenLight, SecondaryGreen, TertiaryGreen),
@@ -100,6 +106,7 @@ val signInButtonBackgroundInactive = Brush.linearGradient(
     start = Offset(0f, 0f),   // top-left
     end = Offset.Infinite
 )
+
 val signInButtonBackgroundActive = Brush.linearGradient(
     colors = listOf(Color(0xFFE40459), Color(0xFFE40430),Color(0xFFEC444C)),
     start = Offset(0f, 0f),   // top-left

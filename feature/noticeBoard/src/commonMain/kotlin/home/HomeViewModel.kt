@@ -50,8 +50,9 @@ class HomeViewModel : ViewModel() {
             is CreateNoticeScreenAction.OnSearchQueryChanged -> updateTypeSearchQuery(action.query)
             is CreateNoticeScreenAction.PickedCategory -> navigateToNextStep(action.category)
             is CreateNoticeScreenAction.PublishNoticeClicked -> {}
-            CreateNoticeScreenAction.OnSearchClose -> {}
-            else -> {}
+            is CreateNoticeScreenAction.OnSearchClose -> {}
+            is CreateNoticeScreenAction.OnBackPress -> {}
+            is CreateNoticeScreenAction.OnCategoryChangeClicked -> navigateToPreviousStep()
         }
     }
 
@@ -136,6 +137,14 @@ class HomeViewModel : ViewModel() {
                 quickPickCategory =  categories.filter { category ->
                     category.title.contains(query, ignoreCase = true)
                 }
+            )
+        }
+    }
+    fun navigateToPreviousStep(){
+        _createNoticeState.update {
+            it?.copy(
+                currentStep = NoticeCreationStep.QUICK_PICK_CATEGORY,
+                selectedCategory = null
             )
         }
     }

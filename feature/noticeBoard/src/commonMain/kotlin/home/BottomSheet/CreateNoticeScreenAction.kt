@@ -9,4 +9,5 @@ sealed class CreateNoticeScreenAction {
     data class OnFilterClicked(val category: ParentCategory) : CreateNoticeScreenAction()
     data class OnSearchQueryChanged(val query: String) : CreateNoticeScreenAction()
     object PublishNoticeClicked : CreateNoticeScreenAction()
+    object OnCategoryChangeClicked: CreateNoticeScreenAction()
 }

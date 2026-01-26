@@ -77,34 +77,34 @@ val emergencyParent = ParentCategory(
 
 val categories = listOf(
 
-    // 🛠 Services
+    //common
     Category(
         id = 1,
-        title = "Electrician",
-        icon = Icons.Default.ElectricalServices,
-        description = "Electrical repair, wiring, and maintenance services",
-        parentCategory = servicesParent
+        title = "Emergency Alert",
+        icon = Icons.Default.CrisisAlert,
+        description = "Urgent alerts and important emergency notices",
+        parentCategory = emergencyParent
     ),
     Category(
         id = 2,
-        title = "Plumber",
-        icon = Icons.Default.Plumbing,
-        description = "Pipe fitting, leakage fixing, and plumbing services",
-        parentCategory = servicesParent
+        title = "Health & Medical",
+        icon = Icons.Default.LocalHospital,
+        description = "Medical help, blood requests, and health services",
+        parentCategory = emergencyParent
     ),
     Category(
         id = 3,
-        title = "Home Cleaning",
-        icon = Icons.Default.CleaningServices,
-        description = "Professional home and office cleaning services",
-        parentCategory = servicesParent
+        title = "Education & Coaching",
+        icon = Icons.Default.School,
+        description = "Tuition, coaching centers, and learning services",
+        parentCategory = communityParent
     ),
     Category(
         id = 4,
-        title = "Car Repair",
-        icon = Icons.Default.CarRepair,
-        description = "Car servicing and mechanical repair solutions",
-        parentCategory = servicesParent
+        title = "Job Circular",
+        icon = Icons.Default.Work,
+        description = "Local job postings and hiring announcements",
+        parentCategory = communityParent
     ),
 
     // 🛍 Marketplace
@@ -152,36 +152,36 @@ val categories = listOf(
         description = "Report lost or found items in your area",
         parentCategory = communityParent
     ),
+    // 🛠 Services
     Category(
         id = 11,
-        title = "Job Circular",
-        icon = Icons.Default.Work,
-        description = "Local job postings and hiring announcements",
-        parentCategory = communityParent
+        title = "Car Repair",
+        icon = Icons.Default.CarRepair,
+        description = "Car servicing and mechanical repair solutions",
+        parentCategory = servicesParent
     ),
     Category(
         id = 12,
-        title = "Education & Coaching",
-        icon = Icons.Default.School,
-        description = "Tuition, coaching centers, and learning services",
-        parentCategory = communityParent
+        title = "Home Cleaning",
+        icon = Icons.Default.CleaningServices,
+        description = "Professional home and office cleaning services",
+        parentCategory = servicesParent
     ),
-
-    // 🚨 Emergency
     Category(
         id = 13,
-        title = "Emergency Alert",
-        icon = Icons.Default.CrisisAlert,
-        description = "Urgent alerts and important emergency notices",
-        parentCategory = emergencyParent
+        title = "Electrician",
+        icon = Icons.Default.ElectricalServices,
+        description = "Electrical repair, wiring, and maintenance services",
+        parentCategory = servicesParent
     ),
     Category(
         id = 14,
-        title = "Health & Medical",
-        icon = Icons.Default.LocalHospital,
-        description = "Medical help, blood requests, and health services",
-        parentCategory = emergencyParent
+        title = "Plumber",
+        icon = Icons.Default.Plumbing,
+        description = "Pipe fitting, leakage fixing, and plumbing services",
+        parentCategory = servicesParent
     ),
+
     Category(
         id = 15,
         title = "Security Notice",
