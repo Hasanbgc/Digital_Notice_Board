@@ -2,6 +2,7 @@ package home
 
 import KottieAnimation
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -148,7 +149,7 @@ fun HomeScreenRoot(
 
 }
 
-
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun HomeScreen(
     state: HomeScreenState,

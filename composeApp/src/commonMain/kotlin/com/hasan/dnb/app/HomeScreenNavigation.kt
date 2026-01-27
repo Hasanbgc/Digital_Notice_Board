@@ -23,6 +23,7 @@ import home.HomeScreenRoot
 import home.HomeViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
 @Preview
 @Composable
@@ -59,21 +60,21 @@ fun HomeScreen(
                 val destination = bottomNavItems[page].destination
                 when (destination) {
                     MainDestination.Home -> {
-                        val viewModel: HomeViewModel = viewModel()
+                        val viewModel: HomeViewModel = koinViewModel()
                         HomeScreenRoot(viewModel) {
 
                         }
                     }
 
                     MainDestination.Profile -> {
-                        val viewModel: ProfileViewModel = viewModel()
+                        val viewModel: ProfileViewModel = koinViewModel()
                         ProfileScreenRoot(viewModel) {
 
                         }
                     }
 
                     MainDestination.Settings -> {
-                        val viewModel: SettingsViewModel = viewModel()
+                        val viewModel: SettingsViewModel = koinViewModel()
                         SettingsScreenRoot(viewModel) {
 
                         }

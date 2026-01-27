@@ -38,6 +38,14 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.ktor.client.okhttp)
+
+
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            //coil
+            implementation(libs.bundles.coil)
+            implementation(libs.coil.network.ktor3)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -47,17 +55,13 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
 
             //koin
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-            //coil
-            implementation(libs.bundles.coil)
-            implementation(libs.coil.network.ktor3)
+
             //ktor
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)
