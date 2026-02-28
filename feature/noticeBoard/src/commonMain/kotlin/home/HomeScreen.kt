@@ -50,7 +50,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -85,7 +84,6 @@ import digita_notice_board.feature.noticeboard.generated.resources.heart
 import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
 import home.BottomSheet.CreateNoticeBottomSheet
-import home.BottomSheet.CreateNoticeScreenAction
 import home.component.CustomSearchBar
 import home.component.FloatingAddButton
 import home.component.ProfileImageWithPlaceholder
@@ -99,6 +97,7 @@ import kottieComposition.animateKottieCompositionAsState
 import kottieComposition.rememberKottieComposition
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import presentation.BorderGray
 import presentation.ButtonCardGradiant
 import presentation.EmergenceyAlertRedBG
@@ -107,10 +106,8 @@ import presentation.ErrorRed
 import presentation.FileCardGradiant
 import presentation.GradientGreen
 import presentation.NeonEffect
-import presentation.NeutralGray500
 import presentation.PrimaryBlue
 import presentation.PrimaryText
-import presentation.PrimaryTextAlt1
 import presentation.PrimaryTextAlt2
 import presentation.ShareButtonGradiant
 import presentation.TertiaryGreen
@@ -121,7 +118,7 @@ import utils.KottieConstants
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenRoot(
-    viewModel: HomeViewModel,
+    viewModel: HomeViewModel = koinViewModel(),
     onNavigateToDetail: (String) -> Unit
 ) {
 
