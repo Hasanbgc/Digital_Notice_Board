@@ -1,12 +1,11 @@
 package home
 
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
-import home.BottomSheet.Category
-import home.BottomSheet.CreateNoticeScreenAction
-import home.BottomSheet.CreateNoticeScreenState
-import home.BottomSheet.NoticeCreationStep
-import home.BottomSheet.categories
+import create.Category
+import create.CreateNoticeScreenAction
+import create.CreateNoticeScreenState
+import create.NoticeCreationStep
+import create.categories
 import home.dialog.DialogState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

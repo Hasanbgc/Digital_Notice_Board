@@ -83,7 +83,7 @@ import digita_notice_board.feature.noticeboard.generated.resources.flaged
 import digita_notice_board.feature.noticeboard.generated.resources.heart
 import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
-import home.BottomSheet.CreateNoticeBottomSheet
+import create.CreateNoticeBottomSheet
 import home.component.CustomSearchBar
 import home.component.FloatingAddButton
 import home.component.ProfileImageWithPlaceholder

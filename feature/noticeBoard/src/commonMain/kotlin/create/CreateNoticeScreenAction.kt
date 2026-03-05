@@ -1,4 +1,4 @@
-package home.BottomSheet
+package create
 
 sealed class CreateNoticeScreenAction {
     object OnDismiss : CreateNoticeScreenAction()
