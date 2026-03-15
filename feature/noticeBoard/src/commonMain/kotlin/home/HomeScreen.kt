@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -52,7 +51,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -83,9 +81,7 @@ import digita_notice_board.feature.noticeboard.generated.resources.flaged
 import digita_notice_board.feature.noticeboard.generated.resources.heart
 import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
-import home.BottomSheet.CreateNoticeBottomSheet
 import home.component.CustomSearchBar
-import home.component.FloatingAddButton
 import home.component.ProfileImageWithPlaceholder
 import home.component.RoundGradientButton
 import home.dialog.ImageFullScreenDialog
@@ -124,24 +120,16 @@ fun HomeScreenRoot(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
-    val createNoticeState by viewModel.createNoticeState.collectAsStateWithLifecycle()
-
 
     HomeScreen(
         state = state,
         onAction = viewModel::onAction,
-        onNavigateToDetail = onNavigateToDetail
+        onNavigateToDetail = onNavigateToDetail,
     )
 
     ImageFullScreenDialog(
         state = dialogState,
         onAction = viewModel::onAction
-    )
-
-    CreateNoticeBottomSheet(
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        state = createNoticeState,
-        onAction = viewModel::onCreateNoticeAction
     )
 
 }
@@ -159,13 +147,6 @@ fun HomeScreen(
     val lazyListState = rememberLazyListState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        floatingActionButton = {
-            FloatingAddButton(
-                modifier = Modifier.size(70.dp).offset(x = 0.dp, y = (-30).dp),
-            ) {
-                onAction(HomeScreenAction.PostANoticeClicked)
-            }
-        }
     ) { paddingValues ->
         SharedTransitionLayout {
             // UI code
@@ -322,7 +303,7 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(
-                        bottom = paddingValues.calculateBottomPadding() + 120.dp
+                        bottom = 80.dp
                     )
                 )
                 {

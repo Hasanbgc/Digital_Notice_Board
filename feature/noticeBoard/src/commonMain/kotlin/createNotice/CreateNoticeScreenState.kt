@@ -1,4 +1,4 @@
-package home.BottomSheet
+package createNotice
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apartment

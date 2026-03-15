@@ -6,7 +6,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -74,7 +73,7 @@ fun AppNavigation() {
                 })
             }
             entry<AppDestination.Main> {
-                HomeScreen()
+                MainNestedNavigation(onNavigate = {})
             }
         },
         transitionSpec = {

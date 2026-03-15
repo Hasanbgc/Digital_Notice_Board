@@ -15,13 +15,30 @@ sealed class AppDestination : NavKey {
     @Serializable
     data object Main : AppDestination()
 }
+
 @Serializable
-sealed class MainDestination {
+sealed class MainDestination() : NavKey {
     @Serializable
     data object Home : MainDestination()
+
     @Serializable
     data object Profile : MainDestination()
+
     @Serializable
     data object Settings : MainDestination()
+
+    @Serializable
+    data object CreateNotice : MainDestination()
 }
+
+@Serializable
+sealed class HomeDestination {
+    @Serializable
+    data object ForYou : HomeDestination()
+    @Serializable
+    data object NearBy : HomeDestination()
+    @Serializable
+    data object Saved : HomeDestination()
+}
+
 
