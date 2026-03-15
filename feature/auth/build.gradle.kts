@@ -35,21 +35,27 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            //maps
+            implementation(libs.maps.compose)
+            implementation(libs.play.services.maps)
+            implementation(libs.play.services.location)
+
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            //implementation("androidx.compose.animation:animation:1.5.1")
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.maps.compose)
-            implementation(libs.play.services.maps)
-            implementation(libs.play.services.location)
+            implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.coil.network.ktor3)
+            implementation(libs.coil.compose)
+
 
             implementation(project(":core"))
         }
@@ -59,9 +65,7 @@ kotlin {
                 implementation("io.ktor:ktor-client-darwin:3.0.0")
             }
         }
-        /*iosArm64Main.dependsOn(iosMain)
-        iosSimulatorArm64Main.dependsOn(iosMain)
-        iosX64Main.dependsOn(iosMain)*/
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }

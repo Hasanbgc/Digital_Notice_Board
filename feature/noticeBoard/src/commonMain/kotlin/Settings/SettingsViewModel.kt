@@ -3,6 +3,7 @@ package Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asFlow
@@ -142,6 +143,7 @@ class SettingsViewModel: ViewModel() {
             "$a + $b"
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun flatMapConcatExample() = flowOf(1,2,3,4)
         .flatMapConcat { value ->
             flow{

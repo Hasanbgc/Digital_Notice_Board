@@ -63,9 +63,18 @@ val BorderBlue = Color(0xFFBFDCFF)
 val SurfaceBlue = Color(0xFFEFF6FF)
 
 val DeepGreen = Color(0xFF006B4F)
+val BottleGreen = Color(0xFF0C7779)
 
 // Special green for Ramadan
 val RamadanGreen = Color(0xFF2E7D32)
+
+val Violate = Color(0xFF6E61FF)
+val BGRedIcon = Color(0xFFfed0d6)
+val BGRed = Color(0xFFffe8ec)
+val BGGreenIcon = Color(0xFFd3ecde)
+val BGGreen = Color(0xFFe8f5ee)
+
+
 
 val splashScreenBackground = Brush.linearGradient(
     colors = listOf(PrimaryGreenLight, SecondaryGreen, TertiaryGreen),
@@ -87,11 +96,17 @@ val continueButtonBackgroundActive = Brush.linearGradient(
     start = Offset(0f, 0f),   // top-left
     end = Offset.Infinite
 )
+val GradientGreen = Brush.linearGradient(
+    colors = listOf(PrimaryGreen, SecondaryGreen,TertiaryGreen),
+    start = Offset(0f, 0f),   // top-left
+    end = Offset.Infinite
+)
 val signInButtonBackgroundInactive = Brush.linearGradient(
     colors = listOf(Color(0xFFF47CA4), Color(0xFFF47CB4),Color(0xFFF47C94)),
     start = Offset(0f, 0f),   // top-left
     end = Offset.Infinite
 )
+
 val signInButtonBackgroundActive = Brush.linearGradient(
     colors = listOf(Color(0xFFE40459), Color(0xFFE40430),Color(0xFFEC444C)),
     start = Offset(0f, 0f),   // top-left
@@ -105,14 +120,21 @@ val ViolateGradiant = Brush.linearGradient(
 )
 
 val FileCardGradiant = Brush.linearGradient(
-    colors= listOf(Color(0xFFF8FCFC),Color(0xFFF2F4FC))
+    colors= listOf(Color(0xFFF9Fafb),Color(0xFFF2F4FC))
 )
 
 val ButtonCardGradiant = Brush.linearGradient(
-    colors= listOf(Color(0xFFECF4FC),Color(0xFFCCE4FC))
+    colors= listOf(Color(0xFFECF4FC),Color(0xFFECF4FC))
 )
 
 
 val ShareButtonGradiant = Brush.linearGradient(
     colors= listOf(Color(0xFF3378FF),Color(0xFF4E3DF7))
+)
+val GradientIndicatorBg = Brush.linearGradient(
+    colors = listOf(Color(0xFFe1e7ff),Color(0xFFf1e8ff))
+)
+val GradientInactiveBg = Brush.linearGradient(
+    colors = listOf(LightBorder,LightBorderAlt)
+
 )

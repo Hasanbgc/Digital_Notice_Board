@@ -55,6 +55,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -84,6 +85,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
@@ -98,7 +100,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import common.AuthTab
 import common.OTPOutlinedTextBox
 import presentation.continueButtonBackgroundActive
@@ -134,7 +135,7 @@ fun LoginScreenRoot(
     ) { paddingValues ->
 
 
-        val loginScreenState by viewModel.loginScreenState.collectAsStateWithLifecycle()
+        val loginScreenState by viewModel.loginScreenState.collectAsState()
         LaunchedEffect(loginScreenState.successMessage) {
             if (loginScreenState.successMessage?.isNotBlank() == true) {
                 onLoginSuccess()
@@ -914,7 +915,7 @@ fun OtpVerification(
         )
         {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
+                imageVector = Icons.AutoMirrored.Default.ArrowBack,
                 contentDescription = "right arrow icon",
                 tint = Color.Black,
                 modifier = Modifier.size(16.dp).clickable {

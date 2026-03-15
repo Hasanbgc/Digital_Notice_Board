@@ -12,10 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ProfileScreenRoot(
-    viewModel: ProfileViewModel,
+    viewModel: ProfileViewModel = koinViewModel(),
     onBackPressed: () -> Unit
 ) {
     ProfileScreen()

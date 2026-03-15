@@ -31,7 +31,7 @@ sealed class Poster {
         val shareCount: Int,
         val commentCount: Int,
         val likeCount: Int,
-        val isSaved: Boolean,
+        val isSaved: Boolean = false,
         val viewCount: Int,
         var isExpanded: Boolean = false,
         var liked: Like = Like.IDLE

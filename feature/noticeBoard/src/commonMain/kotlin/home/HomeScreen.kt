@@ -1,19 +1,8 @@
 package home
 
-import presentation.AccentGreen
-import presentation.ButtonCardGradiant
-import presentation.EmergenceyAlertRedBG
-import presentation.EmergencyIconBG
-import presentation.ErrorRed
-import presentation.FileCardGradiant
 import KottieAnimation
-import presentation.NeonEffect
-import presentation.PrimaryBlue
-import presentation.PrimaryText
-import presentation.PrimaryTextAlt2
-import presentation.ShareButtonGradiant
-import presentation.ViolateGradiant
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -35,7 +24,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,16 +31,22 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -62,11 +56,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
@@ -76,17 +73,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import presentation.cornerStretchAnimation
 import digita_notice_board.feature.noticeboard.generated.resources.Res
 import digita_notice_board.feature.noticeboard.generated.resources.chat
 import digita_notice_board.feature.noticeboard.generated.resources.document
 import digita_notice_board.feature.noticeboard.generated.resources.flag
+import digita_notice_board.feature.noticeboard.generated.resources.flaged
 import digita_notice_board.feature.noticeboard.generated.resources.heart
 import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
-import home.component.FloatingAddButton
+import home.component.CustomSearchBar
 import home.component.ProfileImageWithPlaceholder
-import home.component.WaveFilledShape
+import home.component.RoundGradientButton
+import home.dialog.ImageFullScreenDialog
+import kotlinx.coroutines.launch
 import kottieAnimationState.KottieAnimationState
 import kottieComposition.KottieCompositionResult
 import kottieComposition.KottieCompositionSpec
@@ -94,44 +93,65 @@ import kottieComposition.animateKottieCompositionAsState
 import kottieComposition.rememberKottieComposition
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
+import presentation.BorderGray
+import presentation.ButtonCardGradiant
+import presentation.EmergenceyAlertRedBG
+import presentation.EmergencyIconBG
+import presentation.ErrorRed
+import presentation.FileCardGradiant
+import presentation.GradientGreen
+import presentation.NeonEffect
+import presentation.PrimaryBlue
+import presentation.PrimaryText
+import presentation.PrimaryTextAlt2
+import presentation.ShareButtonGradiant
+import presentation.TertiaryGreen
+import presentation.ViolateGradiant
+import presentation.cornerStretchAnimation
 import utils.KottieConstants
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenRoot(
-    viewModel: HomeViewModel,
+    viewModel: HomeViewModel = koinViewModel(),
     onNavigateToDetail: (String) -> Unit
 ) {
+
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
 
     HomeScreen(
         state = state,
         onAction = viewModel::onAction,
-        onNavigateToDetail = onNavigateToDetail
+        onNavigateToDetail = onNavigateToDetail,
+    )
+
+    ImageFullScreenDialog(
+        state = dialogState,
+        onAction = viewModel::onAction
     )
 
 }
 
-
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun HomeScreen(
     state: HomeScreenState,
     onAction: (HomeScreenAction) -> Unit,
     onNavigateToDetail: (String) -> Unit
 ) {
-
+    var searchToggle by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val lazyListState = rememberLazyListState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        floatingActionButton = {
-            FloatingAddButton(
-                modifier = Modifier.size(70.dp).offset(x = 0.dp, y = (-30).dp),
-            ) {
-                onAction(HomeScreenAction.PostANoticeClicked)
-            }
-        }
-    ) {
+    ) { paddingValues ->
         SharedTransitionLayout {
             // UI code
             Column(modifier = Modifier.fillMaxSize()) {
+                val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -170,39 +190,74 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        //if (state.emergencyAlertClosed) {
+                        RoundGradientButton(
+                            modifier = Modifier.wrapContentSize(),
+                            text = "Search",
+                            icon = Icons.Default.Search,
+                            iconTint = Color.White,
+                            gradientColors = GradientGreen,
+                            shape = RoundedCornerShape(30.dp),
+                            onClick = { searchToggle = !searchToggle }
+                        )
+
+                        Spacer(Modifier.width(4.dp))
                         AnimatedVisibility(state.emergencyAlertClosed) {
-                            Icon(
-                                imageVector = Icons.Default.Notifications,
-                                contentDescription = "notification",
-                                tint = EmergenceyAlertRedBG,
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .clickable(
-                                        onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
-                                    ).sharedElement(
-                                        sharedContentState = rememberSharedContentState("notification"),
-                                        animatedVisibilityScope = this@AnimatedVisibility
-                                    )
-                            )
+                            BadgedBox(
+                                badge = {
+                                    Badge(
+                                        containerColor = ErrorRed,
+                                        contentColor = Color.White
+                                    ) {
+                                        Text(emergencyNoticeCount.toString())
+                                    }
+                                }
+                            ) {
+                                RoundGradientButton(
+                                    modifier = Modifier.wrapContentSize(),
+                                    text = "notification",
+                                    icon = Icons.Outlined.Notifications,
+                                    iconTint = Color.White,
+                                    gradientColors = SolidColor(EmergenceyAlertRedBG),
+                                    shape = RoundedCornerShape(30.dp),
+                                    onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
+                                )
+                            }
+
                         }
                     }
                 }
 
 
-                Spacer(modifier = Modifier.height(8.dp))
-                if (state.poster.isNotEmpty() && !state.emergencyAlertClosed) {
-                    val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
+                AnimatedVisibility(
+                    visible = searchToggle,
+                ) {
+                    CustomSearchBar(
+                        query = state.searchQuery,
+                        expanded = expanded,
+                        onExpandedChange = { expanded = it },
+                        onQueryChange = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                        onSearch = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                        onHistoryClick = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                        onSuggestionClick = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                    )
+                }
 
+                if (state.poster.isNotEmpty() && !state.emergencyAlertClosed) {
                     if (emergencyNoticeCount > 0) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .wrapContentHeight()
                                 .background(color = EmergenceyAlertRedBG)
-                                .padding(12.dp),
+                                .padding(12.dp)
+                                .clickable {
+                                    scope.launch {
+                                        lazyListState.animateScrollToItem(0)
+                                    }
+                                },
                             verticalAlignment = Alignment.CenterVertically
-
                         )
                         {
                             Icon(
@@ -244,9 +299,12 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 LazyColumn(
+                    state = lazyListState,
                     modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(bottom = 24.dp)
+                    contentPadding = PaddingValues(
+                        bottom = 80.dp
+                    )
                 )
                 {
                     val emergencyNotice = state.poster.filterIsInstance<Poster.Emergency>()
@@ -262,7 +320,7 @@ fun HomeScreen(
                                 )
                             ),
                             exit = fadeOut() +
-                                    slideOutVertically ()
+                                    slideOutVertically()
 
                         ) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -463,7 +521,6 @@ fun NormalNotice(
     var showSeeMore by remember { mutableStateOf(false) }
     var toggleLiked by remember { mutableStateOf(false) }
     val animationLike = getAnimation("files/love.json", 1)
-    //val animationUnlike = getAnimation("file/heart.json",1)
 
 
     Card(
@@ -473,29 +530,23 @@ fun NormalNotice(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize(animationSpec = tween(durationMillis = 300))
-        ) {
-
-            WaveFilledShape(
-                Modifier.size(40.dp).align(Alignment.TopEnd),
-                colors = listOf(Color.Green, AccentGreen)
-            )
+        )
+        {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.TopStart)
-            )
-            {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp)
+                    .padding(12.dp)
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-
-
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         ProfileImageWithPlaceholder(
                             modifier = Modifier.size(46.dp),
@@ -523,248 +574,305 @@ fun NormalNotice(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = poster.title,
-                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = poster.description,
-                        fontSize = 12.sp,
-                        color = PrimaryTextAlt2,
-                        maxLines = if (isExpanded) Int.MAX_VALUE else 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.clickable { isExpanded = !isExpanded },
-                        onTextLayout = {
-                            if (it.hasVisualOverflow) {
-                                showSeeMore = true
-                            }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 5.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceAround,
+                            modifier = Modifier.background(
+                                brush = GradientGreen,
+                                shape = RoundedCornerShape(8.dp)
+                            ).padding(vertical = 4.dp, horizontal = 8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Notifications,
+                                contentDescription = "notification",
+                                tint = Color.White,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Education",
+                                fontSize = 12.sp,
+                                color = Color.White,
+                            )
                         }
-                    )
-                    if (showSeeMore && !isExpanded) {
-                        Text(
-                            text = "see more",
-                            color = Color.Blue,
-                            modifier = Modifier.clickable { isExpanded = true }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "location",
+                            modifier = Modifier.size(20.dp)
                         )
                     }
+                }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-                    if (poster.imageUrlList.isNotEmpty()) {
-                        when (poster.imageUrlList.size) {
-                            1 -> {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = poster.title,
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = poster.description,
+                    fontSize = 12.sp,
+                    color = PrimaryTextAlt2,
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.clickable { isExpanded = !isExpanded },
+                    onTextLayout = {
+                        if (it.hasVisualOverflow) {
+                            showSeeMore = true
+                        }
+                    }
+                )
+                if (showSeeMore && !isExpanded) {
+                    Text(
+                        text = "see more",
+                        color = Color.Blue,
+                        modifier = Modifier.clickable { isExpanded = true }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                if (poster.imageUrlList.isNotEmpty()) {
+                    when (poster.imageUrlList.size) {
+                        1 -> {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(100.dp),
+                                shape = RoundedCornerShape(8.dp),
+                            ) {
+                                AsyncImage(
+                                    model = poster.imageUrlList[0],
+                                    contentDescription = "image",
+                                    modifier = Modifier.fillMaxSize().clickable {
+                                        onAction(
+                                            HomeScreenAction.OnImageClicked(
+                                                poster.imageUrlList,
+                                                0
+                                            )
+                                        )
+                                    },
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+
+                        else -> {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
                                 Card(
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .weight(1f)
                                         .height(100.dp),
                                     shape = RoundedCornerShape(8.dp),
                                 ) {
                                     AsyncImage(
                                         model = poster.imageUrlList[0],
                                         contentDescription = "image",
-                                        modifier = Modifier.fillMaxSize(),
+                                        modifier = Modifier.fillMaxSize().clickable {
+                                            onAction(
+                                                HomeScreenAction.OnImageClicked(
+                                                    poster.imageUrlList,
+                                                    0
+                                                )
+                                            )
+                                        },
                                         contentScale = ContentScale.Crop
                                     )
                                 }
-                            }
 
-                            else -> {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                Card(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(100.dp),
+                                    shape = RoundedCornerShape(8.dp),
                                 ) {
-                                    Card(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(100.dp),
-                                        shape = RoundedCornerShape(8.dp),
-                                    ) {
+                                    Box(modifier = Modifier.fillMaxSize()) {
                                         AsyncImage(
-                                            model = poster.imageUrlList[0],
+                                            model = poster.imageUrlList[1],
                                             contentDescription = "image",
-                                            modifier = Modifier.fillMaxSize(),
+                                            modifier = Modifier.fillMaxSize().clickable {
+                                                onAction(
+                                                    HomeScreenAction.OnImageClicked(
+                                                        poster.imageUrlList,
+                                                        1
+                                                    )
+                                                )
+                                            },
                                             contentScale = ContentScale.Crop
                                         )
-                                    }
-
-                                    Card(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(100.dp),
-                                        shape = RoundedCornerShape(8.dp),
-                                    ) {
-                                        Box(modifier = Modifier.fillMaxSize()) {
-                                            AsyncImage(
-                                                model = poster.imageUrlList[1],
-                                                contentDescription = "image",
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentScale = ContentScale.Crop
-                                            )
-                                            if (poster.imageUrlList.size > 2) {
-                                                Box(
-                                                    modifier = Modifier.fillMaxSize()
-                                                        .background(color = Color.Black.copy(alpha = 0.6f)),
-                                                    contentAlignment = Alignment.Center,
-                                                ) {
-                                                    Text(
-                                                        text = "+${poster.imageUrlList.size - 2}",
-                                                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                                                        color = Color.White
-                                                    )
-                                                }
+                                        if (poster.imageUrlList.size > 2) {
+                                            Box(
+                                                modifier = Modifier.fillMaxSize()
+                                                    .background(color = Color.Black.copy(alpha = 0.6f)),
+                                                contentAlignment = Alignment.Center,
+                                            ) {
+                                                Text(
+                                                    text = "+${poster.imageUrlList.size - 2}",
+                                                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                                    color = Color.White
+                                                )
                                             }
                                         }
                                     }
-
                                 }
+
                             }
                         }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                    //for (attachment in poster.attachments) {
-                    for (attachment in poster.attachments) {
-                        AttachmentCard(attachment = attachment)
-                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .background(brush = ButtonCardGradiant)
-                        .padding(16.dp)
-                )
-                {
-                    Card(
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .clickable(onClick = {
-                                toggleLiked = !toggleLiked
-                                onAction(HomeScreenAction.OnLikeClicked(poster.id, toggleLiked))
-                            }
-                            ),
-                        shape = RoundedCornerShape(20.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
-                    ) {
-                        Row(
-                            modifier = Modifier.wrapContentSize()
-                                .padding(horizontal = 14.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            when (poster.liked) {
-                                Like.IDLE -> {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.heart),
-                                        contentDescription = "like",
-                                        modifier = Modifier.size(14.dp),
-                                        tint = Color.Black
-                                    )
-                                }
 
-                                Like.LIKED -> {
-                                    val animationLike = getAnimation("files/love.json", 1)
-                                    KottieAnimation(
-                                        composition = animationLike.first,
-                                        modifier = Modifier.size(14.dp).graphicsLayer {
-                                            scaleX = 5.4f
-                                            scaleY = 5.9f
-                                        },
-                                        progress = { animationLike.second.progress }
-                                    )
-                                }
-
-                                Like.UNLIKED -> {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.heart),
-                                        contentDescription = "like",
-                                        modifier = Modifier.size(14.dp),
-                                        tint = Color.Black
-                                    )
-                                }
-
-                            }
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "123",
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Card(
-                        modifier = Modifier.wrapContentSize(),
-                        shape = RoundedCornerShape(20.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
-                    ) {
-                        Row(
-                            modifier = Modifier.wrapContentSize()
-                                .padding(horizontal = 14.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.share),
-                                contentDescription = "shared",
-                                modifier = Modifier.size(14.dp),
-                                tint = Color.Black
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "123",
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Card(
-                        modifier = Modifier.wrapContentSize(),
-                        shape = RoundedCornerShape(20.dp),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
-                    ) {
-                        Row(
-                            modifier = Modifier.wrapContentSize()
-                                .padding(horizontal = 14.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.chat),
-                                contentDescription = "comments",
-                                modifier = Modifier.size(15.dp),
-                                tint = Color.Black
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "45",
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(
-                        painter = painterResource(Res.drawable.flag),
-                        contentDescription = "right_arrow",
-                        tint = Color.Black,
-                        modifier = Modifier.size(20.dp)
-                            .align(Alignment.CenterVertically),
-                    )
+                Spacer(modifier = Modifier.height(12.dp))
+                //for (attachment in poster.attachments) {
+                for (attachment in poster.attachments) {
+                    AttachmentCard(attachment = attachment)
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .background(brush = ButtonCardGradiant)
+                    .padding(16.dp)
+            )
+            {
+                Card(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable(onClick = {
+                            toggleLiked = !toggleLiked
+                            onAction(HomeScreenAction.OnLikeClicked(poster.id, toggleLiked))
+                        }
+                        ),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.wrapContentSize()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        when (poster.liked) {
+                            Like.IDLE -> {
+                                Icon(
+                                    painter = painterResource(Res.drawable.heart),
+                                    contentDescription = "like",
+                                    modifier = Modifier.size(14.dp),
+                                    tint = Color.Black
+                                )
+                            }
 
+                            Like.LIKED -> {
+                                val animationLike = getAnimation("files/love.json", 1)
+                                KottieAnimation(
+                                    composition = animationLike.first,
+                                    modifier = Modifier.size(14.dp).graphicsLayer {
+                                        scaleX = 5.4f
+                                        scaleY = 5.9f
+                                    },
+                                    progress = { animationLike.second.progress }
+                                )
+                            }
+
+                            Like.UNLIKED -> {
+                                Icon(
+                                    painter = painterResource(Res.drawable.heart),
+                                    contentDescription = "like",
+                                    modifier = Modifier.size(14.dp),
+                                    tint = Color.Black
+                                )
+                            }
+
+                        }
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "123",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Card(
+                    modifier = Modifier.wrapContentSize(),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.wrapContentSize()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.share),
+                            contentDescription = "shared",
+                            modifier = Modifier.size(14.dp),
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "123",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Card(
+                    modifier = Modifier.wrapContentSize(),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.wrapContentSize()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.chat),
+                            contentDescription = "comments",
+                            modifier = Modifier.size(15.dp),
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "45",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    painter = painterResource(if (poster.isSaved) Res.drawable.flaged else Res.drawable.flag),
+                    contentDescription = "right_arrow",
+                    tint = if (poster.isSaved) TertiaryGreen else Color.Black,
+                    modifier = Modifier.size(20.dp)
+                        .align(Alignment.CenterVertically)
+                        .clickable {
+                            onAction(HomeScreenAction.OnSavedClicked(poster.id))
+                        },
+                )
+            }
         }
     }
 }
@@ -774,8 +882,7 @@ fun AttachmentCard(
     attachment: String
 ) {
     Card(
-        elevation = CardDefaults.cardElevation(1.dp),
-        border = BorderStroke(0.5.dp, Color.LightGray),
+        border = BorderStroke(0.5.dp, BorderGray),
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -819,8 +926,8 @@ fun getIcon(poster: Poster.Emergency): String {
         Topic.LOAD_SHEDDING -> TODO() // painterResource(Res.drawable.load_shedding)
         Topic.ROAD_CONSTRUCTION -> TODO() // painterResource(Res.drawable.road_construction)
         Topic.EARTHQUAKE -> TODO()
-        Topic.GAS_LEAK -> TODO()
-        Topic.ACCIDENT -> TODO()
+        Topic.GAS_LEAK -> "files/gas_leak.json"
+        Topic.ACCIDENT -> "files/accident.json"
         Topic.STORM -> TODO()
         Topic.CYCLONE -> TODO()
         Topic.WATER_SUPPLY_DISRUPTION -> TODO()
@@ -855,7 +962,7 @@ fun getAnimation(
     return Pair(composition, animationState)
 }
 
-//@Preview
+@Preview
 @Composable
 fun HomeScreenPreview() {
     MaterialTheme {

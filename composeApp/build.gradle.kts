@@ -53,18 +53,23 @@ kotlin {
             implementation(libs.play.services.maps)
             implementation(libs.androidx.core.splashScreen)
             implementation(compose.material3)
+
+
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            implementation(libs.androidx.core.splashScreen)
+            implementation(libs.android.material)
+            implementation(libs.koin.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
           //  implementation("androidx.compose.animation:animation:1.5.1")
-            implementation(libs.android.material)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
@@ -85,11 +90,11 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(compose.foundation)
 
-            implementation(libs.androidx.core.splashScreen)
             //navigation
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
             implementation(libs.jetbrains.material3.adaptiveNavigation3)
+            implementation(libs.androidx.lifecycle.viewmodel)
 
             implementation(project(":core"))
             implementation(project(":feature:auth"))

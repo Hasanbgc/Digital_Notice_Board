@@ -35,11 +35,12 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.compose.foundation)
+            implementation(libs.bundles.coil)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(libs.androidx.compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -50,8 +51,16 @@ kotlin {
             implementation(libs.jetbrains.compose.navigation)
             implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.bundles.coil)
+
             implementation(libs.kottie)
+            implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.coil.network.ktor3)
+            implementation(libs.coil.compose)
+
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+
 
             implementation(project(":core"))
         }

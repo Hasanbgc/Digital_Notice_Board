@@ -6,7 +6,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -20,6 +19,7 @@ import kotlinx.serialization.modules.subclass
 import login.LoginScreenRoot
 import login.LoginViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import registration.RegistrationScreenRoot
 import registration.RegistrationViewModel
 
@@ -51,7 +51,7 @@ fun AppNavigation() {
         },
         entryProvider = entryProvider {
             entry<AppDestination.Auth> {
-                val viewModel: LoginViewModel = viewModel()
+                val viewModel: LoginViewModel = koinViewModel()
                 LoginScreenRoot(
                     viewModel,
                     onBack = {
@@ -64,7 +64,7 @@ fun AppNavigation() {
                 )
             }
             entry<AppDestination.Registration> {
-                val viewModel: RegistrationViewModel = viewModel()
+                val viewModel: RegistrationViewModel = koinViewModel()
                 RegistrationScreenRoot(viewModel, onBack = {
                     backStack.removeLastOrNull()
                 }, onRegistrationSuccess = {
@@ -73,7 +73,7 @@ fun AppNavigation() {
                 })
             }
             entry<AppDestination.Main> {
-                HomeScreen()
+                MainNestedNavigation(onNavigate = {})
             }
         },
         transitionSpec = {
