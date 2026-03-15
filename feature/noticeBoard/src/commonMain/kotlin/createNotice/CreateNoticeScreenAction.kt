@@ -1,4 +1,4 @@
-package create
+package createNotice
 
 sealed class CreateNoticeScreenAction {
     object OnDismiss : CreateNoticeScreenAction()

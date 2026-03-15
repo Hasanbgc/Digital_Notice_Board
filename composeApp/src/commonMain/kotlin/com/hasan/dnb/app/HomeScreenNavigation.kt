@@ -18,12 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import home.HomeScreenRoot
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigate: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { bottomNavItems.size })
 
@@ -55,7 +54,9 @@ fun HomeScreen(
                 val destination = bottomNavItems[page].destination
                 when (destination) {
                     MainDestination.Home -> {
-                        HomeScreenRoot() {}
+                        HomeScreenRoot(
+                            onNavigateToDetail = {}
+                        )
                     }
 
                     MainDestination.Profile -> {
@@ -65,6 +66,9 @@ fun HomeScreen(
                     MainDestination.Settings -> {
                         SettingsScreenRoot() {}
                     }
+                    MainDestination.CreateNotice -> {
+
+                    }
                 }
 
             }
@@ -72,9 +76,6 @@ fun HomeScreen(
             SwipeableBottomNavigationBar(
                 selectedIndex = currentScreen,
                 onItemClick = { index ->
-                    scope.launch {
-                        pagerState.animateScrollToPage(index)
-                    }
                 },
                 modifier = modifier.align(Alignment.BottomCenter)
             )

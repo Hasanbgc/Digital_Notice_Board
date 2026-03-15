@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import home.getAnimation
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import presentation.continueButtonBackgroundActive
 import utils.KottieConstants
 
 @Composable
@@ -57,4 +59,10 @@ fun FloatingAddButton(modifier: Modifier = Modifier, icon: Int = 0, onClick: () 
         }
     }
 
+}
+
+@Preview
+@Composable
+fun FloatingAddButtonPreview(){
+    FloatingAddButton {  }
 }

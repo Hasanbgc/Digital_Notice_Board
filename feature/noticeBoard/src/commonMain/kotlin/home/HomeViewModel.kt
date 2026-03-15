@@ -1,11 +1,6 @@
 package home
 
 import androidx.lifecycle.ViewModel
-import create.Category
-import create.CreateNoticeScreenAction
-import create.CreateNoticeScreenState
-import create.NoticeCreationStep
-import create.categories
 import home.dialog.DialogState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,8 +14,7 @@ class HomeViewModel : ViewModel() {
     val _dialogState = MutableStateFlow<DialogState?>(null)
     val dialogState = _dialogState.asStateFlow()
 
-    val _createNoticeState = MutableStateFlow<CreateNoticeScreenState?>(null)
-    val createNoticeState = _createNoticeState.asStateFlow()
+
 
     fun onAction(action: HomeScreenAction) {
         when (action) {
@@ -33,25 +27,11 @@ class HomeViewModel : ViewModel() {
             is HomeScreenAction.OnSavedClicked -> savePost(action.id)
             is HomeScreenAction.OnProfileClicked -> {}
             is HomeScreenAction.OnLocationClicked -> {}
-            is HomeScreenAction.PostANoticeClicked -> openBottomSheet()
+            /*is HomeScreenAction.PostANoticeClicked -> navigateToCreateNotice()*/
             is HomeScreenAction.OnNotificationClicked -> toggleEmergencyAlert(false)
             is HomeScreenAction.OnSearchQueryChanged -> updateQuery(action.query)
             is HomeScreenAction.OnDismissDialog -> dismissDialog()
 
-        }
-    }
-
-    fun onCreateNoticeAction(action: CreateNoticeScreenAction) {
-        when (action) {
-            is CreateNoticeScreenAction.OnDismiss -> closeBottomSheet()
-            is CreateNoticeScreenAction.BrowseAllCategory -> {}
-            is CreateNoticeScreenAction.OnFilterClicked -> {}
-            is CreateNoticeScreenAction.OnSearchQueryChanged -> updateTypeSearchQuery(action.query)
-            is CreateNoticeScreenAction.PickedCategory -> navigateToNextStep(action.category)
-            is CreateNoticeScreenAction.PublishNoticeClicked -> {}
-            is CreateNoticeScreenAction.OnSearchClose -> {}
-            is CreateNoticeScreenAction.OnBackPress -> {}
-            is CreateNoticeScreenAction.OnCategoryChangeClicked -> navigateToPreviousStep()
         }
     }
 
@@ -112,39 +92,5 @@ class HomeViewModel : ViewModel() {
         _dialogState.value = null
     }
 
-    fun openBottomSheet() {
-        _createNoticeState.value = CreateNoticeScreenState()
-    }
 
-    fun closeBottomSheet() {
-        _createNoticeState.value = null
-    }
-
-    fun navigateToNextStep(category: Category) {
-        _createNoticeState.update {
-            it?.copy(
-                currentStep = NoticeCreationStep.ADD_NOTICE_BODY,
-                selectedCategory = category
-            )
-        }
-    }
-
-    fun updateTypeSearchQuery(query: String) {
-        _createNoticeState.update {
-            it?.copy(
-                searchQuery = query,
-                quickPickCategory =  categories.filter { category ->
-                    category.title.contains(query, ignoreCase = true)
-                }
-            )
-        }
-    }
-    fun navigateToPreviousStep(){
-        _createNoticeState.update {
-            it?.copy(
-                currentStep = NoticeCreationStep.QUICK_PICK_CATEGORY,
-                selectedCategory = null
-            )
-        }
-    }
 }
