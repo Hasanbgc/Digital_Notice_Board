@@ -75,6 +75,14 @@ val BGGreenIcon = Color(0xFFd3ecde)
 val BGGreen = Color(0xFFe8f5ee)
 
 
+//setting color
+val ScreenBg = Color(0xFFF6F1E8)
+val CardBg = Color.White
+val BorderColor = Color(0xFFE5E1D8)
+val RedColor = Color(0xFFE5484D)
+val TextPrimary = Color(0xFF1C1C1C)
+val TextSecondary = Color(0xFF6B6B6B)
+
 
 val splashScreenBackground = Brush.linearGradient(
     colors = listOf(PrimaryGreenLight, SecondaryGreen, TertiaryGreen),

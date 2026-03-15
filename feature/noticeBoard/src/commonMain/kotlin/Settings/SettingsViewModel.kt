@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -24,6 +26,31 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.transform
 
 class SettingsViewModel: ViewModel() {
+
+
+    val _uiState = MutableStateFlow(SettingsState())
+    val state = _uiState.asStateFlow()
+
+    fun OnEvent(event: SettingsEvent){
+        when(event){
+            is SettingsEvent.EditProfileClicked -> {
+
+            }
+            SettingsEvent.ChangePinClicked -> {}
+            SettingsEvent.ContactSupportClicked -> {}
+            SettingsEvent.HelpCenterClicked -> {}
+            is SettingsEvent.LanguageSelected -> {}
+            SettingsEvent.LocationClicked -> {}
+            SettingsEvent.LogoutClicked -> {}
+            SettingsEvent.PrivacyPolicyClicked -> {}
+            SettingsEvent.TermsClicked -> {}
+            is SettingsEvent.ToggleProfileVisibility -> {}
+            is SettingsEvent.TogglePush -> {}
+            is SettingsEvent.ToggleSms -> {}
+            is SettingsEvent.ToggleVoice -> {}
+            is SettingsEvent.InterestCategoriesClicked -> {}
+        }
+    }
 
     var isDarkMode = false
 

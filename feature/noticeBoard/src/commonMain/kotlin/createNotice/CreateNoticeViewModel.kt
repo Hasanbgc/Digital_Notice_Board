@@ -21,6 +21,7 @@ class CreateNoticeViewModel: ViewModel() {
             is CreateNoticeScreenAction.OnSearchClose -> {}
             is CreateNoticeScreenAction.OnBackPress -> {}
             is CreateNoticeScreenAction.OnCategoryChangeClicked -> navigateToPreviousStep()
+            else -> {}
         }
     }
 
