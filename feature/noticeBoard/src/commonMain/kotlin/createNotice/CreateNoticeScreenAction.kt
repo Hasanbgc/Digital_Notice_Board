@@ -10,4 +10,9 @@ sealed class CreateNoticeScreenAction {
     data class OnSearchQueryChanged(val query: String) : CreateNoticeScreenAction()
     object PublishNoticeClicked : CreateNoticeScreenAction()
     object OnCategoryChangeClicked: CreateNoticeScreenAction()
+    object OnAddImageClicked : CreateNoticeScreenAction()
+    object OnAddVideoClicked : CreateNoticeScreenAction()
+    object OnAddPdfClicked : CreateNoticeScreenAction()
+    object OnAddLocationClicked : CreateNoticeScreenAction()
+    data class OnRemoveAttachment(val id: String) : CreateNoticeScreenAction()
 }

@@ -37,6 +37,11 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.compose.foundation)
             implementation(libs.bundles.coil)
+            
+            //maps
+            implementation(libs.maps.compose)
+            implementation(libs.play.services.maps)
+            implementation(libs.play.services.location)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -63,6 +68,7 @@ kotlin {
 
 
             implementation(project(":core"))
+            implementation(project(":feature:auth"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
