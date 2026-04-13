@@ -66,6 +66,9 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
+            implementation(libs.paging.compose)
+            implementation(libs.paging.runtime)
+           // implementation(libs.paging.common)
 
             implementation(project(":core"))
             implementation(project(":feature:auth"))

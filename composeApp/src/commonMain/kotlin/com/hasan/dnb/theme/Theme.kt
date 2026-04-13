@@ -18,9 +18,15 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import digita_notice_board.composeapp.generated.resources.Res
+import digita_notice_board.composeapp.generated.resources.kalpurush
+import digita_notice_board.composeapp.generated.resources.kalpurush_ansi
+import org.jetbrains.compose.resources.Font
+
 
 private val LightColors = lightColorScheme(
     primary = PrimaryGreen,
@@ -65,17 +71,23 @@ private val DarkColors = darkColorScheme(
 
     outline = BorderGray,
 )
+
+@Composable
+fun KalpurushFontFamily() = FontFamily(
+     Font(resource = Res.font.kalpurush, weight = FontWeight.Normal),
+    Font(resource = Res.font.kalpurush_ansi, weight = FontWeight.Normal)
+)
 @Composable
 fun AppTypography()= Typography(
         displayLarge = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = KalpurushFontFamily(),
             fontWeight = FontWeight.W700,
             fontSize = 57.sp,
             lineHeight = 64.sp,
             letterSpacing = (-0.25).sp
         ),
         displayMedium = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = KalpurushFontFamily(),
             fontWeight = FontWeight.W700,
             fontSize = 45.sp,
             lineHeight = 52.sp
@@ -99,11 +111,17 @@ fun AppTypography()= Typography(
             lineHeight = 36.sp
         ),
         headlineSmall = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = KalpurushFontFamily(),
             fontWeight = FontWeight.W600,
             fontSize = 24.sp,
             lineHeight = 32.sp
         ),
+    titleMedium = TextStyle(
+        fontFamily = KalpurushFontFamily(),
+        fontWeight = FontWeight.W600,
+        fontSize = 20.sp,
+        lineHeight = 28.sp
+    ),
         // Add more text styles as needed...
     )
 

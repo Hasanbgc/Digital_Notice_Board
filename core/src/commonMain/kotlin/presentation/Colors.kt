@@ -3,6 +3,7 @@ package presentation
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.type
 
 // Light theme
 val PrimaryGreenHover = Color(0xFF005A42)
@@ -47,6 +48,13 @@ val AccentGreen = Color(0xFF007A56)       // Green Text
 val ErrorRed = Color(0xFFC10007)          // Red Text
 val EmergenceyAlertRedBG = Color(0xFFF42A41)
 val EmergencyIconBG = Color(0xFFFFE2E2)
+val HighText = Color(0xFFa31c2f)          // High Text
+val MediumText = Color(0xFFb83a14)        // Medium Text
+val NormalText = Color(0xFFE0BBAF)        // Normal Text
+val HighBackground = Color(0xFFfcd8dd)    // High Background
+val MediumBackground = Color(0xFFfcd9c7)  // Medium Background
+val NormalBackground = Color(0xFFe8f5ee)  // Normal Background
+
 
 
 val NeutralGray500 = Color(0xFF6D7585)    // Text Gray 500
@@ -145,4 +153,8 @@ val GradientIndicatorBg = Brush.linearGradient(
 val GradientInactiveBg = Brush.linearGradient(
     colors = listOf(LightBorder,LightBorderAlt)
 
+)
+
+val EmergencyGradient = Brush.linearGradient(
+    colors =  listOf(Color(0xFFFAEDF1),Color(0xFFFFFFFF),) //fcedf5
 )

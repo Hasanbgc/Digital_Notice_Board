@@ -14,7 +14,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavKey
@@ -51,10 +53,11 @@ fun MainNestedNavigation(onNavigate: () -> Unit) {
                 ?: bottomNavItems[0]
         }
     }
+    var forceHideBottomBar by remember { mutableStateOf(false) }
 
     val bottomNavVisible by remember{
         derivedStateOf {
-            backStack.lastOrNull() !is MainDestination.CreateNotice
+            backStack.lastOrNull() !is MainDestination.CreateNotice && forceHideBottomBar
         }
     }
 
@@ -83,7 +86,9 @@ fun MainNestedNavigation(onNavigate: () -> Unit) {
                 entryProvider = entryProvider {
                     entry<MainDestination.Home> {
                         HomeScreenRoot(
-                            onNavigateToDetail = {},
+                            hideBottomBar = {shouldHide ->
+                                forceHideBottomBar = !shouldHide
+                            },
                         )
                     }
                     entry<MainDestination.Profile> {

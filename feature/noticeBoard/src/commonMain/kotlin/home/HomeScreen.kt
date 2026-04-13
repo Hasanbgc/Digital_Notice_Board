@@ -3,15 +3,10 @@ package home
 import KottieAnimation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,12 +25,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FileDownload
@@ -50,9 +45,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,16 +60,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
 import digita_notice_board.feature.noticeboard.generated.resources.Res
 import digita_notice_board.feature.noticeboard.generated.resources.chat
@@ -85,6 +92,7 @@ import home.component.CustomSearchBar
 import home.component.ProfileImageWithPlaceholder
 import home.component.RoundGradientButton
 import home.dialog.ImageFullScreenDialog
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kottieAnimationState.KottieAnimationState
 import kottieComposition.KottieCompositionResult
@@ -97,11 +105,18 @@ import org.koin.compose.viewmodel.koinViewModel
 import presentation.BorderGray
 import presentation.ButtonCardGradiant
 import presentation.EmergenceyAlertRedBG
+import presentation.EmergencyGradient
 import presentation.EmergencyIconBG
 import presentation.ErrorRed
 import presentation.FileCardGradiant
 import presentation.GradientGreen
+import presentation.HighBackground
+import presentation.HighText
+import presentation.MediumBackground
+import presentation.MediumText
 import presentation.NeonEffect
+import presentation.NormalBackground
+import presentation.NormalText
 import presentation.PrimaryBlue
 import presentation.PrimaryText
 import presentation.PrimaryTextAlt2
@@ -110,21 +125,28 @@ import presentation.TertiaryGreen
 import presentation.ViolateGradiant
 import presentation.cornerStretchAnimation
 import utils.KottieConstants
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenRoot(
     viewModel: HomeViewModel = koinViewModel(),
-    onNavigateToDetail: (String) -> Unit
+    hideBottomBar: (Boolean) -> Unit
 ) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
+    val forYouItems = viewModel.forYouFlow.collectAsLazyPagingItems()
+    val nearByItems = viewModel.nearByFlow.collectAsLazyPagingItems()
+    val savedItems = viewModel.savedFlow.collectAsLazyPagingItems()
 
     HomeScreen(
         state = state,
+        forYou = forYouItems,
+        nearBy = nearByItems,
+        saved = savedItems,
         onAction = viewModel::onAction,
-        onNavigateToDetail = onNavigateToDetail,
+        hideBottomBar = hideBottomBar,
     )
 
     ImageFullScreenDialog(
@@ -138,248 +160,255 @@ fun HomeScreenRoot(
 @Composable
 fun HomeScreen(
     state: HomeScreenState,
+    forYou: LazyPagingItems<Poster.Normal>,
+    nearBy: LazyPagingItems<Poster.Normal>,
+    saved: LazyPagingItems<Poster.Normal>,
     onAction: (HomeScreenAction) -> Unit,
-    onNavigateToDetail: (String) -> Unit
+    hideBottomBar: (Boolean) -> Unit
 ) {
-    var searchToggle by remember { mutableStateOf(false) }
     var expanded by rememberSaveable { mutableStateOf(false) }
+    var emergencyAlertExpanded by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val lazyListState = rememberLazyListState()
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-    ) { paddingValues ->
-        SharedTransitionLayout {
-            // UI code
+    val pagerState = rememberPagerState(pageCount = { HomeTab.entries.size })
+
+    var topSectionHeight by remember { mutableStateOf(0) }
+    var topSectionOffset by remember { mutableStateOf(0f) }
+
+    val hideBottomBar by remember {
+        derivedStateOf {
+            topSectionOffset < 0f
+        }
+    }
+    LaunchedEffect(hideBottomBar){
+        hideBottomBar(hideBottomBar)
+    }
+
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            // Collapse on downward scroll — section hides before notices start scrolling
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                val newOffset = (topSectionOffset + delta).coerceIn(
+                    minimumValue = -topSectionHeight.toFloat(),
+                    maximumValue = 0f
+                )
+                val consumed = newOffset - topSectionOffset
+                topSectionOffset = newOffset
+                return Offset(x = 0f, y = consumed)
+
+            }
+        }
+    }
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(nestedScrollConnection)
+        ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                val emergencyNoticeCount = state.poster.count { it is Poster.Emergency }
-                Row(
+
+                // Collapsible section: header + search bar + emergency card
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight(),
-                    verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                )
-                {
-                    Column(
-                        modifier = Modifier.wrapContentHeight().padding(8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    )
-                    {
-                        Text(
-                            text = "Notice Board",
-                            modifier = Modifier
-                                .align(Alignment.Start),
-                            style = TextStyle(
-                                brush = ViolateGradiant,
-                                fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                                fontWeight = FontWeight.SemiBold
-                            )
-
-                        )
-                        Text(
-                            text = "Stay updated with important notices",
-                            modifier = Modifier
-                                .align(Alignment.Start),
-                            color = PrimaryTextAlt2,
-                            fontSize = 12.sp
-                        )
-
-                    }
-                    Row(
-                        modifier = Modifier.wrapContentHeight().padding(8.dp),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RoundGradientButton(
-                            modifier = Modifier.wrapContentSize(),
-                            text = "Search",
-                            icon = Icons.Default.Search,
-                            iconTint = Color.White,
-                            gradientColors = GradientGreen,
-                            shape = RoundedCornerShape(30.dp),
-                            onClick = { searchToggle = !searchToggle }
-                        )
-
-                        Spacer(Modifier.width(4.dp))
-                        AnimatedVisibility(state.emergencyAlertClosed) {
-                            BadgedBox(
-                                badge = {
-                                    Badge(
-                                        containerColor = ErrorRed,
-                                        contentColor = Color.White
-                                    ) {
-                                        Text(emergencyNoticeCount.toString())
-                                    }
-                                }
-                            ) {
-                                RoundGradientButton(
-                                    modifier = Modifier.wrapContentSize(),
-                                    text = "notification",
-                                    icon = Icons.Outlined.Notifications,
-                                    iconTint = Color.White,
-                                    gradientColors = SolidColor(EmergenceyAlertRedBG),
-                                    shape = RoundedCornerShape(30.dp),
-                                    onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
-                                )
+                        .wrapContentHeight()
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            val height = (placeable.height + topSectionOffset)
+                                .coerceAtLeast(0f).roundToInt()
+                            layout(constraints.maxWidth, height) {
+                                placeable.placeRelative(0, topSectionOffset.roundToInt())
                             }
-
                         }
-                    }
-                }
-
-
-                AnimatedVisibility(
-                    visible = searchToggle,
+                        .onGloballyPositioned { topSectionHeight = it.size.height }
                 ) {
-                    CustomSearchBar(
-                        query = state.searchQuery,
-                        expanded = expanded,
-                        onExpandedChange = { expanded = it },
-                        onQueryChange = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
-                        onSearch = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
-                        onHistoryClick = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
-                        onSuggestionClick = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                    )
-                }
+                    Column {
+                        HeaderSection(state = state, onAction = onAction)
 
-                if (state.poster.isNotEmpty() && !state.emergencyAlertClosed) {
-                    if (emergencyNoticeCount > 0) {
-                        Row(
+                        CustomSearchBar(
+                            query = state.searchQuery,
+                            expanded = expanded,
+                            onExpandedChange = { expanded = it },
+                            onQueryChange = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                            onSearch = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                            onHistoryClick = { onAction(HomeScreenAction.OnSearchQueryChanged(it)) },
+                            onSuggestionClick = {
+                                onAction(HomeScreenAction.OnSearchQueryChanged(it))
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .wrapContentHeight()
-                                .background(color = EmergenceyAlertRedBG)
-                                .padding(12.dp)
-                                .clickable {
-                                    scope.launch {
-                                        lazyListState.animateScrollToItem(0)
-                                    }
-                                },
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                         )
-                        {
-                            Icon(
-                                painter = painterResource(Res.drawable.warning),
-                                contentDescription = "warning",
-                                modifier = Modifier.size(20.dp).cornerStretchAnimation(),
-                                tint = Color.White
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "Emergency Alerts",
-                                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "$emergencyNoticeCount active emergencies in your area",
-                                    fontSize = 12.sp,
-                                    color = Color.White
-                                )
-                            }
 
-                            Spacer(modifier = Modifier.weight(1f))
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "right_arrow",
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .clickable(
-                                        onClick = { onAction(HomeScreenAction.OnEmergencyAlertDismiss) }
+                        // Emergency carousel
+                        if (state.emergencyNotice.isNotEmpty()) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(horizontal = 8.dp)
+                                    .padding(bottom = 8.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.White),
+                                elevation = CardDefaults.cardElevation(4.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp, horizontal = 12.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .wrapContentHeight()
+                                            .background(
+                                                brush = EmergencyGradient,
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
                                     )
-                            )
-                        }
-                    }
+                                    {
+                                        Icon(
+                                            painter = painterResource(Res.drawable.warning),
+                                            contentDescription = "warning",
+                                            modifier = Modifier.size(20.dp)
+                                                .cornerStretchAnimation(),
+                                            tint = EmergenceyAlertRedBG
+                                        )
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Column {
+                                            Text(
+                                                text = "Emergency Alerts",
+                                                style = MaterialTheme.typography.titleMedium.copy(
+                                                    fontWeight = FontWeight.SemiBold
+                                                ),
+                                                color = ErrorRed
+                                            )
+                                            Text(
+                                                text = "${state.emergencyNotice.size} active alerts in your area",
+                                                fontSize = 12.sp,
+                                                color = EmergenceyAlertRedBG
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        Text(
+                                            text = "Show all",
+                                            fontSize = 12.sp,
+                                            color = PrimaryBlue,
+                                            modifier = Modifier.clickable(
+                                                onClick = {
+                                                    emergencyAlertExpanded = !emergencyAlertExpanded
+                                                    //onAction(HomeScreenAction.OnEmergencyAlertDismiss)
+                                                }
+                                            )
+                                        )
+                                        Icon(
+                                            imageVector = Icons.Default.KeyboardArrowRight,
+                                            contentDescription = "right_arrow",
+                                            tint = PrimaryBlue,
+                                            modifier = Modifier
+                                                .size(20.dp)
+                                                .clickable(
+                                                    onClick = {
+                                                        emergencyAlertExpanded =
+                                                            !emergencyAlertExpanded
+                                                        //onAction(HomeScreenAction.OnEmergencyAlertDismiss)
+                                                    }
+                                                )
+                                        )
+                                    }
 
-                }
-                Spacer(modifier = Modifier.height(8.dp))
+                                    /*AnimatedVisibility(
+                                    visible = emergencyAlertExpanded,
+                                    ){
 
-                LazyColumn(
-                    state = lazyListState,
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(
-                        bottom = 80.dp
-                    )
-                )
-                {
-                    val emergencyNotice = state.poster.filterIsInstance<Poster.Emergency>()
-                    val normalNotice = state.poster.filterIsInstance<Poster.Normal>()
-
-                    item {
-                        AnimatedVisibility(
-                            visible = !state.emergencyAlertClosed,
-                            enter = fadeIn() + slideInVertically(
-                                animationSpec = spring(
-                                    dampingRatio = 0.5f,
-                                    stiffness = Spring.StiffnessLow
-                                )
-                            ),
-                            exit = fadeOut() +
-                                    slideOutVertically()
-
-                        ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                emergencyNotice.forEach { notice ->
-                                    EmergencyNotice(
-                                        poster = notice,
-                                        onNavigateToDetail = onNavigateToDetail
-                                    )
+                                    }*/
+                                    if (emergencyAlertExpanded) {
+                                        state.emergencyNotice.forEach { it ->
+                                            EmergencyNotice(
+                                                poster = it,
+                                                modifier = Modifier.padding(top = 8.dp),
+                                                onNavigateToDetail = {}
+                                            )
+                                        }
+                                    } else {
+                                        EmergencyCarousel(
+                                            notices = state.emergencyNotice,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 8.dp)
+                                                .padding(bottom = 8.dp),
+                                            onAction = onAction
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
-                    item {
-                        AnimatedVisibility(
-                            visible = !state.emergencyAlertClosed,
-                            enter = fadeIn() + slideInVertically(
-                                animationSpec = spring(
-                                    dampingRatio = 0.5f,
-                                    stiffness = 100f
-                                )
-                            ),
-                            exit = fadeOut() + slideOutVertically()
+                }
 
-                        ) {
-                            Column(modifier = Modifier.padding(top = 12.dp, bottom = 10.dp)) {
+                // Tab row — always visible below the collapsible section
+                TabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    HomeTab.entries.forEachIndexed { index, tab ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = {
+                                scope.launch { pagerState.animateScrollToPage(index) }
+                            },
+                            text = {
                                 Text(
-                                    text = "Personalized Feed",
-                                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "Notices tailored to your interests and location",
-                                    fontSize = 12.sp,
-                                    color = PrimaryTextAlt2
+                                    text = tab.title,
+                                    style = MaterialTheme.typography.titleSmall
                                 )
                             }
-                        }
-                    }
-                    //}
-                    items(
-                        items = normalNotice,
-                        key = { notice ->
-                            notice.id.also {
-                                println("key: $it")
-                            }
-                        }
-                    ) { notice ->
-                        NormalNotice(
-                            poster = notice,
-                            onAction = onAction,
-                            onNavigateToDetail = onNavigateToDetail,
-                            modifier = Modifier.animateItem(
-                                placementSpec = spring(
-                                    dampingRatio = 0.5f,
-                                    stiffness = Spring.StiffnessLow
-                                ),
-                            )
                         )
+                    }
+                }
+
+                // HorizontalPager — handles swipe between tabs
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) { page ->
+                    val notices = when (HomeTab.entries[page]) {
+                        HomeTab.FOR_YOU -> forYou
+                        HomeTab.NEARBY -> nearBy
+                        HomeTab.SAVED -> saved
+                    }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(
+                            start = 8.dp,
+                            end = 8.dp,
+                            top = 8.dp,
+                            bottom = 80.dp
+                        )
+                    ) {
+                        items(
+                            count = notices.itemCount,
+                            key = notices.itemKey { it.id }
+                        ) { index ->
+                            NormalNotice(
+                                poster = notices[index] ?: return@items,
+                                onAction = onAction,
+                                onNavigateToDetail = {},
+                                modifier = Modifier.animateItem(
+                                    placementSpec = spring(
+                                        dampingRatio = 0.5f,
+                                        stiffness = Spring.StiffnessLow
+                                    )
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -389,14 +418,75 @@ fun HomeScreen(
 
 
 @Composable
-fun EmergencyNotice(
-    poster: Poster.Emergency,
-    onNavigateToDetail: (String) -> Unit
+fun EmergencyCarousel(
+    notices: List<Poster.Emergency>,
+    modifier: Modifier = Modifier,
+    onAction: (HomeScreenAction) -> Unit
+) {
+    val pagerState = rememberPagerState(
+        initialPage = Int.MAX_VALUE / 2,
+        pageCount = { Int.MAX_VALUE }
+    )
+
+    LaunchedEffect(pagerState) {
+        while (true) {
+            delay(5_000)
+            if (!pagerState.isScrollInProgress) {
+                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth()
+        ) { page ->
+            EmergencyCarouselItem(
+                notice = notices[page % notices.size],
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            /*EmergencyNotice(
+                poster = notices[page % notices.size],
+                onNavigateToDetail = {}
+            )*/
+        }
+
+        // Page indicator dots
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 6.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            repeat(notices.size) { index ->
+                val isSelected = (pagerState.currentPage % notices.size) == index
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 3.dp)
+                        .size(if (isSelected) 8.dp else 6.dp)
+                        .clip(CircleShape)
+                        .background(if (isSelected) ErrorRed else BorderGray)
+                )
+            }
+        }
+    }
+
+}
+
+@Composable
+fun EmergencyCarouselItem(
+    notice: Poster.Emergency,
+    modifier: Modifier = Modifier
 ) {
     var animation by remember { mutableStateOf("") }
-    val icon = getIcon(poster)
     LaunchedEffect(Unit) {
-        animation = Res.readBytes(icon).decodeToString()
+        animation = Res.readBytes(getIcon(notice)).decodeToString()
     }
     val composition = rememberKottieComposition(
         spec = KottieCompositionSpec.JsonString(animation)
@@ -405,12 +495,115 @@ fun EmergencyNotice(
         composition = composition,
         iterations = KottieConstants.IterateForever
     )
+
     Row(
-        modifier = Modifier
+        modifier = modifier
+            .fillMaxWidth()
+            .NeonEffect()
+            .background(brush = EmergencyGradient, shape = RoundedCornerShape(12.dp))
+            .padding(horizontal = 10.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        KottieAnimation(
+            composition = composition,
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(EmergencyIconBG)
+                .padding(5.dp),
+            progress = { animationState.progress }
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = notice.title,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Outlined.LocationOn,
+                    contentDescription = null,
+                    modifier = Modifier.size(11.dp),
+                    tint = PrimaryTextAlt2
+                )
+                Spacer(modifier = Modifier.width(2.dp))
+                Text(
+                    text = notice.location,
+                    fontSize = 11.sp,
+                    color = PrimaryTextAlt2,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Outlined.Timer,
+                    contentDescription = null,
+                    modifier = Modifier.size(11.dp),
+                    tint = PrimaryTextAlt2
+                )
+                Spacer(modifier = Modifier.width(2.dp))
+                Text(
+                    text = notice.time,
+                    fontSize = 11.sp,
+                    color = PrimaryTextAlt2
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Card(
+            shape = RoundedCornerShape(6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = when (notice.type) {
+                    Type.HIGH -> HighBackground
+                    Type.MEDIUM -> MediumBackground
+                    Type.NORMAL -> NormalBackground
+                    else -> EmergencyIconBG
+                }
+            )
+        ) {
+            Text(
+                text = notice.type.name,
+                fontSize = 11.sp,
+                color = when (notice.type) {
+                    Type.HIGH -> HighText
+                    Type.MEDIUM -> MediumText
+                    Type.NORMAL -> NormalText
+                    else -> ErrorRed
+                },
+                modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun EmergencyNotice(
+    poster: Poster.Emergency,
+    modifier: Modifier = Modifier,
+    onNavigateToDetail: (String) -> Unit
+) {
+    var animation by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        animation = Res.readBytes(getIcon(poster)).decodeToString()
+    }
+    val composition = rememberKottieComposition(
+        spec = KottieCompositionSpec.JsonString(animation)
+    )
+    val animationState by animateKottieCompositionAsState(
+        composition = composition,
+        iterations = KottieConstants.IterateForever
+    )
+
+    Row(
+        modifier = modifier then Modifier
             .fillMaxWidth()
             .animateContentSize(animationSpec = tween(durationMillis = 500))
             .NeonEffect()
-            .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+            .background(brush = EmergencyGradient, shape = RoundedCornerShape(8.dp))
             .clickable {
                 poster.isExpanded = !poster.isExpanded
             }
@@ -445,13 +638,29 @@ fun EmergencyNotice(
                 Card(
                     Modifier.wrapContentSize(),
                     shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = EmergencyIconBG)
+                    colors = CardDefaults.cardColors(
+                        containerColor = when (poster.type) {
+                            Type.HIGH -> HighBackground
+                            Type.MEDIUM -> MediumBackground
+                            Type.NORMAL -> NormalBackground
+                            else -> {
+                                EmergencyIconBG
+                            }
+                        }
+                    )
                 )
                 {
                     Text(
                         text = poster.type.name,
                         fontSize = 12.sp,
-                        color = ErrorRed,
+                        color = when (poster.type) {
+                            Type.HIGH -> HighText
+                            Type.MEDIUM -> MediumText
+                            Type.NORMAL -> NormalText
+                            else -> {
+                                ErrorRed
+                            }
+                        },
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     )
                 }
@@ -520,7 +729,6 @@ fun NormalNotice(
     var isExpanded by remember { mutableStateOf(false) }
     var showSeeMore by remember { mutableStateOf(false) }
     var toggleLiked by remember { mutableStateOf(false) }
-    val animationLike = getAnimation("files/love.json", 1)
 
 
     Card(
@@ -561,7 +769,7 @@ fun NormalNotice(
                             )
                         ) {
                             Text(
-                                text = poster.profile.name,
+                                text = poster.profile.name + poster.id,
                                 fontSize = MaterialTheme.typography.titleSmall.fontSize,
                                 color = PrimaryText,
                                 fontWeight = FontWeight.Bold
@@ -918,7 +1126,6 @@ fun AttachmentCard(
 }
 
 
-@Composable
 fun getIcon(poster: Poster.Emergency): String {
     return when (poster.topic) {
         Topic.FIRE -> "files/fire.json"
@@ -962,7 +1169,96 @@ fun getAnimation(
     return Pair(composition, animationState)
 }
 
-@Preview
+@Composable
+fun HeaderSection(
+    state: HomeScreenState,
+    onAction: (HomeScreenAction) -> Unit
+) {
+    val searchToggle by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.SpaceBetween
+    )
+    {
+        Column(
+            modifier = Modifier.wrapContentHeight().padding(all = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        )
+        {
+            Text(
+                text = "Notice Board",
+                modifier = Modifier
+                    .align(Alignment.Start),
+                style = TextStyle(
+                    brush = ViolateGradiant,
+                    fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+            )
+            Text(
+                text = "Stay updated with important notices",
+                modifier = Modifier
+                    .align(Alignment.Start),
+                color = PrimaryTextAlt2,
+                fontSize = 12.sp
+            )
+
+        }
+        Row(
+            modifier = Modifier.wrapContentHeight().padding(8.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            /*RoundGradientButton(
+                modifier = Modifier.wrapContentSize(),
+                text = "Search",
+                icon = Icons.Default.Search,
+                iconTint = Color.White,
+                gradientColors = GradientGreen,
+                shape = RoundedCornerShape(30.dp),
+                onClick = { searchToggle != searchToggle }
+            )*/
+
+            Spacer(Modifier.width(4.dp))
+            AnimatedVisibility(state.emergencyAlertClosed) {
+                BadgedBox(
+                    badge = {
+                        Badge(
+                            containerColor = ErrorRed,
+                            contentColor = Color.White
+                        ) {
+                            Text(state.emergencyNotice.size.toString())
+                        }
+                    }
+                ) {
+                    RoundGradientButton(
+                        modifier = Modifier.wrapContentSize(),
+                        text = "notification",
+                        icon = Icons.Outlined.Notifications,
+                        iconTint = Color.White,
+                        gradientColors = SolidColor(EmergenceyAlertRedBG),
+                        shape = RoundedCornerShape(30.dp),
+                        onClick = { onAction(HomeScreenAction.OnNotificationClicked) }
+                    )
+                }
+
+            }
+        }
+    }
+}
+
+enum class HomeTab(val title: String) {
+    FOR_YOU("For You"),
+    NEARBY("Nearby"),
+    SAVED("saved")
+}
+
+/*@Preview
 @Composable
 fun HomeScreenPreview() {
     MaterialTheme {
@@ -1007,7 +1303,7 @@ fun HomeScreenPreview() {
             onNavigateToDetail = { },
         )
     }
-}
+}*/
 
 @Preview
 @Composable
@@ -1054,21 +1350,35 @@ fun NormalPosterPreview() {
 
 @Preview
 @Composable
-fun EmergencyPosterPreview() {
-    EmergencyNotice(
-        poster = Poster.Emergency(
-            0,
-            "Flash Flood Warning, Please Stay Away From There",
-            "Heavy rainfall causing flood in low-laying areas. lorem ipsum dolor sit amet, consectetur adipiscing elit.  ",
-            "5/11/2025",
-            "2km away",
-            "5 min ago",
-            "",
-            "Dhanmondi Area, Near Dhaka University",
-            Type.MEDIUM,
-            Topic.FIRE
+fun EmergencyCarouselPreview() {
+    EmergencyCarousel(
+        notices = listOf(
+            Poster.Emergency(
+                0,
+                "Flash Flood Warning, Please Stay Away From There",
+                "Heavy rainfall causing flood in low-laying areas.",
+                "5/11/2025",
+                "2km away",
+                "5 min ago",
+                "",
+                "Dhanmondi Area, Near Dhaka University",
+                Type.HIGH,
+                Topic.FIRE
+            ),
+            Poster.Emergency(
+                1,
+                "Gas Leak Alert in Residential Area",
+                "A major gas leakage has been reported.",
+                "6/11/2025",
+                "800m away",
+                "10 min ago",
+                "",
+                "Mirpur Section 10",
+                Type.MEDIUM,
+                Topic.GAS_LEAK
+            )
         ),
-        onNavigateToDetail = { }
+        onAction = {}
     )
 }
 

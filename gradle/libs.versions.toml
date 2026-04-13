@@ -47,6 +47,8 @@ constraintlayout-compose ="1.9.3"
 kottie = "2.2.0"
 kamel-v = "1.0.9"
 
+paging = "3.5.0-alpha01"
+
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -114,6 +116,10 @@ constraintLayout-compose = { group = "org.jetbrains.compose.ui", name = "ui-cons
 kottie = {module = "io.github.ismai117:kottie",version.ref = "kottie"} #lottie-wrapper
 kamel-default = {module = "media.kamel:kamel-image-default",version.ref = "kamel-v"}
 kamel = {module = "media.kamel:kamel-image",version.ref = "kamel-v"}
+paging-compose = {module = "androidx.paging:paging-compose",version.ref = "paging"}
+paging-runtime = {module = "androidx.paging:paging-runtime",version.ref = "paging"}
+#paging-common = {module = "androidx.paging:paging-common",version.ref = "paging"}
+
 
 
 [plugins]
