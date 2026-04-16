@@ -89,6 +89,7 @@ import digita_notice_board.feature.noticeboard.generated.resources.flaged
 import digita_notice_board.feature.noticeboard.generated.resources.heart
 import digita_notice_board.feature.noticeboard.generated.resources.share
 import digita_notice_board.feature.noticeboard.generated.resources.warning
+import home.comment.CommentBottomSheet
 import home.component.CustomSearchBar
 import home.component.EmergencyCarousel
 import home.component.EmergencyNotice
@@ -142,6 +143,7 @@ fun HomeScreenRoot(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
+    val commentSheetState by viewModel.commentSheetState.collectAsStateWithLifecycle()
     val forYouItems = viewModel.forYouUpdatedFlow.collectAsLazyPagingItems()
     val nearByItems = viewModel.nearByFlow.collectAsLazyPagingItems()
     val savedItems = viewModel.savedFlow.collectAsLazyPagingItems()
@@ -159,6 +161,13 @@ fun HomeScreenRoot(
         state = dialogState,
         onAction = viewModel::onAction
     )
+
+    commentSheetState?.let {
+        CommentBottomSheet(
+            state = it,
+            onAction = viewModel::onAction
+        )
+    }
 
 }
 

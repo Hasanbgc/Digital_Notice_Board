@@ -351,7 +351,9 @@ fun NormalNotice(
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Card(
-                    modifier = Modifier.wrapContentSize(),
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable { onAction(HomeScreenAction.OnCommentClicked(poster.id)) },
                     shape = RoundedCornerShape(20.dp),
                     elevation = CardDefaults.cardElevation(4.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -370,7 +372,7 @@ fun NormalNotice(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "45",
+                            text = "${poster.commentCount}",
                             fontSize = 14.sp,
                             color = Color.Black
                         )

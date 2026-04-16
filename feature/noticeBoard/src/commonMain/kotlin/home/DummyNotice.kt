@@ -15,9 +15,9 @@ fun generateDummyNotices(page: Int, pageSize: Int): List<Poster.Normal> {
                 distance = "2km away",
                 time = "5 min ago",
                 imageUrlList = listOf(
-                    "https://picsum.photos/id/10/400/300",
-                    "https://picsum.photos/id/20/400/300",
-                    "https://picsum.photos/id/30/400/300",
+                    "https://picsum.photos/id/${id + 10}/400/400",
+                    "https://picsum.photos/id/${id + 20}/300/300",
+                    "https://picsum.photos/id/${id + 30}/300/300",
                 ),
                 location = "Dhanmondi Area",
                 type = Type.URGENT,

@@ -9,6 +9,7 @@ import androidx.paging.asState
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
+import home.comment.CommentSheetState
 import home.dialog.DialogState
 import io.ktor.util.Hash.combine
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +30,9 @@ class HomeViewModel : ViewModel() {
     val _dialogState = MutableStateFlow<DialogState?>(null)
     val dialogState = _dialogState.asStateFlow()
 
+    val _commentSheetState = MutableStateFlow<CommentSheetState?>(null)
+    val commentSheetState = _commentSheetState.asStateFlow()
+
     private val updatedLiked = MutableStateFlow<Map<Int, Boolean>>(emptyMap())
 
     fun onAction(action: HomeScreenAction) {
@@ -38,7 +42,10 @@ class HomeViewModel : ViewModel() {
             is HomeScreenAction.OnImageClicked -> showImageDialog(action.imageList, action.id)
             is HomeScreenAction.OnLikeClicked -> updateLike(action.id, action.liked)
             is HomeScreenAction.OnShareClicked -> {}
-            is HomeScreenAction.OnCommentClicked -> {}
+            is HomeScreenAction.OnCommentClicked -> openCommentSheet(action.id)
+            is HomeScreenAction.OnCommentInputChanged -> updateCommentInput(action.text)
+            HomeScreenAction.OnCommentSubmit -> submitComment()
+            HomeScreenAction.OnDismissCommentSheet -> _commentSheetState.value = null
             is HomeScreenAction.OnSavedClicked -> savePost(action.id)
             is HomeScreenAction.OnProfileClicked -> {}
             is HomeScreenAction.OnLocationClicked -> {}
@@ -57,7 +64,6 @@ class HomeViewModel : ViewModel() {
                     pager.append()
                 }*/
             }
-            else -> {}
         }
     }
 
@@ -109,6 +115,42 @@ class HomeViewModel : ViewModel() {
     fun dismissDialog() {
         _dialogState.value = null
     }
+
+    private fun openCommentSheet(postId: Int) {
+        _commentSheetState.value = CommentSheetState(
+            postId = postId,
+            comments = getDummyComments(postId)
+        )
+    }
+
+    private fun updateCommentInput(text: String) {
+        _commentSheetState.update { it?.copy(inputText = text) }
+    }
+
+    private fun submitComment() {
+        val current = _commentSheetState.value ?: return
+        val text = current.inputText.trim()
+        if (text.isBlank()) return
+        val newComment = Comment(
+            id = current.comments.size + 1,
+            authorName = "You",
+            authorImageUrl = "",
+            text = text,
+            time = "Just now"
+        )
+        _commentSheetState.update {
+            it?.copy(
+                comments = it.comments + newComment,
+                inputText = ""
+            )
+        }
+    }
+
+    private fun getDummyComments(postId: Int): List<Comment> = listOf(
+        Comment(1, "Anika Chowdhury", "https://picsum.photos/id/${postId + 10}/100/100", "Thanks for sharing this important update!", "2 min ago"),
+        Comment(2, "Rahim Uddin", "https://picsum.photos/id/${postId + 20}/100/100", "Very helpful information, please keep us posted.", "8 min ago"),
+        Comment(3, "Fatema Begum", "https://picsum.photos/id/${postId + 30}/100/100", "I saw this earlier today near my area too.", "15 min ago"),
+    )
 
 
     val forYouFlow = Pager(

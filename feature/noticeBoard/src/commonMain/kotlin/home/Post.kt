@@ -47,6 +47,13 @@ data class Profile(
     val designation: String
 )
 
+data class Comment(
+    val id: Int,
+    val authorName: String,
+    val authorImageUrl: String,
+    val text: String,
+    val time: String
+)
 
 enum class Type{
     URGENT,
