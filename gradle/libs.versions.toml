@@ -75,7 +75,7 @@ matrial3-extended-icon  ={group = "org.jetbrains.compose.material",name ="materi
 jetbrains-compose-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref= "navigationCompose"}
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 androidx-compose-navigation = {group = "androidx.navigation", name="navigation-compose", version.ref = "androidx-navigation"}
-androidx-compose-foundation = {group = "androidx.compose.foundation", name="foundation", version.ref = "composeMultiplatform"}
+#androidx-compose-foundation = {group = "androidx.compose.foundation", name="foundation", version.ref = "composeMultiplatform"}
 jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "multiplatform-nav3-ui" }
 jetbrains-material3-adaptiveNavigation3 = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation3", version.ref = "compose-multiplatform-adaptive" }
 jetbrains-lifecycle-viewmodelNavigation3 = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "compose-multiplatform-lifecycle" }
@@ -118,7 +118,7 @@ kamel-default = {module = "media.kamel:kamel-image-default",version.ref = "kamel
 kamel = {module = "media.kamel:kamel-image",version.ref = "kamel-v"}
 paging-compose = {module = "androidx.paging:paging-compose",version.ref = "paging"}
 paging-runtime = {module = "androidx.paging:paging-runtime",version.ref = "paging"}
-#paging-common = {module = "androidx.paging:paging-common",version.ref = "paging"}
+paging-common = {module = "androidx.paging:paging-common",version.ref = "paging"}
 
 
 

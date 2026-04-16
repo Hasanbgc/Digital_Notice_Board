@@ -35,6 +35,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import home.HomeScreenAction
+import home.Poster
 import kotlinx.coroutines.launch
 import presentation.NeutralGray500
 

@@ -35,13 +35,16 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.androidx.compose.foundation)
+            //implementation(libs.androidx.compose.foundation)
             implementation(libs.bundles.coil)
             
             //maps
             implementation(libs.maps.compose)
             implementation(libs.play.services.maps)
             implementation(libs.play.services.location)
+
+            //paging-android
+            implementation(libs.paging.runtime)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -66,9 +69,9 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
+            //paging-common
             implementation(libs.paging.compose)
-            implementation(libs.paging.runtime)
-           // implementation(libs.paging.common)
+            implementation(libs.paging.common)
 
             implementation(project(":core"))
             implementation(project(":feature:auth"))

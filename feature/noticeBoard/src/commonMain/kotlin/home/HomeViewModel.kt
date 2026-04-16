@@ -4,11 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import androidx.paging.asState
 import androidx.paging.cachedIn
+import androidx.paging.filter
+import androidx.paging.map
 import home.dialog.DialogState
+import io.ktor.util.Hash.combine
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -23,6 +29,7 @@ class HomeViewModel : ViewModel() {
     val _dialogState = MutableStateFlow<DialogState?>(null)
     val dialogState = _dialogState.asStateFlow()
 
+    private val updatedLiked = MutableStateFlow<Map<Int, Boolean>>(emptyMap())
 
     fun onAction(action: HomeScreenAction) {
         when (action) {
@@ -72,17 +79,9 @@ class HomeViewModel : ViewModel() {
     }
 
     fun updateLike(id: Int, liked: Boolean) {
-        /*_homeScreenState.update {
-            it.copy(
-                poster = it.poster.map { poster ->
-                    if (poster is Poster.Normal && poster.id == id) {
-                        poster.copy(liked = if (liked) Like.LIKED else Like.UNLIKED) // or !poster.liked to toggle
-                    } else {
-                        poster // Return unchanged poster
-                    }
-                }
-            )
-        }*/
+        updatedLiked.update {
+            it + (id to liked)
+        }
     }
 
     fun savePost(id: Int) {
@@ -141,6 +140,21 @@ class HomeViewModel : ViewModel() {
             PosterPagingSource(PosterPagingSource.SAVED)
         }
     ).flow.cachedIn(viewModelScope)
+
+    val forYouUpdatedFlow: Flow<PagingData<Poster.Normal>> = combine(
+        forYouFlow,
+        updatedLiked
+    ){ pagingData, update ->
+        pagingData.map { poster ->
+            val update = update[poster.id]
+            if(update != null) {
+                val (count:Int,liked: Like) = if(update){poster.likeCount+1 to Like.LIKED} else{poster.likeCount to Like.UNLIKED}
+                poster.copy(likeCount =  count, liked = liked)
+            } else {
+                poster
+            }
+        }
+    }
 
     fun getEmergencyNotices() {
         _homeScreenState.update {
