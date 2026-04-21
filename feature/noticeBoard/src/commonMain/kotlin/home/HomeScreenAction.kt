@@ -10,7 +10,7 @@ sealed interface HomeScreenAction {
     data class OnCommentInputChanged(val text: String) : HomeScreenAction
     data object OnCommentSubmit : HomeScreenAction
     data object OnDismissCommentSheet : HomeScreenAction
-    data class OnSavedClicked(val id:Int): HomeScreenAction
+    data class OnSavedClicked(val poster: Poster.Normal): HomeScreenAction
     data class OnProfileClicked(val id:Int): HomeScreenAction
     data class OnLocationClicked(val id:Int): HomeScreenAction
     //object PostANoticeClicked: HomeScreenAction

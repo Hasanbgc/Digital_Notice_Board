@@ -1,9 +1,19 @@
 package home
 
+import androidx.compose.runtime.remember
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import org.koin.core.scope.Scope
+import kotlin.collections.emptyList
+import kotlin.coroutines.coroutineContext
+
 fun generateDummyNotices(page: Int, pageSize: Int): List<Poster.Normal> {
     val start = (page - 1) * pageSize
 
-    return List(150) { index ->
+    return List(pageSize) { index ->
         val id = start + index
             Poster.Normal(
                 id = id,
@@ -32,7 +42,7 @@ fun generateDummyNotices(page: Int, pageSize: Int): List<Poster.Normal> {
                 shareCount = 23,
                 commentCount = 45,
                 likeCount = 123,
-                isSaved = false,
+                isSaved = savedList.any { it.id == id },
                 viewCount = 1250,
                 isExpanded = false,
                 liked = Like.IDLE
@@ -40,20 +50,26 @@ fun generateDummyNotices(page: Int, pageSize: Int): List<Poster.Normal> {
     }
 }
 
-/*
-if (id % 50 == 0) {
-    Poster.Emergency(
-        id = id,
-        title = "Emergency #$id",
-        description = "This is emergency alert number $id",
-        type = Type.HIGH,
-        location = "Dhaka",
-        distance = "2km",
-        time = "5 min ago",
-        topic = Topic.FIRE,
-        isExpanded = false,
-        date = "5-4-2026",
-        imageUrl = ""
-    )
+val savedList = mutableListOf<Poster.Normal>()
+private var onSavedListChanged: (() -> Unit)? = null
+
+fun setOnSavedListChangedListener(listener: () -> Unit) {
+    onSavedListChanged = listener
 }
-else {*/
+
+fun addSavedNote(poster: Poster.Normal) {
+    if (savedList.none { it.id == poster.id }) {
+        savedList.add(poster.copy(isSaved = true))
+        onSavedListChanged?.invoke()
+    }
+}
+
+fun getSavedNotes(): List<Poster.Normal> {
+    return savedList.toList()
+}
+
+fun findPosterById(id: Int): Poster.Normal? {
+    // We generate a large enough batch to find the ID since it's dummy data
+    return generateDummyNotices(1, 500).find { it.id == id }
+}
+

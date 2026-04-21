@@ -5,22 +5,17 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.asState
 import androidx.paging.cachedIn
-import androidx.paging.filter
 import androidx.paging.map
 import home.comment.CommentSheetState
 import home.dialog.DialogState
-import io.ktor.util.Hash.combine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.collections.emptyList
 
 class HomeViewModel : ViewModel() {
 
@@ -46,7 +41,7 @@ class HomeViewModel : ViewModel() {
             is HomeScreenAction.OnCommentInputChanged -> updateCommentInput(action.text)
             HomeScreenAction.OnCommentSubmit -> submitComment()
             HomeScreenAction.OnDismissCommentSheet -> _commentSheetState.value = null
-            is HomeScreenAction.OnSavedClicked -> savePost(action.id)
+            is HomeScreenAction.OnSavedClicked -> savePost(action.poster)
             is HomeScreenAction.OnProfileClicked -> {}
             is HomeScreenAction.OnLocationClicked -> {}
             /*is HomeScreenAction.PostANoticeClicked -> navigateToCreateNotice()*/
@@ -90,18 +85,8 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun savePost(id: Int) {
-        /*_homeScreenState.update {
-            it.copy(
-                poster = it.poster.map { poster ->
-                    if (poster is Poster.Normal && poster.id == id) {
-                        poster.copy(isSaved = !poster.isSaved) // or !poster.liked to toggle
-                    } else {
-                        poster // Return unchanged poster
-                    }
-                }
-            )
-        }*/
+    fun savePost(poster: Poster.Normal) {
+        addSavedNote(poster)
     }
 
     fun showImageDialog(imageList: List<String>, index: Int) {
@@ -147,9 +132,27 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun getDummyComments(postId: Int): List<Comment> = listOf(
-        Comment(1, "Anika Chowdhury", "https://picsum.photos/id/${postId + 10}/100/100", "Thanks for sharing this important update!", "2 min ago"),
-        Comment(2, "Rahim Uddin", "https://picsum.photos/id/${postId + 20}/100/100", "Very helpful information, please keep us posted.", "8 min ago"),
-        Comment(3, "Fatema Begum", "https://picsum.photos/id/${postId + 30}/100/100", "I saw this earlier today near my area too.", "15 min ago"),
+        Comment(
+            1,
+            "Anika Chowdhury",
+            "https://picsum.photos/id/${postId + 10}/100/100",
+            "Thanks for sharing this important update!",
+            "2 min ago"
+        ),
+        Comment(
+            2,
+            "Rahim Uddin",
+            "https://picsum.photos/id/${postId + 20}/100/100",
+            "Very helpful information, please keep us posted.",
+            "8 min ago"
+        ),
+        Comment(
+            3,
+            "Fatema Begum",
+            "https://picsum.photos/id/${postId + 30}/100/100",
+            "I saw this earlier today near my area too.",
+            "15 min ago"
+        ),
     )
 
 
@@ -173,6 +176,7 @@ class HomeViewModel : ViewModel() {
             PosterPagingSource(PosterPagingSource.NEARBY)
         }
     ).flow.cachedIn(viewModelScope)
+
     val savedFlow = Pager(
         config = PagingConfig(
             pageSize = 10,
@@ -186,12 +190,16 @@ class HomeViewModel : ViewModel() {
     val forYouUpdatedFlow: Flow<PagingData<Poster.Normal>> = combine(
         forYouFlow,
         updatedLiked
-    ){ pagingData, update ->
+    ) { pagingData, update ->
         pagingData.map { poster ->
             val update = update[poster.id]
-            if(update != null) {
-                val (count:Int,liked: Like) = if(update){poster.likeCount+1 to Like.LIKED} else{poster.likeCount to Like.UNLIKED}
-                poster.copy(likeCount =  count, liked = liked)
+            if (update != null) {
+                val (count: Int, liked: Like) = if (update) {
+                    poster.likeCount + 1 to Like.LIKED
+                } else {
+                    poster.likeCount to Like.UNLIKED
+                }
+                poster.copy(likeCount = count, liked = liked)
             } else {
                 poster
             }
@@ -201,7 +209,7 @@ class HomeViewModel : ViewModel() {
     fun getEmergencyNotices() {
         _homeScreenState.update {
             it.copy(
-                emergencyNotice =  listOf(
+                emergencyNotice = listOf(
                     Poster.Emergency(
                         1,
                         "Flash Flood Warning, please stay away form there",

@@ -5,6 +5,15 @@ import androidx.paging.PagingState
 import kotlinx.coroutines.delay
 
 class PosterPagingSource(val type:Int): PagingSource<Int, Poster.Normal>() {
+
+    init {
+        if (type == SAVED) {
+            setOnSavedListChangedListener {
+                invalidate()
+            }
+        }
+    }
+
     override fun getRefreshKey(state: PagingState<Int, Poster.Normal>): Int? {
         return state.anchorPosition?.let {
             state.closestPageToPosition(it)?.prevKey?.plus(1)
@@ -21,8 +30,16 @@ class PosterPagingSource(val type:Int): PagingSource<Int, Poster.Normal>() {
 
             val data = when(type){
                 FOR_YOU -> generateDummyNotices(page,pageSize)
-                NEARBY -> generateDummyNotices(page,pageSize) // get nearby notices
-                else -> generateDummyNotices(page,pageSize) // get saved notices
+                NEARBY -> generateDummyNotices(page,pageSize)
+                else -> {
+                    val allSaved = getSavedNotes()
+                    val start = (page - 1) * pageSize
+                    if (start < allSaved.size) {
+                        allSaved.drop(start).take(pageSize)
+                    } else {
+                        emptyList()
+                    }
+                }
             }
 
 

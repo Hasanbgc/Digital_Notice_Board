@@ -109,6 +109,7 @@ import likeAnimationSize
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 import presentation.BorderGray
 import presentation.ButtonCardGradiant
 import presentation.EmergenceyAlertRedBG
@@ -137,7 +138,7 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun HomeScreenRoot(
-    viewModel: HomeViewModel = koinViewModel(),
+    viewModel: HomeViewModel ,
     hideBottomBar: (Boolean) -> Unit
 ) {
 

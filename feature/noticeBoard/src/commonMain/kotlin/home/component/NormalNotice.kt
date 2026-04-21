@@ -416,7 +416,7 @@ fun NormalNotice(
                     modifier = Modifier.size(20.dp)
                         .align(Alignment.CenterVertically)
                         .clickable {
-                            onAction(HomeScreenAction.OnSavedClicked(poster.id))
+                            onAction(HomeScreenAction.OnSavedClicked(poster))
                         },
                 )
             }
