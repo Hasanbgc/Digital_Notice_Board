@@ -1,5 +1,7 @@
 package com.hasan.dnb.app
 
+import AuthScreen.AuthScreenRoot
+import AuthScreen.AuthViewModel
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -20,6 +22,7 @@ import login.LoginScreenRoot
 import login.LoginViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import presentation.AppDestination
 import registration.RegistrationScreenRoot
 import registration.RegistrationViewModel
 
@@ -27,8 +30,9 @@ val config = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class){
             subclass(AppDestination.Auth::class)
-            subclass(AppDestination.Registration::class)
             subclass(AppDestination.Main::class)
+
+            //subclass(AppDestination.Registration::class)
         }
     }
 }
@@ -37,7 +41,7 @@ val config = SavedStateConfiguration {
 @Preview
 fun AppNavigation() {
 
-    val backStack = rememberNavBackStack(config, AppDestination.Main)
+    val backStack = rememberNavBackStack(config, AppDestination.Auth)
 
     NavDisplay(
         backStack = backStack,
@@ -51,19 +55,23 @@ fun AppNavigation() {
         },
         entryProvider = entryProvider {
             entry<AppDestination.Auth> {
-                val viewModel: LoginViewModel = koinViewModel()
-                LoginScreenRoot(
-                    viewModel,
+                val viewModel: AuthViewModel = koinViewModel()
+                AuthScreenRoot(
+                    authViewModel = viewModel,
                     onBack = {
                         backStack.removeLastOrNull()
                     },
                     onLoginSuccess = {
                         backStack.clear()
-                        backStack.add(AppDestination.Main)
+                        backStack.add(AppDestination.Main(viewModel.uid))
                     }
                 )
             }
-            entry<AppDestination.Registration> {
+            entry<AppDestination.Main> { args ->
+                MainNestedNavigation(args.uid,onNavigate = {})
+            }
+
+           /* entry<AppDestination.Registration> {
                 val viewModel: RegistrationViewModel = koinViewModel()
                 RegistrationScreenRoot(viewModel, onBack = {
                     backStack.removeLastOrNull()
@@ -71,10 +79,8 @@ fun AppNavigation() {
                     backStack.clear()
                     backStack.add(AppDestination.Main)
                 })
-            }
-            entry<AppDestination.Main> {
-                MainNestedNavigation(onNavigate = {})
-            }
+            }*/
+
         },
         transitionSpec = {
             // Slide in from right when navigating forward

@@ -1,4 +1,4 @@
-package com.hasan.dnb.app
+package presentation
 
 
 import androidx.navigation3.runtime.NavKey
@@ -13,7 +13,7 @@ sealed class AppDestination : NavKey {
     data object Registration : AppDestination()
 
     @Serializable
-    data object Main : AppDestination()
+    data class Main(val uid: String) : AppDestination()
 }
 
 @Serializable

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(uid: String): ViewModel() {
 
     val _homeScreenState = MutableStateFlow(HomeScreenState())
     val state = _homeScreenState.asStateFlow()
