@@ -36,6 +36,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hasan.dnb.firebaseLog
 import digita_notice_board.feature.auth.generated.resources.Res
 import digita_notice_board.feature.auth.generated.resources.facebook
 import digita_notice_board.feature.auth.generated.resources.google
@@ -68,6 +69,9 @@ fun AuthScreenRoot(
                 is UiEvent.ShowToast -> {}
             }
         }
+    }
+    LaunchedEffect(Unit) {
+        firebaseLog("AuthScreenRoot")
     }
 }
 

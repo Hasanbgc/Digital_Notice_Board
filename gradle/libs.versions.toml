@@ -49,6 +49,9 @@ kamel-v = "1.0.9"
 
 paging = "3.5.0-alpha01"
 
+google-service = "4.4.4"
+firebase-bom = "33.5.1"
+
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -120,6 +123,9 @@ paging-compose = {module = "androidx.paging:paging-compose",version.ref = "pagin
 paging-runtime = {module = "androidx.paging:paging-runtime",version.ref = "paging"}
 paging-common = {module = "androidx.paging:paging-common",version.ref = "paging"}
 
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+
 
 
 [plugins]
@@ -130,11 +136,13 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMul
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-room = { id = "androidx.room", version.ref = "room" }
 multiplatformResource = {id = "dev.icerock.mobile.multiplatform-resources", version.ref = "mokoResource"}
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+google-service = { id = "com.google.gms.google-services", version.ref = "google-service" }
+room = { id = "androidx.room", version.ref = "room" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
+
 
 [bundles]
 ktor = [
