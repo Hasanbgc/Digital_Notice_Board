@@ -49,8 +49,12 @@ kamel-v = "1.0.9"
 
 paging = "3.5.0-alpha01"
 
-google-service = "4.4.4"
 firebase-bom = "33.5.1"
+google-service = "4.4.4"
+play-service = "21.0.0"
+credentials = "1.6.0"
+google-id = "1.2.0"
+
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -122,9 +126,14 @@ kamel = {module = "media.kamel:kamel-image",version.ref = "kamel-v"}
 paging-compose = {module = "androidx.paging:paging-compose",version.ref = "paging"}
 paging-runtime = {module = "androidx.paging:paging-runtime",version.ref = "paging"}
 paging-common = {module = "androidx.paging:paging-common",version.ref = "paging"}
-
+play-service-auth = {module = "com.google.android.gms:play-services-auth", version.ref = "play-service"}
+firebas-auth = {module = "com.google.firebase:firebase-auth-ktx", version = "23.2.1"}
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+google-credential = {module = "androidx.credentials:credentials", version.ref ="credentials"}
+google-credential-auth = {module = "androidx.credentials:credentials-play-services-auth", version.ref ="credentials"}
+google-id = {module = "com.google.android.libraries.identity.googleid:googleid", version.ref ="google-id"}
+
 
 
 

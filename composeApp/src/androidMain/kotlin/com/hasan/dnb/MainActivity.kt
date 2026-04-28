@@ -4,40 +4,45 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.collectAsState
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
+import authScreen.AuthViewModel
 import com.hasan.dnb.app.AppNavigation
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.hasan.dnb.app.AppViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import presentation.AppDestination
 
 class MainActivity : ComponentActivity() {
+    val viewModel: AppViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        var isChecking = true
-        lifecycleScope.launch {
-            delay(1000)
-            isChecking = false
-        }
+
         splash.apply {
             setKeepOnScreenCondition {
-                isChecking
+                viewModel.destination.value == null
             }
         }
 
 
         setContent {
-            AppNavigation()
+
+            val dest = viewModel.destination.collectAsState().value
+            println("uid = $dest")
+
+            when (dest) {
+                is AppDestination.Main -> {
+                    AppNavigation(dest)
+                }
+                is AppDestination.Auth -> {
+                    AppNavigation(dest)
+                }
+                else -> {}
+            }
+
         }
     }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    AppNavigation()
 }

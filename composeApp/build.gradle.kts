@@ -64,6 +64,10 @@ kotlin {
             implementation(libs.android.material)
             implementation(libs.koin.android)
 
+            //google-authentication
+            implementation(libs.google.credential)
+            implementation(libs.google.credential.auth)
+
             implementation(project(":core"))
         }
         commonMain.dependencies {

@@ -1,6 +1,9 @@
-package AuthScreen
+package authScreen
 
+import GoogleAuthProvider
+import GoogleAuthUiProvider
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -26,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -36,48 +41,47 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hasan.dnb.firebaseLog
 import digita_notice_board.feature.auth.generated.resources.Res
 import digita_notice_board.feature.auth.generated.resources.facebook
 import digita_notice_board.feature.auth.generated.resources.google
+import digita_notice_board.feature.auth.generated.resources.ic_launcher_foreground
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import presentation.AppDestination
 import presentation.UiEvent
 
 
 @Composable
 fun AuthScreenRoot(
     authViewModel: AuthViewModel,
+    googleAuthProvider: GoogleAuthProvider,
     onBack: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
     val state by authViewModel.authScreenState.collectAsStateWithLifecycle()
+    val uiProvider = googleAuthProvider.getUiProvider()
 
-    AuthScreen(state, authViewModel::onAction)
+    AuthScreen(
+        state = state,
+        uiProvider = uiProvider,
+        onAction = authViewModel::onAction
+    )
 
     LaunchedEffect(Unit) {
         authViewModel.events.collect { event ->
             when (event) {
                 is UiEvent.NavigateBack -> onBack()
-                is UiEvent.Navigate -> {
-                    onLoginSuccess()
-
-                }
-
+                is UiEvent.Navigate -> onLoginSuccess()
                 is UiEvent.ShowSnackbar -> {}
                 is UiEvent.ShowToast -> {}
             }
         }
-    }
-    LaunchedEffect(Unit) {
-        firebaseLog("AuthScreenRoot")
     }
 }
 
 @Composable
 fun AuthScreen(
     state: AuthScreenState,
+    uiProvider: GoogleAuthUiProvider? = null,
     onAction: (AuthScreenAction) -> Unit
 ) {
     Column(
@@ -89,25 +93,30 @@ fun AuthScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp)
-                .background(Color(0xFFDAE8E5)),
+                .height(250.dp)
+                .background(Color(0xFFFFFFFF)),
             contentAlignment = Alignment.Center
         ) {
             // App logo placeholder
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .wrapContentSize()
                     .background(
-                        color = Color(0xFF00897B),
-                        shape = RoundedCornerShape(18.dp)
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFF4AE3BE).copy(0.3f),
+                                Color(0xFF4AE3BE).copy(0.5f),
+                                Color(0xFF4AE3BE)
+                            )
+                        ) ,
+                        shape = RoundedCornerShape(bottomStart = 18.dp, bottomEnd = 18.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "DNB",
-                    color = Color.White,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
+                Image(
+                    painter = painterResource(Res.drawable.ic_launcher_foreground),
+                    contentDescription = "App logo",
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -140,7 +149,7 @@ fun AuthScreen(
             SocialButton(
                 text = "Continue with Google",
                 isLoading = state.isGoogleLoading,
-                onClick = { onAction(AuthScreenAction.OnGoogleClick) },
+                onClick = { uiProvider?.let { onAction(AuthScreenAction.OnGoogleClick(it)) }},
                 icon = {
                     Icon(
                         painter = painterResource(Res.drawable.google),

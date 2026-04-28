@@ -43,6 +43,14 @@ kotlin {
 
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            //google-authentication
+            implementation(libs.google.credential)
+            implementation(libs.google.credential.auth)
+            implementation(libs.google.id)
+
+            //firebase-auth
+            implementation(libs.firebas.auth)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
