@@ -62,12 +62,12 @@ fun AppNavigation(dest: AppDestination = AppDestination.Auth) {
                     },
                     onLoginSuccess = {
                         backStack.clear()
-                        backStack.add(AppDestination.Main(viewModel.uid))
+                        backStack.add(AppDestination.Main(viewModel.userSession))
                     }
                 )
             }
             entry<AppDestination.Main> { args ->
-                MainNestedNavigation(args.uid, onNavigate = {})
+                MainNestedNavigation(args.userSession, onNavigate = {})
             }
 
             /* entry<AppDestination.Registration> {

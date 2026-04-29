@@ -81,39 +81,15 @@ fun SettingsScreenRoot(
 ){
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-        /*SettingsScreen(
-            // state = state,
-            onBackPressed = onBackPressed,
-            viewModel
-        )*/
-    /*CoroutineScope(Dispatchers.Main).launch {
-        runBasicFlow(viewModel)
-    }*/
-
-
     SettingsScreen(
         state = state,
-        onEvent = viewModel::OnEvent
+        onAction = viewModel::OnAction
     )
 }
-/*@Composable
-fun SettingsScreen(
-    //state:SettingsState,
-    onBackPressed: () -> Unit,
-    vm: SettingsViewModel
-){
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ){
-        Text(text = "Settings Screen")
-
-    }
-}*/
 @Composable
 fun SettingsScreen(
     state: SettingsState,
-    onEvent: (SettingsEvent) -> Unit
+    onAction:  (SettingsAction) -> Unit
 ) {
 
     LazyColumn(
@@ -121,7 +97,7 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(ScreenBg)
             .padding(horizontal = 16.dp),
-        contentPadding = PaddingValues(bottom = 70.dp),
+        contentPadding = PaddingValues(bottom = 90.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
@@ -138,7 +114,7 @@ fun SettingsScreen(
                     iconTint = PrimaryGreen,
                     title = "Edit Profile",
                     subtitle = "Update your personal information",
-                    onClick = { onEvent(SettingsEvent.EditProfileClicked) }
+                    onClick = { onAction(SettingsAction.EditProfileClicked) }
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(start = 69.dp, end = 20.dp),
@@ -152,7 +128,7 @@ fun SettingsScreen(
                     iconTint = PrimaryGreen,
                     title = "Change PIN",
                     subtitle = "Update your security PIN",
-                    onClick = { onEvent(SettingsEvent.ChangePinClicked) }
+                    onClick = { onAction(SettingsAction.ChangePinClicked) }
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(start = 69.dp, end = 20.dp),
@@ -166,7 +142,7 @@ fun SettingsScreen(
                     iconTint = PrimaryGreen,
                     title = "Location Preferences",
                     subtitle = "Set your area and delivery radius",
-                    onClick = { onEvent(SettingsEvent.LocationClicked) }
+                    onClick = { onAction(SettingsAction.LocationClicked) }
                 )
             }
         }
@@ -184,7 +160,7 @@ fun SettingsScreen(
                     subtitle = "Receive alerts via SMS",
                     checked = state.smsEnabled,
                     onCheckedChange = {
-                        onEvent(SettingsEvent.ToggleSms(it))
+                        onAction(SettingsAction.ToggleSms(it))
                     }
                 )
 
@@ -202,7 +178,7 @@ fun SettingsScreen(
                     subtitle = "Voice alerts for urgent notices",
                     checked = state.voiceAlertsEnabled,
                     onCheckedChange = {
-                        onEvent(SettingsEvent.ToggleVoice(it))
+                        onAction(SettingsAction.ToggleVoice(it))
                     }
                 )
                 HorizontalDivider(
@@ -219,7 +195,7 @@ fun SettingsScreen(
                     subtitle = "In-app notifications",
                     checked = state.pushEnabled,
                     onCheckedChange = {
-                        onEvent(SettingsEvent.TogglePush(it))
+                        onAction(SettingsAction.TogglePush(it))
                     }
                 )
             }
@@ -236,7 +212,7 @@ fun SettingsScreen(
                     iconTint = Color(0xFF7C3AED),
                     title = "Interest Categories",
                     subtitle = "Customize your notice feed",
-                    onClick = { onEvent(SettingsEvent.InterestCategoriesClicked) }
+                    onClick = { onAction(SettingsAction.InterestCategoriesClicked) }
                 )
             }
         }
@@ -251,7 +227,7 @@ fun SettingsScreen(
                     subtitle = "Primary language",
                     selected = state.selectedLanguage == Language.ENGLISH,
                     onClick = {
-                        onEvent(SettingsEvent.LanguageSelected(Language.ENGLISH))
+                        onAction(SettingsAction.LanguageSelected(Language.ENGLISH))
                     }
                 )
 
@@ -260,7 +236,7 @@ fun SettingsScreen(
                     subtitle = "বাংলাদেশ",
                     selected = state.selectedLanguage == Language.BANGLA,
                     onClick = {
-                        onEvent(SettingsEvent.LanguageSelected(Language.BANGLA))
+                        onAction(SettingsAction.LanguageSelected(Language.BANGLA))
                     }
                 )
             }
@@ -279,7 +255,7 @@ fun SettingsScreen(
                     subtitle = "Everyone can see",
                     checked = state.profileVisibility,
                     onCheckedChange = {
-                        onEvent(SettingsEvent.ToggleProfileVisibility(it))
+                        onAction(SettingsAction.ToggleProfileVisibility(it))
                     }
                 )
 
@@ -295,7 +271,7 @@ fun SettingsScreen(
                     iconTint = PrimaryGreen,
                     title = "Privacy Policy",
                     subtitle = "How we protect your data",
-                    onClick = { onEvent(SettingsEvent.PrivacyPolicyClicked) }
+                    onClick = { onAction(SettingsAction.PrivacyPolicyClicked) }
                 )
 
                 HorizontalDivider(
@@ -310,7 +286,7 @@ fun SettingsScreen(
                     iconTint = PrimaryGreen,
                     title = "Terms of Service",
                     subtitle = "User agreement and guidelines",
-                    onClick = { onEvent(SettingsEvent.TermsClicked) }
+                    onClick = { onAction(SettingsAction.TermsClicked) }
                 )
             }
         }
@@ -326,7 +302,7 @@ fun SettingsScreen(
                     iconTint = PrimaryGreen,
                     title = "Help Center",
                     subtitle = "FAQs and guides",
-                    onClick = { onEvent(SettingsEvent.HelpCenterClicked) }
+                    onClick = { onAction(SettingsAction.HelpCenterClicked) }
                 )
 
                 HorizontalDivider(
@@ -341,16 +317,8 @@ fun SettingsScreen(
                     iconTint = PrimaryGreen,
                     title = "Contact Support",
                     subtitle = "Get help from our team",
-                    onClick = { onEvent(SettingsEvent.ContactSupportClicked) }
+                    onClick = { onAction(SettingsAction.ContactSupportClicked) }
                 )
-            }
-        }
-
-        // ---------------- Logout ----------------
-
-        item {
-            LogoutButton {
-                onEvent(SettingsEvent.LogoutClicked)
             }
         }
     }
@@ -514,107 +482,8 @@ fun LanguageItem(
     }
 }
 
-@Composable
-fun LogoutButton(
-    onLogoutClick: () -> Unit
-) {
-    Button(
-        onClick = onLogoutClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFFF1E2D)
-        ),
-        shape = RoundedCornerShape(14.dp)
-    ) {
-        Icon(
-            imageVector = Icons.Default.Logout,
-            contentDescription = null,
-            tint = Color.White
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Text(
-            text = "Logout from Account",
-            color = Color.White,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
-}
-suspend fun runBasicFlow(viewModel: SettingsViewModel){
-   /* println("flow_before collect")
-    viewModel.basicFlowExample().collect { value ->
-        println("flow_Received value: $value")
-    }
-    println("flow_after collect")*/
-
-
-    //viewModel.coldFlowDemo()
-
-    /*viewModel.flowBuilder().collect {
-        println("flow_Received value: $it")
-    }
-
-    viewModel.flowOfExample().collect {
-        println("flow_Received value: $it")
-    }
-
-    viewModel.asFlowExample().collect {
-        println("flow_Received value: $it")
-    }*/
-
-   /* viewModel.mapExample().collect {
-        println("flow_Received value: $it")
-    }
-
-    viewModel.filterExample().collect {
-        println("flow_Received value: $it")
-    }
-    viewModel.transformExample().collect {
-        println("flow_Received value: $it")
-    }
-
-    viewModel.takeExample().collect {
-        println("flow_Received value: $it")
-    }
-    viewModel.distinctUntilChangedExample().collect {
-        println("flow_Received value: $it")
-    }
-
-    viewModel.mergeExample().collect {
-        println("flow_Received value: $it")
-    }
-    viewModel.combineExample().collect {
-        println("flow_Received value: $it")
-    }
-    viewModel.flatMapConcatExample().collect {
-        println("flow_Received value: $it")
-    }
-    viewModel.onStartExample().collect {
-        println("flow_Received value: $it")
-    }
-    viewModel.onCompleteExample().collect {
-        println("flow_Received value: $it")
-    }
-    viewModel.catchExceptionExample().collect {
-        println("flow_Received value: $it")
-    }*/
-    viewModel.shareInExample(CoroutineScope(Dispatchers.Main)).collect {
-        println("flow_Received value: $it")
-    }
-
-
-
-
-
-
-
-}
-
 @Preview
 @Composable
 fun SettingsScreenPreview() {
-    SettingsScreen(state = SettingsState(), onEvent = {})
+    SettingsScreen(state = SettingsState(), onAction = {})
 }

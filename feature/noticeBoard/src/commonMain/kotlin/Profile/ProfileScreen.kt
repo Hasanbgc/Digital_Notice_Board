@@ -22,7 +22,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
@@ -31,8 +30,9 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.LocalPostOffice
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -40,12 +40,15 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Whatshot
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +60,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -69,11 +73,25 @@ fun ProfileScreenRoot(
     viewModel: ProfileViewModel = koinViewModel(),
     onBackPressed: () -> Unit
 ) {
-    ProfileScreen()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    ProfileScreen(
+        state,
+        onAction = viewModel::onAction
+    )
+
+    if (state.showLogOutDialog) {
+        LogOutDialog(
+            onAction = viewModel::onAction
+        )
+    }
 }
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    state: ProfileScreenState,
+    onAction: (ProfileScreenAction) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -214,7 +232,10 @@ fun ProfileScreen() {
         Spacer(modifier = Modifier.height(24.dp))
 
         // --- PERFORMANCE OVERVIEW SECTION ---
-        SectionCard(title = "Performance Overview", actionText = "View Analytics", onActionClick = {}) {
+        SectionCard(
+            title = "Performance Overview",
+            actionText = "View Analytics",
+            onActionClick = {}) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -265,12 +286,32 @@ fun ProfileScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                AchievementBadge(icon = Icons.Default.Star, tint = Color(0xFFEF4444), isLocked = false)
-                AchievementBadge(icon = Icons.Default.Person, tint = Color(0xFF3B82F6), isLocked = false)
-                AchievementBadge(icon = Icons.Default.CheckCircle, tint = Color(0xFF10B981), isLocked = false)
+                AchievementBadge(
+                    icon = Icons.Default.Star,
+                    tint = Color(0xFFEF4444),
+                    isLocked = false
+                )
+                AchievementBadge(
+                    icon = Icons.Default.Person,
+                    tint = Color(0xFF3B82F6),
+                    isLocked = false
+                )
+                AchievementBadge(
+                    icon = Icons.Default.CheckCircle,
+                    tint = Color(0xFF10B981),
+                    isLocked = false
+                )
                 AchievementBadge(icon = Icons.Default.Whatshot, tint = Color.Gray, isLocked = true)
-                AchievementBadge(icon = Icons.Default.MilitaryTech, tint = Color(0xFFF59E0B), isLocked = false)
-                AchievementBadge(icon = Icons.Default.EmojiEvents, tint = Color.Gray, isLocked = true)
+                AchievementBadge(
+                    icon = Icons.Default.MilitaryTech,
+                    tint = Color(0xFFF59E0B),
+                    isLocked = false
+                )
+                AchievementBadge(
+                    icon = Icons.Default.EmojiEvents,
+                    tint = Color.Gray,
+                    isLocked = true
+                )
             }
         }
 
@@ -309,8 +350,14 @@ fun ProfileScreen() {
                 )
             }
         }
-        
-        Spacer(modifier = Modifier.height(24.dp))
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        LogoutButton {
+            onAction(ProfileScreenAction.OnLogoutClicked)
+        }
+        Spacer(modifier = Modifier.height(70.dp))
+
     }
 }
 
@@ -342,7 +389,7 @@ fun SectionCard(
                             .background(Color(0xFF3B82F6).copy(alpha = 0.1f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        val headerIcon = when(title) {
+                        val headerIcon = when (title) {
                             "Performance Overview" -> Icons.Default.Timeline
                             "Achievements" -> Icons.Default.EmojiEvents
                             "Recent Activity" -> Icons.Default.History
@@ -370,7 +417,7 @@ fun SectionCard(
                     modifier = Modifier.clickable { onActionClick() }
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
             content()
         }
@@ -537,8 +584,41 @@ fun ContactPill(
     }
 }
 
+@Composable
+fun LogoutButton(
+    onLogoutClick: () -> Unit
+) {
+    Button(
+        onClick = onLogoutClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFFF1E2D)
+        ),
+        shape = RoundedCornerShape(14.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Logout,
+            contentDescription = null,
+            tint = Color.White
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = "Logout from Account",
+            color = Color.White,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
 @Preview
 @Composable
 fun ProfileScreenPreview() {
-    ProfileScreen()
+    ProfileScreen(
+        state = ProfileScreenState(),
+        onAction = {}
+    )
 }

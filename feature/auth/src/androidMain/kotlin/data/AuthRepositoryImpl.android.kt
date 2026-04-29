@@ -1,14 +1,18 @@
 package data
 
+import GoogleAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.hasan.dnb.auth.AuthRepository
-import com.google.firebase.auth.GoogleAuthProvider as FirebaseGoogleAuthProvider
 import com.hasan.dnb.domain.GoogleAccount
+import com.hasan.dnb.domain.UserSession
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import com.google.firebase.auth.GoogleAuthProvider as FirebaseGoogleAuthProvider
 
 actual class AuthRepositoryImpl : AuthRepository {
     private val firebaseAuth = FirebaseAuth.getInstance()
@@ -34,11 +38,43 @@ actual class AuthRepositoryImpl : AuthRepository {
         )
     }
 
-    override fun checkUserSession(): String {
-        return if(firebaseAuth.currentUser != null){
-            firebaseAuth.currentUser!!.uid
-        }else{
-            ""
+    override suspend fun signOutFromGoogle() {
+        firebaseAuth.signOut()
+    }
+
+    override fun observeAuthState(): Flow<UserSession> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser == null) {
+                trySend(UserSession(
+                    uid = "",
+                    displayName = "",
+                    photoUrl = null,
+                    contactNumber = null
+                ))
+            } else {
+                currentUser.reload()
+                    .addOnSuccessListener { trySend(UserSession(
+                        uid = currentUser.uid,
+                        displayName = currentUser.displayName,
+                        photoUrl = currentUser.photoUrl?.toString(),
+                        contactNumber = currentUser.phoneNumber
+                    )) }
+                    .addOnFailureListener {
+                        firebaseAuth.signOut()
+                        trySend(UserSession(
+                            uid = "",
+                            displayName = "",
+                            photoUrl = null,
+                            contactNumber = null
+                        ))
+                    }
+            }
+        }
+        firebaseAuth.addAuthStateListener(listener)
+        awaitClose {
+            firebaseAuth.removeAuthStateListener(listener)
         }
     }
+
 }

@@ -4,10 +4,12 @@ import GoogleAuthUiProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hasan.dnb.auth.AuthRepository
+import com.hasan.dnb.domain.UserSession
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import presentation.AppDestination
@@ -23,11 +25,17 @@ class AuthViewModel(
     val _events = MutableSharedFlow<UiEvent>()
     val events = _events.asSharedFlow()
 
-    var uid = ""
+    var userSession : UserSession = UserSession(
+        uid = "",
+        displayName = "",
+        photoUrl = null,
+        contactNumber = null
+    )
 
-    init {
+
+    /*init {
         checkUserSession()
-    }
+    }*/
 
     fun onAction(action: AuthScreenAction) {
         when (action) {
@@ -59,7 +67,7 @@ class AuthViewModel(
                 .collect { result ->
                     result.fold(
                         onSuccess = { googleAccount ->
-                            uid = googleAccount.userId
+                            userSession = googleAccount.toUserSession()
                             _authScreenState.update {
                                 it.copy(isGoogleLoading = false, errorMessage = null)
                             }
@@ -78,14 +86,17 @@ class AuthViewModel(
         }
     }
 
-    fun checkUserSession() {
-        val uid = authRepository.checkUserSession()
+   /* fun checkUserSession() {
+        viewModelScope.launch {
+            authRepository.observeAuthState().distinctUntilChanged().collect { userSession ->
+                _authScreenState.update {
+                    it.copy(
+                        authLoading = false,
+                        userSession = userSession
+                    )
+                }
 
-        _authScreenState.update {
-            it.copy(
-                authLoading = false,
-                uid = uid
-            )
+            }
         }
-    }
+    }*/
 }

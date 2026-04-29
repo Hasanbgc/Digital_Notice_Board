@@ -6,4 +6,11 @@ data class GoogleAccount(
     val displayName: String,
     val photoUrl: String?,
     val contactNumber: String?
-)
+){
+    fun toUserSession() = UserSession(
+        uid = userId,
+        displayName = displayName,
+        photoUrl = photoUrl,
+        contactNumber = contactNumber
+    )
+}

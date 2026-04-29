@@ -1,26 +1,26 @@
 package Settings
 
-sealed class SettingsEvent {
+sealed interface SettingsAction {
 
-    object EditProfileClicked : SettingsEvent()
-    object ChangePinClicked : SettingsEvent()
-    object LocationClicked : SettingsEvent()
+    object EditProfileClicked : SettingsAction
+    object ChangePinClicked : SettingsAction
+    object LocationClicked : SettingsAction
 
-    data class ToggleSms(val enabled: Boolean) : SettingsEvent()
-    data class ToggleVoice(val enabled: Boolean) : SettingsEvent()
-    data class TogglePush(val enabled: Boolean) : SettingsEvent()
+    data class ToggleSms(val enabled: Boolean) : SettingsAction
+    data class ToggleVoice(val enabled: Boolean) : SettingsAction
+    data class TogglePush(val enabled: Boolean) : SettingsAction
 
-    data class ToggleProfileVisibility(val enabled: Boolean) : SettingsEvent()
+    data class ToggleProfileVisibility(val enabled: Boolean) : SettingsAction
 
-    object PrivacyPolicyClicked : SettingsEvent()
-    object TermsClicked : SettingsEvent()
+    object PrivacyPolicyClicked : SettingsAction
+    object TermsClicked : SettingsAction
 
-    object HelpCenterClicked : SettingsEvent()
-    object ContactSupportClicked : SettingsEvent()
+    object HelpCenterClicked : SettingsAction
+    object ContactSupportClicked : SettingsAction
 
-    data class LanguageSelected(val language: Language) : SettingsEvent()
+    data class LanguageSelected(val language: Language) : SettingsAction
 
-    object LogoutClicked : SettingsEvent()
-    object  InterestCategoriesClicked: SettingsEvent()
+    object LogoutClicked : SettingsAction
+    object  InterestCategoriesClicked: SettingsAction
 
 }

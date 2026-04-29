@@ -25,6 +25,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import com.hasan.dnb.domain.UserSession
 import createNotice.CreateNoticeRoot
 import home.HomeScreenRoot
 import home.HomeViewModel
@@ -48,7 +49,7 @@ val saveStateConfig = SavedStateConfiguration {
 }
 
 @Composable
-fun MainNestedNavigation(uid: String, onNavigate: () -> Unit) {
+fun MainNestedNavigation(us: UserSession, onNavigate: () -> Unit) {
     val backStack = rememberNavBackStack(saveStateConfig, MainDestination.Home)
 
     val currentDestination by remember{
@@ -91,7 +92,7 @@ fun MainNestedNavigation(uid: String, onNavigate: () -> Unit) {
                     entry<MainDestination.Home> {
                         val viewModel: HomeViewModel = koinViewModel(
                             parameters = {
-                                parametersOf(uid)
+                                parametersOf(us)
                             }
                         )
                         HomeScreenRoot(

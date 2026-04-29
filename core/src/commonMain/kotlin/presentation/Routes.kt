@@ -2,6 +2,7 @@ package presentation
 
 
 import androidx.navigation3.runtime.NavKey
+import com.hasan.dnb.domain.UserSession
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,7 +14,7 @@ sealed class AppDestination : NavKey {
     data object Registration : AppDestination()
 
     @Serializable
-    data class Main(val uid: String) : AppDestination()
+    data class Main(val userSession: UserSession) : AppDestination()
 }
 
 @Serializable
