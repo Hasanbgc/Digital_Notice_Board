@@ -7,17 +7,16 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import com.hasan.dnb.domain.UserSession
 import home.comment.CommentSheetState
 import home.dialog.DialogState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
-class HomeViewModel(uid: String): ViewModel() {
+class HomeViewModel(userSession: UserSession): ViewModel() {
 
     val _homeScreenState = MutableStateFlow(HomeScreenState())
     val state = _homeScreenState.asStateFlow()
