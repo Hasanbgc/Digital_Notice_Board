@@ -33,6 +33,7 @@ actual class GoogleAuthUiProvider(
                         idToken = googleCredential.idToken,
                         displayName = googleCredential.displayName ?: "",
                         photoUrl = googleCredential.profilePictureUri?.toString(),
+                        email = googleCredential.email,
                         contactNumber = googleCredential.phoneNumber
                     )
                 }catch (e: GoogleIdTokenParsingException){

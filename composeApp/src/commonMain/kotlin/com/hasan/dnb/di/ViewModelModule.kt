@@ -20,6 +20,6 @@ val viewModelModule = module {
 
     viewModel {(userSession: UserSession) -> HomeViewModel(userSession) }
     viewModel { AuthViewModel(get<AuthRepository>()) }
-    viewModel { ProfileViewModel(get<AuthRepository>())}
+    viewModel { (userSession: UserSession) -> ProfileViewModel(userSession,get<AuthRepository>())}
     viewModel { AppViewModel(get<AuthRepository>()) }
 }

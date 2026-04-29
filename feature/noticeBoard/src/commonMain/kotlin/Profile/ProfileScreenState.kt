@@ -1,11 +1,15 @@
 package Profile
 
+import com.hasan.dnb.domain.UserSession
+
 data class ProfileScreenState(
-    val user: User = User(),
+    val userSession: UserSession = user,
     val showLogOutDialog: Boolean = false
 )
 
-data class User(
-    val name: String = "",
-    val imageUrl: String = "",
+val user = UserSession(
+    uid = "",
+    displayName = "",
+    photoUrl = "",
+    contactNumber = "",
 )

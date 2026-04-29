@@ -5,12 +5,14 @@ data class GoogleAccount(
     val idToken: String,
     val displayName: String,
     val photoUrl: String?,
+    val email: String?,
     val contactNumber: String?
 ){
     fun toUserSession() = UserSession(
         uid = userId,
         displayName = displayName,
         photoUrl = photoUrl,
+        email = email,
         contactNumber = contactNumber
     )
 }

@@ -70,7 +70,7 @@ import presentation.SecondaryText
 
 @Composable
 fun ProfileScreenRoot(
-    viewModel: ProfileViewModel = koinViewModel(),
+    viewModel: ProfileViewModel,
     onBackPressed: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -142,15 +142,24 @@ fun ProfileScreen(
                         .clip(CircleShape)
                         .background(Color(0xFF004D40))
                 ) {
-                    Text(
-                        text = "D",
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.displayLarge.copy(
-                            color = Color(0xFFFFDF00),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 60.sp
+                    if(state.userSession.photoUrl != null){
+                        AsyncImage(
+                            model = state.userSession.photoUrl,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
-                    )
+                    }else {
+                        Text(
+                            text = state.userSession.displayName?.take(0).toString(),
+                            modifier = Modifier.align(Alignment.Center),
+                            style = MaterialTheme.typography.displayLarge.copy(
+                                color = Color(0xFFFFDF00),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 60.sp
+                            )
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -188,7 +197,7 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Dhaka University",
+                text = state.userSession.displayName.toString(),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = PrimaryText
@@ -218,13 +227,13 @@ fun ProfileScreen(
             ) {
                 ContactPill(
                     icon = Icons.Default.Email,
-                    text = "admin@du.ac.bd",
+                    text = state.userSession.email.toString(),
                     modifier = Modifier.weight(1f)
                 )
                 ContactPill(
                     icon = Icons.Default.Phone,
-                    text = "+880 1XX XXX XXX",
-                    modifier = Modifier.weight(1f)
+                    text = if(state.userSession.contactNumber != null) state.userSession.contactNumber.toString() else "Not Available",
+                    modifier = Modifier.weight(1f),
                 )
             }
         }

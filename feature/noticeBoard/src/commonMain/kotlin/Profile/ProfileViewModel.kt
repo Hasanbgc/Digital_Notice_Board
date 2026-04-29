@@ -3,6 +3,7 @@ package Profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hasan.dnb.auth.AuthRepository
+import com.hasan.dnb.domain.UserSession
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -11,7 +12,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import presentation.UiEvent
 
-class ProfileViewModel(private val repository: AuthRepository): ViewModel(){
+class ProfileViewModel(
+    userSession: UserSession,
+    private val repository: AuthRepository): ViewModel(){
     private val _state = MutableStateFlow(ProfileScreenState())
     val state = _state.asStateFlow()
 
@@ -19,6 +22,9 @@ class ProfileViewModel(private val repository: AuthRepository): ViewModel(){
     val eventFlow = _eventFlow.asSharedFlow()
 
 
+    init{
+        updateProfile(userSession)
+    }
 
 
     fun onAction(action: ProfileScreenAction){
@@ -53,6 +59,14 @@ class ProfileViewModel(private val repository: AuthRepository): ViewModel(){
         _state.update {
             it.copy(
                 showLogOutDialog = false
+            )
+        }
+    }
+
+    private fun updateProfile(userSession: UserSession){
+        _state.update {
+            it.copy(
+               userSession = userSession
             )
         }
     }

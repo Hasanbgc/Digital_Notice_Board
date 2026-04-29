@@ -32,6 +32,7 @@ actual class AuthRepositoryImpl : AuthRepository {
                     idToken = idToken,
                     displayName = user.displayName ?: "",
                     photoUrl = user.photoUrl?.toString(),
+                    email = user.email,
                     contactNumber = user.phoneNumber
                 )
             )
@@ -58,6 +59,7 @@ actual class AuthRepositoryImpl : AuthRepository {
                         uid = currentUser.uid,
                         displayName = currentUser.displayName,
                         photoUrl = currentUser.photoUrl?.toString(),
+                        email = currentUser.email,
                         contactNumber = currentUser.phoneNumber
                     )) }
                     .addOnFailureListener {

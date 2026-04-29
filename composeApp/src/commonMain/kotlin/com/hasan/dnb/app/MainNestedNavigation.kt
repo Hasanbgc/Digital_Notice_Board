@@ -1,6 +1,7 @@
 package com.hasan.dnb.app
 
 import Profile.ProfileScreenRoot
+import Profile.ProfileViewModel
 import Settings.SettingsScreenRoot
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -103,7 +104,12 @@ fun MainNestedNavigation(us: UserSession, onNavigate: () -> Unit) {
                         )
                     }
                     entry<MainDestination.Profile> {
-                        ProfileScreenRoot() {}
+                        val viewModel: ProfileViewModel = koinViewModel(
+                            parameters = {
+                                parametersOf(us)
+                            }
+                        )
+                        ProfileScreenRoot(viewModel) {}
                     }
 
                     entry<MainDestination.Settings> {
