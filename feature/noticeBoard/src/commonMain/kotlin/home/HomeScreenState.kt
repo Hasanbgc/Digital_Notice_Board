@@ -1,55 +1,19 @@
 package home
 
+import androidx.paging.ItemSnapshotList
+
 data class HomeScreenState(
     val isLoading: Boolean = false,
-    val poster: List<Poster> = posterList,
     val error: String? = null,
+    val emergencyNotice: List<Poster.Emergency> = emptyList(),
 
     //internal state
-    val isEmergencyPosterExpanded: Boolean = false,
     val emergencyAlertClosed: Boolean = false,
     val searchQuery:String = "",
-    val scrollToTop: Boolean = false,
-    val openBottomSheet: Boolean = false
 )
-val posterList = listOf(
-    Poster.Emergency(
-        0,
-        "Flash Flood Warning, please stay away form there",
-        "Heavy rainfall causing flood in low-laying areas. lorem ipsum dolor sit amet, consectetur adipiscing elit.  ",
-        "5/11/2025",
-        "2km away",
-        "5 min ago",
-        "",
-        "Dhanmondi Area, Near Dhaka University",
-        Type.HIGH,
-        Topic.FIRE
-    ),
-    Poster.Emergency(
-        1,
-        "Gas Leak Alert in Residential Area",
-        "A major gas leakage has been reported from an underground pipeline. Residents are advised to evacuate immediately and avoid using electrical switches.",
-        "6/11/2025",
-        "800m away",
-        "10 min ago",
-        "",
-        "Mirpur Section 10, Near Bus Stand",
-        Type.MEDIUM,
-        Topic.GAS_LEAK
-    ),
-    Poster.Emergency(
-        2,
-        "Road Accident Warning",
-        "Multiple vehicles involved in a collision causing traffic congestion. Emergency services are on the way. Please use alternative routes.",
-        "6/11/2025",
-        "3.5km away",
-        "18 min ago",
-        "",
-        "Mohakhali Flyover, Dhaka",
-        Type.MEDIUM,
-        Topic.ACCIDENT
-    ),
 
+
+/*
     Poster.Normal(
         3,
         "University Admission Test Result Published",
@@ -231,3 +195,4 @@ val posterList = listOf(
         liked = Like.IDLE
     )
 )
+*/

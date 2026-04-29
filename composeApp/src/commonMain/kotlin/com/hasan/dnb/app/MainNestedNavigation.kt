@@ -14,7 +14,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavKey
@@ -25,9 +27,13 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import createNotice.CreateNoticeRoot
 import home.HomeScreenRoot
+import home.HomeViewModel
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
+import presentation.MainDestination
 
 
 val saveStateConfig = SavedStateConfiguration {
@@ -42,7 +48,7 @@ val saveStateConfig = SavedStateConfiguration {
 }
 
 @Composable
-fun MainNestedNavigation(onNavigate: () -> Unit) {
+fun MainNestedNavigation(uid: String, onNavigate: () -> Unit) {
     val backStack = rememberNavBackStack(saveStateConfig, MainDestination.Home)
 
     val currentDestination by remember{
@@ -51,10 +57,11 @@ fun MainNestedNavigation(onNavigate: () -> Unit) {
                 ?: bottomNavItems[0]
         }
     }
+    var forceHideBottomBar by remember { mutableStateOf(false) }
 
     val bottomNavVisible by remember{
         derivedStateOf {
-            backStack.lastOrNull() !is MainDestination.CreateNotice
+            backStack.lastOrNull() !is MainDestination.CreateNotice && forceHideBottomBar
         }
     }
 
@@ -82,8 +89,16 @@ fun MainNestedNavigation(onNavigate: () -> Unit) {
                 },
                 entryProvider = entryProvider {
                     entry<MainDestination.Home> {
+                        val viewModel: HomeViewModel = koinViewModel(
+                            parameters = {
+                                parametersOf(uid)
+                            }
+                        )
                         HomeScreenRoot(
-                            onNavigateToDetail = {},
+                            viewModel,
+                            hideBottomBar = {shouldHide ->
+                                forceHideBottomBar = !shouldHide
+                            },
                         )
                     }
                     entry<MainDestination.Profile> {

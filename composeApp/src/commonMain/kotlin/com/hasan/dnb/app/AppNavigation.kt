@@ -1,5 +1,8 @@
 package com.hasan.dnb.app
 
+import authScreen.AuthScreenRoot
+import authScreen.AuthViewModel
+import GoogleAuthProvider
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -16,28 +19,26 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import login.LoginScreenRoot
-import login.LoginViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import registration.RegistrationScreenRoot
-import registration.RegistrationViewModel
+import presentation.AppDestination
 
 val config = SavedStateConfiguration {
     serializersModule = SerializersModule {
-        polymorphic(NavKey::class){
+        polymorphic(NavKey::class) {
             subclass(AppDestination.Auth::class)
-            subclass(AppDestination.Registration::class)
             subclass(AppDestination.Main::class)
+
+            //subclass(AppDestination.Registration::class)
         }
     }
 }
 
 @Composable
-@Preview
-fun AppNavigation() {
+fun AppNavigation(dest: AppDestination = AppDestination.Auth) {
 
-    val backStack = rememberNavBackStack(config, AppDestination.Main)
+    val backStack = rememberNavBackStack(config, dest)
 
     NavDisplay(
         backStack = backStack,
@@ -51,30 +52,34 @@ fun AppNavigation() {
         },
         entryProvider = entryProvider {
             entry<AppDestination.Auth> {
-                val viewModel: LoginViewModel = koinViewModel()
-                LoginScreenRoot(
-                    viewModel,
+                val viewModel: AuthViewModel = koinViewModel()
+                val googleAuthProvider: GoogleAuthProvider = koinInject()
+                AuthScreenRoot(
+                    authViewModel = viewModel,
+                    googleAuthProvider = googleAuthProvider,
                     onBack = {
                         backStack.removeLastOrNull()
                     },
                     onLoginSuccess = {
                         backStack.clear()
-                        backStack.add(AppDestination.Main)
+                        backStack.add(AppDestination.Main(viewModel.uid))
                     }
                 )
             }
-            entry<AppDestination.Registration> {
-                val viewModel: RegistrationViewModel = koinViewModel()
-                RegistrationScreenRoot(viewModel, onBack = {
-                    backStack.removeLastOrNull()
-                }, onRegistrationSuccess = {
-                    backStack.clear()
-                    backStack.add(AppDestination.Main)
-                })
+            entry<AppDestination.Main> { args ->
+                MainNestedNavigation(args.uid, onNavigate = {})
             }
-            entry<AppDestination.Main> {
-                MainNestedNavigation(onNavigate = {})
-            }
+
+            /* entry<AppDestination.Registration> {
+                 val viewModel: RegistrationViewModel = koinViewModel()
+                 RegistrationScreenRoot(viewModel, onBack = {
+                     backStack.removeLastOrNull()
+                 }, onRegistrationSuccess = {
+                     backStack.clear()
+                     backStack.add(AppDestination.Main)
+                 })
+             }*/
+
         },
         transitionSpec = {
             // Slide in from right when navigating forward

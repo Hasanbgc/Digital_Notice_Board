@@ -10,9 +10,15 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.shadow
@@ -85,7 +91,7 @@ fun Modifier.cornerStretchAnimation(): Modifier = composed {
 }
 
 @Composable
-fun animateToFocusView(): Color{
+fun animateToFocusView(): Color {
     val infiniteTransition = rememberInfiniteTransition("border color animation")
 
     val borderColor by infiniteTransition.animateColor(
@@ -101,7 +107,7 @@ fun animateToFocusView(): Color{
 
 
 fun Modifier.NeonEffect(
-    colors: List<Color> = listOf(EmergencyIconBG,EmergenceyAlertRedBG, EmergencyIconBG),
+    colors: List<Color> = listOf(EmergencyIconBG, EmergenceyAlertRedBG, EmergencyIconBG),
     cornerRadius: Dp = 8.dp,
     borderWidth: Dp = 2.dp
 ) = composed {
@@ -135,6 +141,66 @@ fun Modifier.NeonEffect(
             spotColor = colors.last().copy(alpha = 0.5f)
         )
 }
+
+@Composable
+fun LazyListState.OnScrollEdge(
+    buffer: Int = 3,
+    onLoadMoreFromTop: () -> Unit,
+    onLoadMoreFromBottom: () -> Unit
+) {
+    val shouldLoadFromBottom by remember {
+        derivedStateOf {
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+                ?: return@derivedStateOf true
+            val totalItemsCount = layoutInfo.totalItemsCount
+            lastVisibleItem.index >= totalItemsCount - buffer
+        }
+    }
+
+    val shouldLoadFromTop by remember {
+        derivedStateOf {
+            val firstVisibleItem = layoutInfo.visibleItemsInfo.firstOrNull()
+                ?: return@derivedStateOf true
+            firstVisibleItem.index <= buffer
+        }
+    }
+
+    LaunchedEffect(shouldLoadFromBottom){
+       if(shouldLoadFromBottom) onLoadMoreFromBottom()
+    }
+    LaunchedEffect(shouldLoadFromTop){
+        if(shouldLoadFromTop) onLoadMoreFromTop()
+    }
+
+}
+
+
+@Composable
+fun LazyListState.isScrollingUp(): Boolean {
+    var previousIndex by remember(this) { mutableIntStateOf(firstVisibleItemIndex) }
+    var previousOffset by remember(this) { mutableIntStateOf(firstVisibleItemScrollOffset) }
+
+    return remember(this) {
+        derivedStateOf {
+            when {
+                // index changed — direction determined by index alone
+                firstVisibleItemIndex != previousIndex -> {
+                    (firstVisibleItemIndex < previousIndex).also {
+                        previousIndex = firstVisibleItemIndex
+                        previousOffset = firstVisibleItemScrollOffset
+                    }
+                }
+                // same index — direction determined by offset
+                else -> {
+                    (firstVisibleItemScrollOffset <= previousOffset).also {
+                        previousOffset = firstVisibleItemScrollOffset
+                    }
+                }
+            }
+        }
+    }.value
+}
+
 
 
 

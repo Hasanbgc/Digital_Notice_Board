@@ -46,7 +46,6 @@ fun SplashScreenRoot(
 
 }
 
-@Preview()
 @Composable
 fun SplashScreen(
     state: SplashScreenAction,
@@ -89,3 +88,11 @@ fun SplashScreen(
     }
 }
 
+@Composable
+@Preview
+fun SplashScreenPreview(){
+    SplashScreen(
+        state = SplashScreenAction.Loading,
+        onComplete = {}
+    )
+}

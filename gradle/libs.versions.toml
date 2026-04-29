@@ -47,6 +47,15 @@ constraintlayout-compose ="1.9.3"
 kottie = "2.2.0"
 kamel-v = "1.0.9"
 
+paging = "3.5.0-alpha01"
+
+firebase-bom = "33.5.1"
+google-service = "4.4.4"
+play-service = "21.0.0"
+credentials = "1.6.0"
+google-id = "1.2.0"
+
+
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -73,7 +82,7 @@ matrial3-extended-icon  ={group = "org.jetbrains.compose.material",name ="materi
 jetbrains-compose-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref= "navigationCompose"}
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 androidx-compose-navigation = {group = "androidx.navigation", name="navigation-compose", version.ref = "androidx-navigation"}
-androidx-compose-foundation = {group = "androidx.compose.foundation", name="foundation", version.ref = "composeMultiplatform"}
+#androidx-compose-foundation = {group = "androidx.compose.foundation", name="foundation", version.ref = "composeMultiplatform"}
 jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "multiplatform-nav3-ui" }
 jetbrains-material3-adaptiveNavigation3 = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation3", version.ref = "compose-multiplatform-adaptive" }
 jetbrains-lifecycle-viewmodelNavigation3 = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "compose-multiplatform-lifecycle" }
@@ -114,6 +123,18 @@ constraintLayout-compose = { group = "org.jetbrains.compose.ui", name = "ui-cons
 kottie = {module = "io.github.ismai117:kottie",version.ref = "kottie"} #lottie-wrapper
 kamel-default = {module = "media.kamel:kamel-image-default",version.ref = "kamel-v"}
 kamel = {module = "media.kamel:kamel-image",version.ref = "kamel-v"}
+paging-compose = {module = "androidx.paging:paging-compose",version.ref = "paging"}
+paging-runtime = {module = "androidx.paging:paging-runtime",version.ref = "paging"}
+paging-common = {module = "androidx.paging:paging-common",version.ref = "paging"}
+play-service-auth = {module = "com.google.android.gms:play-services-auth", version.ref = "play-service"}
+firebas-auth = {module = "com.google.firebase:firebase-auth-ktx", version = "23.2.1"}
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+google-credential = {module = "androidx.credentials:credentials", version.ref ="credentials"}
+google-credential-auth = {module = "androidx.credentials:credentials-play-services-auth", version.ref ="credentials"}
+google-id = {module = "com.google.android.libraries.identity.googleid:googleid", version.ref ="google-id"}
+
+
 
 
 [plugins]
@@ -124,11 +145,13 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMul
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-room = { id = "androidx.room", version.ref = "room" }
 multiplatformResource = {id = "dev.icerock.mobile.multiplatform-resources", version.ref = "mokoResource"}
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+google-service = { id = "com.google.gms.google-services", version.ref = "google-service" }
+room = { id = "androidx.room", version.ref = "room" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
+
 
 [bundles]
 ktor = [

@@ -11,6 +11,8 @@ plugins {
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.multiplatformResource)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.google.service)
+
 }
 
 // Read local.properties file
@@ -61,6 +63,12 @@ kotlin {
             implementation(libs.androidx.core.splashScreen)
             implementation(libs.android.material)
             implementation(libs.koin.android)
+
+            //google-authentication
+            implementation(libs.google.credential)
+            implementation(libs.google.credential.auth)
+
+            implementation(project(":core"))
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -154,6 +162,8 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    implementation(platform (libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 }
 
 

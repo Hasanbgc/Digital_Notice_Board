@@ -1,6 +1,8 @@
 package createNotice
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,7 +74,6 @@ fun CreateNoticeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.safeDrawing)
                 .padding(16.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
@@ -88,10 +89,11 @@ fun CreateNoticeScreen(
                         } else {
                             onAction(CreateNoticeScreenAction.OnCategoryChangeClicked)
                         }
-                    }
+                    },
+                    modifier = Modifier.border(BorderStroke(0.5.dp,color = Color.LightGray) , shape = RoundedCornerShape(32.dp))
                 ) {
                     Icon(
-                        imageVector = if (state.currentStep == NoticeCreationStep.QUICK_PICK_CATEGORY) Icons.Default.Close else Icons.AutoMirrored.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back"
                     )
                 }

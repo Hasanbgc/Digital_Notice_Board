@@ -37,6 +37,7 @@ import androidx.navigation3.runtime.NavKey
 import home.component.FloatingAddButton
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import presentation.BottleGreen
+import presentation.MainDestination
 import presentation.SecondaryTextAlt
 
 data class BottomNavItem(

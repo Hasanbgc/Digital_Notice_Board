@@ -24,9 +24,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 data class CreateNoticeScreenState(
     val currentStep: NoticeCreationStep = NoticeCreationStep.QUICK_PICK_CATEGORY,
     val quickPickCategory: List<Category> = categories,
-    val selectedCategory: Category? = null,
-    val searchQuery: String = ""
+    val selectedCategory: Category? = categories[0],
+    val searchQuery: String = "",
+    val attachments: List<Attachment> = dummyAttachments
 )
+
+data class Attachment(
+    val id: String,
+    val name: String,
+    val type: AttachmentType,
+    val uri: String? = null
+)
+
+enum class AttachmentType {
+    IMAGE, VIDEO, PDF, LOCATION
+}
 
 data class Category(
     val id:Int,
@@ -190,4 +202,9 @@ val categories = listOf(
     )
 )
 
-
+val dummyAttachments = listOf(
+    Attachment("1", "Image.jpg", AttachmentType.IMAGE, "https://picsum.photos/400/300"),
+    Attachment("2", "Document.pdf", AttachmentType.PDF),
+    Attachment("3", "Video.mp4", AttachmentType.VIDEO),
+    Attachment("4", "Current Location", AttachmentType.LOCATION)
+)

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "435662661341",
+    "project_id": "digital-notice-board-e1ba8",
+    "storage_bucket": "digital-notice-board-e1ba8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:435662661341:android:6e5f325851e0e57b671d34",
+        "android_client_info": {
+          "package_name": "com.hasan.dnb"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "435662661341-mf999mq3nkdpmgmr8gn0vhfqnnjtkjsd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hasan.dnb",
+            "certificate_hash": "b2150d59095f89dfc05e042ed0c193d8dc73ba89"
+          }
+        },
+        {
+          "client_id": "435662661341-hkpu339l4qrpl9a0f64m0ogh2gpksrru.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPX4I5-z9SOvVE62AGf7iNqr_ZIvsLT6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "435662661341-hkpu339l4qrpl9a0f64m0ogh2gpksrru.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
