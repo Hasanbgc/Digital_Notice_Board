@@ -1,7 +1,6 @@
 package createNotice
 
 sealed class CreateNoticeScreenAction {
-    object OnDismiss : CreateNoticeScreenAction()
     object BrowseAllCategory : CreateNoticeScreenAction()
     object OnSearchClose : CreateNoticeScreenAction()
     object OnBackPress: CreateNoticeScreenAction()

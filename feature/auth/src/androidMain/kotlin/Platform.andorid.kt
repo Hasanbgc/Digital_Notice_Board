@@ -1,4 +1,5 @@
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -8,10 +9,15 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresPermission
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -21,7 +27,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -45,7 +53,7 @@ actual fun AppMapView(detectLocation: Int, getLocation: (lat: Double, long: Doub
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
     var cameraPosition by remember { mutableStateOf(CameraPosition.fromLatLngZoom(LatLng(23.777176, 90.399452), 14f)) }
     var showPermissionRationale by remember { mutableStateOf(false) }
-    var showEducationalDialog by remember { mutableStateOf(true) } // Show educational dialog first
+    var showEducationalDialog by remember { mutableStateOf(false) } // Show educational dialog first
     var locationPermissionGranted by remember { mutableStateOf(false) } // Track permission status
     
     val cameraPositionState = rememberCameraPositionState {
@@ -55,12 +63,14 @@ actual fun AppMapView(detectLocation: Int, getLocation: (lat: Double, long: Doub
     // Permission launcher
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
+    )
+     { permissions ->
         val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
         val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
         
         locationPermissionGranted = fineLocationGranted || coarseLocationGranted
-        
+
+
         if (locationPermissionGranted) {
             // Permission granted, get current location
             getCurrentLocation(context) { location ->
@@ -69,12 +79,13 @@ actual fun AppMapView(detectLocation: Int, getLocation: (lat: Double, long: Doub
                     cameraPosition = CameraPosition.fromLatLngZoom(LatLng(it.latitude, it.longitude), 15f)
                     cameraPositionState.position = cameraPosition
                     getLocation.invoke(it.latitude, it.longitude)
+                    showEducationalDialog = false
                 }
             }
         } else {
             // Permission denied, check if user selected "Don't ask again"
             showPermissionRationale = !ActivityCompat.shouldShowRequestPermissionRationale(
-                context as android.app.Activity,
+                context as Activity,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
         }
@@ -95,6 +106,12 @@ actual fun AppMapView(detectLocation: Int, getLocation: (lat: Double, long: Doub
                     getLocation.invoke(it.latitude, it.longitude)
                 }
             }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (!checkLocationPermission(context)) {
+            showEducationalDialog = true
         }
     }
 
@@ -164,12 +181,19 @@ actual fun AppMapView(detectLocation: Int, getLocation: (lat: Double, long: Doub
     if (showPermissionRationale) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text("Location permission is required to show your current location on the map.")
+            Text(
+                text ="Location permission is required to show your current location on the map.",
+                modifier = Modifier.width(240.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
+                    println("openSetting clicked")
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                     val uri = Uri.fromParts("package", context.packageName, null)
                     intent.data = uri
@@ -183,7 +207,7 @@ actual fun AppMapView(detectLocation: Int, getLocation: (lat: Double, long: Doub
         GoogleMap(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(140.dp),
+                .height(150.dp),
             cameraPositionState = cameraPositionState,
             properties = MapProperties(
                 isMyLocationEnabled = locationPermissionGranted // Only enable if we have permission

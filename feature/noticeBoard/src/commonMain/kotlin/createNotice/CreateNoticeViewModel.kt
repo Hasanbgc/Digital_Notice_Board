@@ -12,7 +12,6 @@ class CreateNoticeViewModel: ViewModel() {
 
     fun onAction(action: CreateNoticeScreenAction) {
         when (action) {
-           /* is CreateNoticeScreenAction.OnDismiss -> closeBottomSheet()*/
             is CreateNoticeScreenAction.BrowseAllCategory -> {}
             is CreateNoticeScreenAction.OnFilterClicked -> {}
             is CreateNoticeScreenAction.OnSearchQueryChanged -> updateTypeSearchQuery(action.query)
@@ -21,9 +20,18 @@ class CreateNoticeViewModel: ViewModel() {
             is CreateNoticeScreenAction.OnSearchClose -> {}
             is CreateNoticeScreenAction.OnBackPress -> {}
             is CreateNoticeScreenAction.OnCategoryChangeClicked -> navigateToPreviousStep()
+            CreateNoticeScreenAction.OnAddImageClicked -> openImageBottomSheet()
+            CreateNoticeScreenAction.OnAddLocationClicked -> openMapView()
+            CreateNoticeScreenAction.OnAddPdfClicked -> openFileChooser()
+            CreateNoticeScreenAction.OnAddVideoClicked -> openVideoBottomSheet()
             else -> {}
         }
     }
+
+    private fun openImageBottomSheet() {}
+    private fun openMapView(){}
+    private fun openFileChooser(){}
+    private fun openVideoBottomSheet(){}
 
 
 
