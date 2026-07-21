@@ -4,6 +4,8 @@ package com.hasan.dnb.di
 
 import authScreen.AuthViewModel
 import com.hasan.dnb.auth.AuthRepository
+import com.hasan.dnb.location.LocationSource
+import com.hasan.dnb.notice.NoticeRepository
 import Profile.ProfileViewModel
 import Settings.SettingsViewModel
 import com.hasan.dnb.app.AppViewModel
@@ -16,10 +18,10 @@ import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModelOf(::SettingsViewModel)
-    viewModelOf(::CreateNoticeViewModel)
 
-    viewModel {(userSession: UserSession) -> HomeViewModel(userSession) }
+    viewModel {(userSession: UserSession) -> HomeViewModel(userSession, get<NoticeRepository>(), get<LocationSource>()) }
     viewModel { AuthViewModel(get<AuthRepository>()) }
     viewModel { ProfileViewModel(get<AuthRepository>())}
     viewModel { AppViewModel(get<AuthRepository>()) }
+    viewModel { CreateNoticeViewModel(get<NoticeRepository>()) }
 }

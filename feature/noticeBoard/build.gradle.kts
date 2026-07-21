@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -19,7 +20,6 @@ kotlin {
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
@@ -45,6 +45,9 @@ kotlin {
 
             //paging-android
             implementation(libs.paging.runtime)
+
+            //room (local persistence)
+            implementation(libs.androidx.room.runtime)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -112,6 +115,7 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    add("kspAndroid", libs.androidx.room.compiler)
 }
 
 compose.desktop {

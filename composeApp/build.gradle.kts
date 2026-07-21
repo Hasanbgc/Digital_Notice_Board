@@ -31,7 +31,6 @@ kotlin {
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
@@ -68,6 +67,9 @@ kotlin {
             implementation(libs.google.credential)
             implementation(libs.google.credential.auth)
 
+            //room (local persistence)
+            implementation(libs.androidx.room.runtime)
+
             implementation(project(":core"))
         }
         commonMain.dependencies {
@@ -93,7 +95,6 @@ kotlin {
             implementation(libs.moko.resource)
             implementation(libs.moko.resource.compose)
 
-            implementation(libs.jetbrains.compose.navigation)
             implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
             implementation(compose.foundation)

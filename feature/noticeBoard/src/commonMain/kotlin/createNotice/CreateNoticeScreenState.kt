@@ -26,7 +26,9 @@ data class CreateNoticeScreenState(
     val quickPickCategory: List<Category> = categories,
     val selectedCategory: Category? = categories[0],
     val searchQuery: String = "",
-    val attachments: List<Attachment> = dummyAttachments
+    val attachments: List<Attachment> = emptyList(),
+    val title: String = "",
+    val details: String = ""
 )
 
 data class Attachment(
@@ -101,7 +103,7 @@ val categories = listOf(
         title = "Health & Medical",
         icon = Icons.Default.LocalHospital,
         description = "Medical help, blood requests, and health services",
-        parentCategory = emergencyParent
+        parentCategory = communityParent
     ),
     Category(
         id = 3,
@@ -204,7 +206,7 @@ val categories = listOf(
 
 val dummyAttachments = listOf(
     Attachment("1", "Image.jpg", AttachmentType.IMAGE, "https://picsum.photos/400/300"),
-    Attachment("2", "Document.pdf", AttachmentType.PDF),
     Attachment("3", "Video.mp4", AttachmentType.VIDEO),
+    Attachment("2", "Document.pdf", AttachmentType.PDF),
     Attachment("4", "Current Location", AttachmentType.LOCATION)
 )

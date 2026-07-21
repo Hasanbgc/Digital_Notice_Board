@@ -7,7 +7,10 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import com.hasan.dnb.domain.Notice
 import com.hasan.dnb.domain.UserSession
+import com.hasan.dnb.location.LocationSource
+import com.hasan.dnb.notice.NoticeRepository
 import home.comment.CommentSheetState
 import home.dialog.DialogState
 import kotlinx.coroutines.flow.Flow
@@ -15,8 +18,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.round
+import kotlin.math.sin
+import kotlin.math.sqrt
 
-class HomeViewModel(userSession: UserSession): ViewModel() {
+class HomeViewModel(
+    userSession: UserSession,
+    private val noticeRepository: NoticeRepository,
+    private val locationSource: LocationSource
+): ViewModel() {
 
     val _homeScreenState = MutableStateFlow(HomeScreenState())
     val state = _homeScreenState.asStateFlow()
@@ -205,56 +219,132 @@ class HomeViewModel(userSession: UserSession): ViewModel() {
         }
     }
 
-    fun getEmergencyNotices() {
+    private fun updateEmergencyNotices(realEmergencyNotices: List<Poster.Emergency>) {
         _homeScreenState.update {
-            it.copy(
-                emergencyNotice = listOf(
-                    Poster.Emergency(
-                        1,
-                        "Flash Flood Warning, please stay away form there",
-                        "Heavy rainfall causing flood in low-laying areas. lorem ipsum dolor sit amet, consectetur adipiscing elit.  ",
-                        "5/11/2025",
-                        "2km away",
-                        "5 min ago",
-                        "",
-                        "Dhanmondi Area, Near Dhaka University",
-                        Type.HIGH,
-                        Topic.FIRE
-                    ),
-                    Poster.Emergency(
-                        2,
-                        "Gas Leak Alert in Residential Area",
-                        "A major gas leakage has been reported from an underground pipeline. Residents are advised to evacuate immediately and avoid using electrical switches.",
-                        "6/11/2025",
-                        "800m away",
-                        "10 min ago",
-                        "",
-                        "Mirpur Section 10, Near Bus Stand",
-                        Type.MEDIUM,
-                        Topic.GAS_LEAK
-                    ),
-                    Poster.Emergency(
-                        3,
-                        "Road Accident Warning",
-                        "Multiple vehicles involved in a collision causing traffic congestion. Emergency services are on the way. Please use alternative routes.",
-                        "6/11/2025",
-                        "3.5km away",
-                        "18 min ago",
-                        "",
-                        "Mohakhali Flyover, Dhaka",
-                        Type.MEDIUM,
-                        Topic.ACCIDENT
-                    )
-                )
-            )
+            it.copy(emergencyNotice = realEmergencyNotices)
         }
-
     }
 
+    private val userLocation = MutableStateFlow<Pair<Double, Double>?>(null)
+
     init {
-        getEmergencyNotices()
+        updateEmergencyNotices(emptyList())
+        observeMyNotices()
+        fetchUserLocation()
+    }
+
+    private fun fetchUserLocation() {
+        viewModelScope.launch {
+            userLocation.value = locationSource.getCurrentLocation()
+        }
+    }
+
+    private fun observeMyNotices() {
+        viewModelScope.launch {
+            combine(
+                noticeRepository.observeNotices(),
+                userLocation
+            ) { notices, location -> notices to location }
+                .collect { (notices, location) ->
+                    val (emergency, normal) = notices.partition { it.isEmergency }
+                    updateMyNotices(normal.map { it.toPosterNormal() })
+                    updateEmergencyNotices(emergency.map { it.toPosterEmergency() })
+                    updateNearbyNotices(buildNearbyNotices(normal, location))
+                }
+        }
+    }
+
+    private fun buildNearbyNotices(
+        notices: List<Notice>,
+        userLocation: Pair<Double, Double>?
+    ): List<Poster.Normal> {
+        if (userLocation == null) return emptyList()
+        val (userLat, userLon) = userLocation
+        return notices
+            .mapNotNull { notice ->
+                val lat = notice.latitude ?: return@mapNotNull null
+                val lon = notice.longitude ?: return@mapNotNull null
+                val distanceKm = haversineDistanceKm(userLat, userLon, lat, lon)
+                if (distanceKm > NEARBY_RADIUS_KM) null else notice to distanceKm
+            }
+            .sortedBy { (_, distanceKm) -> distanceKm }
+            .map { (notice, distanceKm) -> notice.toPosterNormal(distanceKm) }
     }
 
 }
 
+private const val EARTH_RADIUS_KM = 6371.0
+private const val NEARBY_RADIUS_KM = 50.0
+
+private fun Double.toRadians(): Double = this * PI / 180.0
+
+private fun haversineDistanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+    val dLat = (lat2 - lat1).toRadians()
+    val dLon = (lon2 - lon1).toRadians()
+    val a = sin(dLat / 2) * sin(dLat / 2) +
+            cos(lat1.toRadians()) * cos(lat2.toRadians()) * sin(dLon / 2) * sin(dLon / 2)
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return EARTH_RADIUS_KM * c
+}
+
+private fun formatDistance(km: Double): String {
+    return if (km < 1.0) {
+        "${(km * 1000).toInt()}m away"
+    } else {
+        "${round(km * 10) / 10.0}km away"
+    }
+}
+
+private fun Notice.toPosterNormal(distanceKm: Double? = null): Poster.Normal {
+    val imageUrls = attachments.filter { it.type == "IMAGE" }.mapNotNull { it.uri }
+    // AttachmentCard renders these as downloadable-document chips, so only real files
+    // (PDFs) belong here — not the LOCATION attachment (not a file) or VIDEO (no
+    // dedicated video UI in the feed yet).
+    val fileNames = attachments.filter { it.type == "PDF" }.map { it.name }
+    return Poster.Normal(
+        id = id.hashCode(),
+        title = title,
+        description = details,
+        date = "",
+        distance = distanceKm?.let { formatDistance(it) } ?: "",
+        time = "Just now",
+        imageUrlList = imageUrls,
+        location = "",
+        type = Type.NORMAL,
+        profile = Profile(
+            name = "You",
+            imageUrl = "",
+            institution = categoryTitle,
+            designation = "Notice"
+        ),
+        attachments = fileNames,
+        isFavorite = false,
+        shareCount = 0,
+        commentCount = 0,
+        likeCount = 0,
+        isSaved = false,
+        viewCount = 0,
+        isExpanded = false,
+        liked = Like.IDLE
+    )
+}
+
+private fun Notice.toPosterEmergency(): Poster.Emergency {
+    val imageUrl = attachments.firstOrNull { it.type == "IMAGE" }?.uri ?: ""
+    return Poster.Emergency(
+        id = id.hashCode(),
+        title = title,
+        description = details,
+        date = "",
+        distance = "",
+        time = "Just now",
+        imageUrl = imageUrl,
+        location = "",
+        type = Type.HIGH,
+        // Most Topic values don't have an icon asset yet (see HomeScreen.getIcon) —
+        // ACCIDENT is one of the few implemented, so it's used as a safe generic fallback
+        // until user-published emergency notices can carry their own topic.
+        topic = Topic.ACCIDENT
+    )
+}
 

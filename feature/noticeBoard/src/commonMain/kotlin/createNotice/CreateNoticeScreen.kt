@@ -1,5 +1,6 @@
 package createNotice
 
+import rememberCurrentLocationProvider
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import digita_notice_board.feature.noticeboard.generated.resources.Res
 import digita_notice_board.feature.noticeboard.generated.resources.send
 import org.jetbrains.compose.resources.painterResource
@@ -66,6 +69,8 @@ fun CreateNoticeScreen(
     onAction: (CreateNoticeScreenAction) -> Unit,
     onNavigate: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val getCurrentLocation = rememberCurrentLocationProvider()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -131,7 +136,28 @@ fun CreateNoticeScreen(
             }
 
             Button(
-                onClick = { onAction(CreateNoticeScreenAction.PublishNoticeClicked) },
+                onClick = {
+                    coroutineScope.launch {
+                        val hasLocation = state.attachments.any { it.type == AttachmentType.LOCATION }
+                        if (!hasLocation) {
+                            getCurrentLocation()?.let { (lat, lon) ->
+                                onAction(
+                                    CreateNoticeScreenAction.OnAttachmentsAdded(
+                                        listOf(
+                                            Attachment(
+                                                id = generateAttachmentId(),
+                                                name = "Current Location",
+                                                type = AttachmentType.LOCATION,
+                                                uri = "$lat,$lon"
+                                            )
+                                        )
+                                    )
+                                )
+                            }
+                        }
+                        onAction(CreateNoticeScreenAction.PublishNoticeClicked)
+                    }
+                },
                 shape = RoundedCornerShape(16.dp),
                 enabled = state.currentStep == NoticeCreationStep.ADD_NOTICE_BODY,
                 contentPadding = PaddingValues(),
