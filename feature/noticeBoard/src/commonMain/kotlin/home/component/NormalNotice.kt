@@ -141,7 +141,7 @@ fun NormalNotice(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Education",
+                                text = poster.category.ifBlank { "General" },
                                 fontSize = 12.sp,
                                 color = Color.White,
                             )

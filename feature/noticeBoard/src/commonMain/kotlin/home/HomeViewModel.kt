@@ -99,7 +99,10 @@ class HomeViewModel(
     }
 
     fun savePost(poster: Poster.Normal) {
-        addSavedNote(poster)
+        if (poster.noticeId.isBlank()) return
+        viewModelScope.launch {
+            noticeRepository.setSaved(poster.noticeId, !poster.isSaved)
+        }
     }
 
     fun showImageDialog(imageList: List<String>, index: Int) {
@@ -230,7 +233,16 @@ class HomeViewModel(
     init {
         updateEmergencyNotices(emptyList())
         observeMyNotices()
+        observeSavedNotices()
         fetchUserLocation()
+    }
+
+    private fun observeSavedNotices() {
+        viewModelScope.launch {
+            noticeRepository.observeSavedNotices().collect { notices ->
+                updateSavedNotices(notices.map { it.toPosterNormal() })
+            }
+        }
     }
 
     private fun fetchUserLocation() {
@@ -303,14 +315,16 @@ private fun Notice.toPosterNormal(distanceKm: Double? = null): Poster.Normal {
     val fileNames = attachments.filter { it.type == "PDF" }.map { it.name }
     return Poster.Normal(
         id = id.hashCode(),
+        noticeId = id,
         title = title,
         description = details,
         date = "",
         distance = distanceKm?.let { formatDistance(it) } ?: "",
         time = "Just now",
         imageUrlList = imageUrls,
-        location = "",
+        location = locationText ?: "",
         type = Type.NORMAL,
+        category = categoryTitle,
         profile = Profile(
             name = "You",
             imageUrl = "",
@@ -322,7 +336,7 @@ private fun Notice.toPosterNormal(distanceKm: Double? = null): Poster.Normal {
         shareCount = 0,
         commentCount = 0,
         likeCount = 0,
-        isSaved = false,
+        isSaved = isSaved,
         viewCount = 0,
         isExpanded = false,
         liked = Like.IDLE
@@ -339,7 +353,7 @@ private fun Notice.toPosterEmergency(): Poster.Emergency {
         distance = "",
         time = "Just now",
         imageUrl = imageUrl,
-        location = "",
+        location = locationText ?: "",
         type = Type.HIGH,
         // Most Topic values don't have an icon asset yet (see HomeScreen.getIcon) —
         // ACCIDENT is one of the few implemented, so it's used as a safe generic fallback

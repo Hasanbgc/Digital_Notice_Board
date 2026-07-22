@@ -13,7 +13,9 @@ data class Notice(
     val createdAt: Long,
     val isEmergency: Boolean = false,
     val latitude: Double? = null,
-    val longitude: Double? = null
+    val longitude: Double? = null,
+    val locationText: String? = null,
+    val isSaved: Boolean = false
 )
 
 @Serializable

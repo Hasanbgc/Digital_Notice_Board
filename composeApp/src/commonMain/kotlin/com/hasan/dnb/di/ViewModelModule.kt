@@ -23,5 +23,5 @@ val viewModelModule = module {
     viewModel { AuthViewModel(get<AuthRepository>()) }
     viewModel { ProfileViewModel(get<AuthRepository>())}
     viewModel { AppViewModel(get<AuthRepository>()) }
-    viewModel { CreateNoticeViewModel(get<NoticeRepository>()) }
+    viewModel { CreateNoticeViewModel(get<NoticeRepository>(), get<LocationSource>()) }
 }

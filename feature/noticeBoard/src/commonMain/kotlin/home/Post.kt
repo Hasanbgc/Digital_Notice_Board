@@ -17,6 +17,7 @@ sealed class Poster {
 
     data class Normal(
         val id: Int,
+        val noticeId: String = "",
         val title: String,
         val description: String,
         val date: String,
@@ -25,6 +26,7 @@ sealed class Poster {
         val imageUrlList: List<String>,
         val location: String,
         val type: Type,
+        val category: String = "",
         val profile: Profile,
         val attachments: List<String>,
         val isFavorite: Boolean,

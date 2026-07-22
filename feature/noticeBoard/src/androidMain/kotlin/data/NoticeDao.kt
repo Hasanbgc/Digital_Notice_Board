@@ -13,4 +13,10 @@ interface NoticeDao {
 
     @Query("SELECT * FROM notices ORDER BY createdAt DESC")
     fun observeAll(): Flow<List<NoticeEntity>>
+
+    @Query("UPDATE notices SET isSaved = :isSaved WHERE id = :id")
+    suspend fun setSaved(id: String, isSaved: Boolean)
+
+    @Query("SELECT * FROM notices WHERE isSaved = 1 ORDER BY createdAt DESC")
+    fun observeSaved(): Flow<List<NoticeEntity>>
 }

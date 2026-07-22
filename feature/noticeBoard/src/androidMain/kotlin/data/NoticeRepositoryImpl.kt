@@ -18,6 +18,14 @@ class NoticeRepositoryImpl(private val dao: NoticeDao) : NoticeRepository {
         return dao.observeAll().map { entities -> entities.map { it.toNotice() } }
     }
 
+    override suspend fun setSaved(id: String, saved: Boolean) {
+        dao.setSaved(id, saved)
+    }
+
+    override fun observeSavedNotices(): Flow<List<Notice>> {
+        return dao.observeSaved().map { entities -> entities.map { it.toNotice() } }
+    }
+
     private fun Notice.toEntity() = NoticeEntity(
         id = id,
         title = title,
@@ -28,7 +36,9 @@ class NoticeRepositoryImpl(private val dao: NoticeDao) : NoticeRepository {
         createdAt = createdAt,
         isEmergency = isEmergency,
         latitude = latitude,
-        longitude = longitude
+        longitude = longitude,
+        locationText = locationText,
+        isSaved = isSaved
     )
 
     private fun NoticeEntity.toNotice() = Notice(
@@ -41,6 +51,8 @@ class NoticeRepositoryImpl(private val dao: NoticeDao) : NoticeRepository {
         createdAt = createdAt,
         isEmergency = isEmergency,
         latitude = latitude,
-        longitude = longitude
+        longitude = longitude,
+        locationText = locationText,
+        isSaved = isSaved
     )
 }

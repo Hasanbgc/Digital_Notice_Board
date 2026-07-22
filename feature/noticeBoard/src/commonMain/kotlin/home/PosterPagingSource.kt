@@ -45,21 +45,11 @@ class PosterPagingSource(val type:Int): PagingSource<Int, Poster.Normal>() {
                     prevKey = null,
                     nextKey = null
                 )
-                else -> {
-                    val pageSize = params.loadSize
-                    val allSaved = getSavedNotes()
-                    val start = (page - 1) * pageSize
-                    val data = if (start < allSaved.size) {
-                        allSaved.drop(start).take(pageSize)
-                    } else {
-                        emptyList()
-                    }
-                    LoadResult.Page(
-                        data = data,
-                        prevKey = if (page == 1) null else page - 1,
-                        nextKey = if (data.isEmpty()) null else page + 1
-                    )
-                }
+                else -> LoadResult.Page(
+                    data = if (page == 1) savedNotices.toList() else emptyList(),
+                    prevKey = null,
+                    nextKey = null
+                )
             }
         } catch (e: Exception) {
             LoadResult.Error(e)

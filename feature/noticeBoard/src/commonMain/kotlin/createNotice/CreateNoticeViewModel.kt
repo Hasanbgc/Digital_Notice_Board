@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hasan.dnb.domain.Notice
 import com.hasan.dnb.domain.NoticeAttachment
+import com.hasan.dnb.location.LocationSource
 import com.hasan.dnb.notice.NoticeRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class CreateNoticeViewModel(
-    private val noticeRepository: NoticeRepository
+    private val noticeRepository: NoticeRepository,
+    private val locationSource: LocationSource
 ) : ViewModel() {
 
     val _createNoticeState = MutableStateFlow(CreateNoticeScreenState())
@@ -57,20 +59,24 @@ class CreateNoticeViewModel(
                 val lon = parts.getOrNull(1)?.toDoubleOrNull()
                 if (lat != null && lon != null) lat to lon else null
             }
-        val notice = Notice(
-            id = Random.nextLong().toString(),
-            title = current.title,
-            details = current.details,
-            categoryId = category.id,
-            categoryTitle = category.title,
-            attachments = current.attachments.map { it.toNoticeAttachment() },
-            createdAt = currentTimeMillis(),
-            isEmergency = category.parentCategory?.id == emergencyParent.id,
-            latitude = location?.first,
-            longitude = location?.second
-        )
         viewModelScope.launch {
             try {
+                val locationText = location?.let { (lat, lon) ->
+                    locationSource.reverseGeocode(lat, lon)
+                }
+                val notice = Notice(
+                    id = Random.nextLong().toString(),
+                    title = current.title,
+                    details = current.details,
+                    categoryId = category.id,
+                    categoryTitle = category.title,
+                    attachments = current.attachments.map { it.toNoticeAttachment() },
+                    createdAt = currentTimeMillis(),
+                    isEmergency = category.parentCategory?.id == emergencyParent.id,
+                    latitude = location?.first,
+                    longitude = location?.second,
+                    locationText = locationText
+                )
                 noticeRepository.saveNotice(notice)
                 _createNoticeState.update { CreateNoticeScreenState() }
             } catch (e: CancellationException) {

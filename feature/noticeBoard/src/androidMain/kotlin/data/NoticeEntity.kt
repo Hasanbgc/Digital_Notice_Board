@@ -14,5 +14,7 @@ data class NoticeEntity(
     val createdAt: Long,
     val isEmergency: Boolean,
     val latitude: Double?,
-    val longitude: Double?
+    val longitude: Double?,
+    val locationText: String?,
+    val isSaved: Boolean
 )

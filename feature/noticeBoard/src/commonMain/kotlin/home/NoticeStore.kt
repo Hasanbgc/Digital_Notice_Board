@@ -1,21 +1,17 @@
 package home
 
-val savedList = mutableListOf<Poster.Normal>()
-private var onSavedListChanged: (() -> Unit)? = null
+// Notices the user has bookmarked, backed by Room and kept in sync by HomeViewModel.
+val savedNotices = mutableListOf<Poster.Normal>()
+private var onSavedNoticesChanged: (() -> Unit)? = null
 
 fun setOnSavedListChangedListener(listener: () -> Unit) {
-    onSavedListChanged = listener
+    onSavedNoticesChanged = listener
 }
 
-fun addSavedNote(poster: Poster.Normal) {
-    if (savedList.none { it.id == poster.id }) {
-        savedList.add(poster.copy(isSaved = true))
-        onSavedListChanged?.invoke()
-    }
-}
-
-fun getSavedNotes(): List<Poster.Normal> {
-    return savedList.toList()
+fun updateSavedNotices(notices: List<Poster.Normal>) {
+    savedNotices.clear()
+    savedNotices.addAll(notices)
+    onSavedNoticesChanged?.invoke()
 }
 
 // Notices the user has published, backed by Room and kept in sync by HomeViewModel.
