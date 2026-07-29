@@ -1,6 +1,8 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.codingfeline.buildkonfig.compiler.FieldSpec
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -9,7 +11,17 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.buildkonfig)
 }
+
+val localProperties = Properties().apply {
+    val localFile = rootProject.file("local.properties")
+    if (localFile.exists()) {
+        localFile.inputStream().use { load(it) }
+    }
+}
+
+fun secret(key: String): String = localProperties.getProperty(key) ?: System.getenv(key) ?: ""
 
 kotlin {
     androidTarget {
@@ -125,5 +137,13 @@ compose.desktop {
             packageName = "com.hasan.dnb.core"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+buildkonfig {
+    packageName = "com.hasan.dnb.core"
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.STRING, "BASE_URL", secret("BASE_URL"))
+        buildConfigField(FieldSpec.Type.STRING, "API_KEY", secret("API_KEY"))
     }
 }

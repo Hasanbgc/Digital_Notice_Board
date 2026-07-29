@@ -10,5 +10,5 @@ plugins {
     alias(libs.plugins.androidKotlinMultiplatformLibrary) apply false
     alias(libs.plugins.google.service) apply false
     alias(libs.plugins.ksp) apply false
-  //  alias(libs.plugins.buildkonfig) apply false
+    alias(libs.plugins.buildkonfig) apply false
 }

@@ -1,8 +1,10 @@
 package com.hasan.dnb.data
 
+import com.hasan.dnb.core.BuildKonfig
+
 object NetworkConstants {
 
-    const val BASE_URL = ""
+    val BASE_URL = BuildKonfig.BASE_URL
 
-    const val API_KEY = ""
+    val API_KEY = BuildKonfig.API_KEY
 }

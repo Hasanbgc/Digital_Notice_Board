@@ -1,0 +1,8 @@
+# Copy this file to local.properties (git-ignored) and fill in real values.
+# local.properties is read by core/build.gradle.kts to generate BuildKonfig,
+# which exposes these as com.hasan.dnb.core.BuildKonfig.BASE_URL / API_KEY.
+
+sdk.dir=/path/to/Android/Sdk
+
+BASE_URL=
+API_KEY=
