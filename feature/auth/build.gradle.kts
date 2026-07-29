@@ -63,13 +63,14 @@ kotlin {
             implementation(libs.coil.network.ktor3)
             implementation(libs.coil.compose)
 
+            implementation(libs.bundles.ktor)
 
             implementation(project(":core"))
         }
         val iosMain by creating {
             //dependsOn(commonMain)
             dependencies {
-                implementation("io.ktor:ktor-client-darwin:3.0.0")
+                implementation(libs.ktor.client.darwin)
             }
         }
 

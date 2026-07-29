@@ -4,7 +4,10 @@ import GoogleAuthUiProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hasan.dnb.auth.AuthRepository
+import com.hasan.dnb.auth.UserRepository
 import com.hasan.dnb.domain.UserSession
+import domain.onError
+import domain.onSuccess
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -16,7 +19,8 @@ import presentation.AppDestination
 import presentation.UiEvent
 
 class AuthViewModel(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     val _authScreenState = MutableStateFlow<AuthScreenState>(AuthScreenState())
@@ -26,10 +30,7 @@ class AuthViewModel(
     val events = _events.asSharedFlow()
 
     var userSession : UserSession = UserSession(
-        uid = "",
-        displayName = "",
-        photoUrl = null,
-        contactNumber = null
+        idToken = ""
     )
 
 
@@ -71,6 +72,9 @@ class AuthViewModel(
                             _authScreenState.update {
                                 it.copy(isGoogleLoading = false, errorMessage = null)
                             }
+                            userRepository.postUser(userSession)
+                                .onSuccess { println("User_Post_Success: $it") }
+                                .onError { println("User_Post_Error: ${it.message}") }
                             _events.emit(UiEvent.Navigate)
                         },
                         onFailure = { e ->

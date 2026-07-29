@@ -1,6 +1,6 @@
 package data
 
-import GoogleAuthProvider
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.hasan.dnb.auth.AuthRepository
 import com.hasan.dnb.domain.GoogleAccount
@@ -25,11 +25,18 @@ actual class AuthRepositoryImpl : AuthRepository {
                 .addOnFailureListener { continuation.resumeWithException(it) }
         }
         val user = authResult.user ?: throw Exception("Firebase returned no user")
+        val firebaseIdToken = suspendCancellableCoroutine { continuation ->
+            user.getIdToken(false)
+                .addOnSuccessListener { continuation.resume(it.token ?: "") }
+                .addOnFailureListener { continuation.resumeWithException(it) }
+        }
+
         emit(
             Result.success(
                 GoogleAccount(
                     userId = user.uid,
-                    idToken = idToken,
+                    idToken = firebaseIdToken,
+                    email = user.email ?: "",
                     displayName = user.displayName ?: "",
                     photoUrl = user.photoUrl?.toString(),
                     contactNumber = user.phoneNumber
@@ -47,26 +54,17 @@ actual class AuthRepositoryImpl : AuthRepository {
             val currentUser = firebaseAuth.currentUser
             if (currentUser == null) {
                 trySend(UserSession(
-                    uid = "",
-                    displayName = "",
-                    photoUrl = null,
-                    contactNumber = null
+                    idToken = "",
                 ))
             } else {
-                currentUser.reload()
-                    .addOnSuccessListener { trySend(UserSession(
-                        uid = currentUser.uid,
-                        displayName = currentUser.displayName,
-                        photoUrl = currentUser.photoUrl?.toString(),
-                        contactNumber = currentUser.phoneNumber
+                currentUser.getIdToken(false)
+                    .addOnSuccessListener { result -> trySend(UserSession(
+                        idToken = result.token ?: "",
                     )) }
                     .addOnFailureListener {
                         firebaseAuth.signOut()
                         trySend(UserSession(
-                            uid = "",
-                            displayName = "",
-                            photoUrl = null,
-                            contactNumber = null
+                            idToken = "",
                         ))
                     }
             }

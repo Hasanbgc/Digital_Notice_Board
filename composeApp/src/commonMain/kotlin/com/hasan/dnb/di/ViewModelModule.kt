@@ -9,6 +9,7 @@ import com.hasan.dnb.notice.NoticeRepository
 import Profile.ProfileViewModel
 import Settings.SettingsViewModel
 import com.hasan.dnb.app.AppViewModel
+import com.hasan.dnb.auth.UserRepository
 import com.hasan.dnb.domain.UserSession
 import createNotice.CreateNoticeViewModel
 import home.HomeViewModel
@@ -20,7 +21,7 @@ val viewModelModule = module {
     viewModelOf(::SettingsViewModel)
 
     viewModel {(userSession: UserSession) -> HomeViewModel(userSession, get<NoticeRepository>(), get<LocationSource>()) }
-    viewModel { AuthViewModel(get<AuthRepository>()) }
+    viewModel { AuthViewModel(get<AuthRepository>(),get <UserRepository>()) }
     viewModel { ProfileViewModel(get<AuthRepository>())}
     viewModel { AppViewModel(get<AuthRepository>()) }
     viewModel { CreateNoticeViewModel(get<NoticeRepository>(), get<LocationSource>()) }

@@ -32,6 +32,7 @@ actual class GoogleAuthUiProvider(
                         userId = googleCredential.id,
                         idToken = googleCredential.idToken,
                         displayName = googleCredential.displayName ?: "",
+                        email = googleCredential.email.toString(),
                         photoUrl = googleCredential.profilePictureUri?.toString(),
                         contactNumber = googleCredential.phoneNumber
                     )

@@ -24,7 +24,7 @@ class AppViewModel(private val authRepository: AuthRepository): ViewModel() {
                 .observeAuthState()
                 .distinctUntilChanged()
                 .collect { userSession ->
-                if (userSession.uid.isNotEmpty()) {
+                if (userSession.idToken.isNotEmpty()) {
                     _destination.update {
                         AppDestination.Main(userSession)
                     }
