@@ -105,6 +105,9 @@ kotlin {
             implementation(libs.jetbrains.material3.adaptiveNavigation3)
             implementation(libs.androidx.lifecycle.viewmodel)
 
+            //settings
+            implementation(libs.multiplatform.settings)
+
             implementation(project(":core"))
             implementation(project(":feature:auth"))
             implementation(project(":feature:noticeBoard"))

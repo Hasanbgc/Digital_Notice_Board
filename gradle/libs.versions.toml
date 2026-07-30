@@ -55,8 +55,8 @@ play-service = "21.6.0"
 credentials = "1.6.0"
 google-id = "1.2.0"
 
-datastore = "1.1.7"
-
+multiplatform-settings = "1.3.0"
+kotlin-logging = "7.0.3"
 
 
 
@@ -136,10 +136,8 @@ firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 google-credential = {module = "androidx.credentials:credentials", version.ref ="credentials"}
 google-credential-auth = {module = "androidx.credentials:credentials-play-services-auth", version.ref ="credentials"}
 google-id = {module = "com.google.android.libraries.identity.googleid:googleid", version.ref ="google-id"}
-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
-
-
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatform-settings" }
+kotlin-log = {module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

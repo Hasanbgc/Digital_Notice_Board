@@ -82,6 +82,12 @@ kotlin {
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
             implementation(libs.jetbrains.material3.adaptiveNavigation3)
+            //data store
+            implementation(libs.multiplatform.settings)
+
+            //logging
+            implementation(libs.kotlin.log)
+
 
 
         }

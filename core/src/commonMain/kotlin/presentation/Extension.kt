@@ -201,6 +201,22 @@ fun LazyListState.isScrollingUp(): Boolean {
     }.value
 }
 
+internal data class CallSite(
+    val className: String,
+    val fileName: String,
+    val lineNumber: Int,
+    val methodName: String
+)
+
+internal expect fun callerCallSite(): CallSite
+
+fun Any.loge(tag: String = "DNB") {
+    val callSite = callerCallSite()
+
+    val logMessage = "(${callSite.fileName}:${callSite.lineNumber}) #${callSite.methodName}: $tag: $this"
+
+    println(logMessage)
+}
 
 
 

@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 kotlin {

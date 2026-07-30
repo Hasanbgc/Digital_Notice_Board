@@ -142,15 +142,25 @@ fun ProfileScreen(
                         .clip(CircleShape)
                         .background(Color(0xFF004D40))
                 ) {
-                    Text(
-                        text = "D",
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.displayLarge.copy(
-                            color = Color(0xFFFFDF00),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 60.sp
+                    if (state.user.imageUrl.isNotEmpty()) {
+                        AsyncImage(
+                            model = state.user.imageUrl,
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
-                    )
+                    } else {
+
+                        Text(
+                            text = state.user.name.take(1),
+                            modifier = Modifier.align(Alignment.Center),
+                            style = MaterialTheme.typography.displayLarge.copy(
+                                color = Color(0xFFFFDF00),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 60.sp
+                            )
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -188,7 +198,7 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Dhaka University",
+                text = state.user.name,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = PrimaryText
@@ -218,12 +228,12 @@ fun ProfileScreen(
             ) {
                 ContactPill(
                     icon = Icons.Default.Email,
-                    text = "admin@du.ac.bd",
+                    text = state.user.email,
                     modifier = Modifier.weight(1f)
                 )
                 ContactPill(
                     icon = Icons.Default.Phone,
-                    text = "+880 1XX XXX XXX",
+                    text = state.user.contactNumber,
                     modifier = Modifier.weight(1f)
                 )
             }
