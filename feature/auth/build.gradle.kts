@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-   // alias(libs.plugins.composeHotReload)
 }
 
 kotlin {
@@ -31,26 +30,6 @@ kotlin {
     jvm()
 
     sourceSets {
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
-
-            //maps
-            implementation(libs.maps.compose)
-            implementation(libs.play.services.maps)
-            implementation(libs.play.services.location)
-
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-
-            //google-authentication
-            implementation(libs.google.credential)
-            implementation(libs.google.credential.auth)
-            implementation(libs.google.id)
-
-            //firebase-auth
-            implementation(libs.firebas.auth)
-        }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -59,18 +38,33 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.coil.network.ktor3)
             implementation(libs.coil.compose)
 
             implementation(libs.bundles.ktor)
 
-            implementation(project(":core"))
+            implementation(projects.core)
         }
-        val iosMain by creating {
-            //dependsOn(commonMain)
+        
+        val androidMain by getting {
             dependencies {
-                implementation(libs.ktor.client.darwin)
+                implementation(compose.preview)
+                implementation(libs.androidx.activity.compose)
+
+                implementation(libs.maps.compose)
+                implementation(libs.play.services.maps)
+                implementation(libs.play.services.location)
+
+                implementation(libs.androidx.lifecycle.viewmodelCompose)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
+
+                implementation(libs.google.credential)
+                implementation(libs.google.credential.auth)
+                implementation(libs.google.id)
+
+                implementation(libs.firebase.auth)
             }
         }
 
@@ -81,6 +75,11 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
         }
+        iosMain {
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
+        }
     }
 }
 
@@ -90,16 +89,10 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
         }
     }
     compileOptions {
@@ -108,13 +101,8 @@ android {
     }
 }
 
-dependencies {
-    debugImplementation(compose.uiTooling)
-}
-
 compose.desktop {
     application {
-
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.hasan.dnb.feature.auth"

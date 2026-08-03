@@ -42,7 +42,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberUpdatedMarkerState
+import com.google.maps.android.compose.rememberMarkerState
 
 @Composable
 actual fun AppMapView(detectLocation: Int, getLocation: (lat: Double, long: Double) -> Unit) {
@@ -221,7 +221,7 @@ actual fun AppMapView(detectLocation: Int, getLocation: (lat: Double, long: Doub
         ) {
             // Show marker for user's current location
             userLocation?.let { location ->
-                val markerState = rememberUpdatedMarkerState(position = location)
+                val markerState = rememberMarkerState(position = location)
                 Marker(
                     state = markerState,
                     title = "Your Location",
@@ -232,7 +232,7 @@ actual fun AppMapView(detectLocation: Int, getLocation: (lat: Double, long: Doub
             // Fallback marker for Dhaka if location is not available
             if (userLocation == null) {
                 val dhaka = LatLng(23.777176, 90.399452)
-                val markerState = rememberUpdatedMarkerState(position = dhaka)
+                val markerState = rememberMarkerState(position = dhaka)
                 Marker(
                     state = markerState,
                     title = "Dhaka",

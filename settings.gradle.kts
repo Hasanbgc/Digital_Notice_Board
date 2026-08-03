@@ -35,7 +35,7 @@ plugins {
 }
 
 include(":composeApp")
+include(":androidApp")
 include(":core")
 include(":feature:auth")
 include(":feature:noticeBoard")
-

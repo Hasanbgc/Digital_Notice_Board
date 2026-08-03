@@ -21,7 +21,7 @@ import org.koin.dsl.module
 val viewModelModule = module {
     viewModelOf(::SettingsViewModel)
 
-    viewModel {(userSession: UserSession) -> HomeViewModel(userSession, get<NoticeRepository>(), get<LocationSource>()) }
+    viewModel {(userSession: UserSession) -> HomeViewModel(userSession, get<Repository>(), get<LocationSource>()) }
     viewModel { AuthViewModel(get<AuthRepository>(),get <UserRepository>()) }
     viewModel { ProfileViewModel(get<Repository>(),get<AuthRepository>())}
     viewModel { AppViewModel(get<AuthRepository>()) }

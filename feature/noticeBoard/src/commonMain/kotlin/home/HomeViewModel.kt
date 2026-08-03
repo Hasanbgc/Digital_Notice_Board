@@ -7,10 +7,12 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.hasan.dnb.domain.Notice
 import com.hasan.dnb.domain.UserSession
 import com.hasan.dnb.location.LocationSource
-import com.hasan.dnb.notice.NoticeRepository
+import domain.Repository
+import domain.model.PostResponse
+import domain.onError
+import domain.onSuccess
 import home.comment.CommentSheetState
 import home.dialog.DialogState
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +30,7 @@ import kotlin.math.sqrt
 
 class HomeViewModel(
     userSession: UserSession,
-    private val noticeRepository: NoticeRepository,
+    private val repository: Repository,
     private val locationSource: LocationSource
 ): ViewModel() {
 
@@ -54,7 +56,7 @@ class HomeViewModel(
             is HomeScreenAction.OnCommentInputChanged -> updateCommentInput(action.text)
             HomeScreenAction.OnCommentSubmit -> submitComment()
             HomeScreenAction.OnDismissCommentSheet -> _commentSheetState.value = null
-            is HomeScreenAction.OnSavedClicked -> savePost(action.poster)
+            is HomeScreenAction.OnSavedClicked -> {}
             is HomeScreenAction.OnProfileClicked -> {}
             is HomeScreenAction.OnLocationClicked -> {}
             /*is HomeScreenAction.PostANoticeClicked -> navigateToCreateNotice()*/
@@ -95,13 +97,6 @@ class HomeViewModel(
     fun updateLike(id: Int, liked: Boolean) {
         updatedLiked.update {
             it + (id to liked)
-        }
-    }
-
-    fun savePost(poster: Poster.Normal) {
-        if (poster.noticeId.isBlank()) return
-        viewModelScope.launch {
-            noticeRepository.setSaved(poster.noticeId, !poster.isSaved)
         }
     }
 
@@ -229,19 +224,26 @@ class HomeViewModel(
     }
 
     private val userLocation = MutableStateFlow<Pair<Double, Double>?>(null)
+    private val posts = MutableStateFlow<List<PostResponse>>(emptyList())
 
     init {
         updateEmergencyNotices(emptyList())
-        observeMyNotices()
-        observeSavedNotices()
+        fetchPosts()
         fetchUserLocation()
+        observePosts()
     }
 
-    private fun observeSavedNotices() {
+    private fun fetchPosts() {
         viewModelScope.launch {
-            noticeRepository.observeSavedNotices().collect { notices ->
-                updateSavedNotices(notices.map { it.toPosterNormal() })
-            }
+            _homeScreenState.update { it.copy(isLoading = true, error = null) }
+            repository.getPosts()
+                .onSuccess { data ->
+                    posts.value = data
+                    _homeScreenState.update { it.copy(isLoading = false) }
+                }
+                .onError { error ->
+                    _homeScreenState.update { it.copy(isLoading = false, error = error.message) }
+                }
         }
     }
 
@@ -251,36 +253,34 @@ class HomeViewModel(
         }
     }
 
-    private fun observeMyNotices() {
+    private fun observePosts() {
         viewModelScope.launch {
             combine(
-                noticeRepository.observeNotices(),
+                posts,
                 userLocation
-            ) { notices, location -> notices to location }
-                .collect { (notices, location) ->
-                    val (emergency, normal) = notices.partition { it.isEmergency }
-                    updateMyNotices(normal.map { it.toPosterNormal() })
-                    updateEmergencyNotices(emergency.map { it.toPosterEmergency() })
-                    updateNearbyNotices(buildNearbyNotices(normal, location))
+            ) { posts, location -> posts to location }
+                .collect { (posts, location) ->
+                    updateMyNotices(posts.map { it.toPosterNormal() })
+                    updateNearbyNotices(buildNearbyNotices(posts, location))
                 }
         }
     }
 
     private fun buildNearbyNotices(
-        notices: List<Notice>,
+        posts: List<PostResponse>,
         userLocation: Pair<Double, Double>?
     ): List<Poster.Normal> {
         if (userLocation == null) return emptyList()
         val (userLat, userLon) = userLocation
-        return notices
-            .mapNotNull { notice ->
-                val lat = notice.latitude ?: return@mapNotNull null
-                val lon = notice.longitude ?: return@mapNotNull null
+        return posts
+            .mapNotNull { post ->
+                val lat = post.latitude ?: return@mapNotNull null
+                val lon = post.longitude ?: return@mapNotNull null
                 val distanceKm = haversineDistanceKm(userLat, userLon, lat, lon)
-                if (distanceKm > NEARBY_RADIUS_KM) null else notice to distanceKm
+                if (distanceKm > NEARBY_RADIUS_KM) null else post to distanceKm
             }
             .sortedBy { (_, distanceKm) -> distanceKm }
-            .map { (notice, distanceKm) -> notice.toPosterNormal(distanceKm) }
+            .map { (post, distanceKm) -> post.toPosterNormal(distanceKm) }
     }
 
 }
@@ -307,58 +307,34 @@ private fun formatDistance(km: Double): String {
     }
 }
 
-private fun Notice.toPosterNormal(distanceKm: Double? = null): Poster.Normal {
-    val imageUrls = attachments.filter { it.type == "IMAGE" }.mapNotNull { it.uri }
-    // AttachmentCard renders these as downloadable-document chips, so only real files
-    // (PDFs) belong here — not the LOCATION attachment (not a file) or VIDEO (no
-    // dedicated video UI in the feed yet).
-    val fileNames = attachments.filter { it.type == "PDF" }.map { it.name }
+private fun PostResponse.toPosterNormal(distanceKm: Double? = null): Poster.Normal {
     return Poster.Normal(
         id = id.hashCode(),
         noticeId = id,
         title = title,
-        description = details,
+        description = description ?: "",
         date = "",
         distance = distanceKm?.let { formatDistance(it) } ?: "",
         time = "Just now",
-        imageUrlList = imageUrls,
+        imageUrlList = emptyList(),
         location = locationText ?: "",
         type = Type.NORMAL,
-        category = categoryTitle,
+        category = categoryId.toString(),
         profile = Profile(
             name = "You",
             imageUrl = "",
-            institution = categoryTitle,
+            institution = categoryId.toString(),
             designation = "Notice"
         ),
-        attachments = fileNames,
+        attachments = emptyList(),
         isFavorite = false,
         shareCount = 0,
         commentCount = 0,
         likeCount = 0,
-        isSaved = isSaved,
+        isSaved = false,
         viewCount = 0,
         isExpanded = false,
         liked = Like.IDLE
-    )
-}
-
-private fun Notice.toPosterEmergency(): Poster.Emergency {
-    val imageUrl = attachments.firstOrNull { it.type == "IMAGE" }?.uri ?: ""
-    return Poster.Emergency(
-        id = id.hashCode(),
-        title = title,
-        description = details,
-        date = "",
-        distance = "",
-        time = "Just now",
-        imageUrl = imageUrl,
-        location = locationText ?: "",
-        type = Type.HIGH,
-        // Most Topic values don't have an icon asset yet (see HomeScreen.getIcon) —
-        // ACCIDENT is one of the few implemented, so it's used as a safe generic fallback
-        // until user-published emergency notices can carry their own topic.
-        topic = Topic.ACCIDENT
     )
 }
 

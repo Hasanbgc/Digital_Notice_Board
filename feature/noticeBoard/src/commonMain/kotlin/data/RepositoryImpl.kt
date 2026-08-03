@@ -3,6 +3,7 @@ package data
 import domain.Repository
 import domain.ResultError
 import domain.Results
+import domain.model.PostResponse
 import domain.model.ProfileResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -15,9 +16,14 @@ class RepositoryImpl(
         val response =  safeCall<ProfileResponse> {
             httpClient.get("/api/auth/profile")
         }
-        if(response is Results.Success){
-            "profile_name".loge(response.data.name)
-        }
         return response
     }
+
+    override suspend fun getPosts(): Results<List<PostResponse>, ResultError.Remote> {
+        return safeCall<List<PostResponse>> {
+            httpClient.get("/api/posts")
+        }
+    }
+
+
 }

@@ -24,6 +24,8 @@ val localProperties = Properties().apply {
 fun secret(key: String): String = localProperties.getProperty(key) ?: System.getenv(key) ?: ""
 
 kotlin {
+    jvmToolchain(11)
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -44,53 +46,50 @@ kotlin {
     jvm()
 
     sourceSets {
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.koin.android)
-            implementation(libs.koin.androidx.compose)
-            implementation(libs.ktor.client.okhttp)
-
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-
-            //coil
-            implementation(libs.bundles.coil)
-            implementation(libs.coil.network.ktor3)
-        }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            //  implementation("androidx.compose.animation:animation:1.5.1")
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
-            //koin
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-
-            //ktor
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
-            //navigation
+            
             implementation(libs.jetbrains.navigation3.ui)
             implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
             implementation(libs.jetbrains.material3.adaptiveNavigation3)
-            //data store
+            
             implementation(libs.multiplatform.settings)
-
-            //logging
             implementation(libs.kotlin.log)
-
-
-
         }
+        
+        val androidMain by getting {
+            dependencies {
+                implementation(compose.preview)
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.koin.android)
+                implementation(libs.koin.androidx.compose)
+                implementation(libs.ktor.client.okhttp)
+
+                implementation(libs.androidx.lifecycle.viewmodelCompose)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
+
+                implementation(libs.bundles.coil)
+                implementation(libs.coil.network.ktor3)
+
+                implementation(libs.firebase.auth)
+                implementation(libs.firebase.analytics)
+            }
+        }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
@@ -111,16 +110,10 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
         }
     }
     compileOptions {
@@ -129,15 +122,8 @@ android {
     }
 }
 
-dependencies {
-    debugImplementation(compose.uiTooling)
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-}
-
 compose.desktop {
     application {
-
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.hasan.dnb.core"
