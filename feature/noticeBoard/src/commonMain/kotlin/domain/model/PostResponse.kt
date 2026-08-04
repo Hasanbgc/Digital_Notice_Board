@@ -18,5 +18,7 @@ data class PostResponse(
     val longitude: Double? = null,
     val locationText: String? = null,
     val radiusKm: Double? = null,
-    val expiresAt: String? = null
+    val expiresAt: String? = null,
+    val media: List<PostMediaResponse> = emptyList()
 )
+

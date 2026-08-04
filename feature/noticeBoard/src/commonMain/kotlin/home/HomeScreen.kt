@@ -106,7 +106,7 @@ fun HomeScreenRoot(
         hideBottomBar = hideBottomBar,
     )
 
-    ImageFullScreenDialog(
+    home.dialog.AttachmentViewer(
         state = dialogState,
         onAction = viewModel::onAction
     )

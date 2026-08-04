@@ -47,6 +47,7 @@ import digita_notice_board.feature.noticeboard.generated.resources.flag
 import digita_notice_board.feature.noticeboard.generated.resources.flaged
 import digita_notice_board.feature.noticeboard.generated.resources.heart
 import digita_notice_board.feature.noticeboard.generated.resources.share
+import domain.model.toAttachmentItem
 import home.HomeScreenAction
 import home.Like
 import home.Poster
@@ -185,104 +186,24 @@ fun NormalNotice(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-                if (poster.imageUrlList.isNotEmpty()) {
-                    when (poster.imageUrlList.size) {
-                        1 -> {
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(100.dp),
-                                shape = RoundedCornerShape(8.dp),
-                            ) {
-                                AsyncImage(
-                                    model = poster.imageUrlList[0],
-                                    contentDescription = "image",
-                                    modifier = Modifier.fillMaxSize().clickable {
-                                        onAction(
-                                            HomeScreenAction.OnImageClicked(
-                                                poster.imageUrlList,
-                                                0
-                                            )
-                                        )
-                                    },
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
-
-                        else -> {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(100.dp),
-                                    shape = RoundedCornerShape(8.dp),
-                                ) {
-                                    AsyncImage(
-                                        model = poster.imageUrlList[0],
-                                        contentDescription = "image",
-                                        modifier = Modifier.fillMaxSize().clickable {
-                                            onAction(
-                                                HomeScreenAction.OnImageClicked(
-                                                    poster.imageUrlList,
-                                                    0
-                                                )
-                                            )
-                                        },
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
-
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(100.dp),
-                                    shape = RoundedCornerShape(8.dp),
-                                ) {
-                                    Box(modifier = Modifier.fillMaxSize()) {
-                                        AsyncImage(
-                                            model = poster.imageUrlList[1],
-                                            contentDescription = "image",
-                                            modifier = Modifier.fillMaxSize().clickable {
-                                                onAction(
-                                                    HomeScreenAction.OnImageClicked(
-                                                        poster.imageUrlList,
-                                                        1
-                                                    )
-                                                )
-                                            },
-                                            contentScale = ContentScale.Crop
-                                        )
-                                        if (poster.imageUrlList.size > 2) {
-                                            Box(
-                                                modifier = Modifier.fillMaxSize()
-                                                    .background(color = Color.Black.copy(alpha = 0.6f)),
-                                                contentAlignment = Alignment.Center,
-                                            ) {
-                                                Text(
-                                                    text = "+${poster.imageUrlList.size - 2}",
-                                                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                                                    color = Color.White
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-
-                            }
-                        }
+                val mediaItemsToDisplay = remember(poster.mediaItems, poster.imageUrlList, poster.attachments) {
+                    if (poster.mediaItems.isNotEmpty()) {
+                        poster.mediaItems
+                    } else {
+                        val images = poster.imageUrlList.mapIndexed { idx, url -> url.toAttachmentItem(idx) }
+                        val other = poster.attachments.mapIndexed { idx, att -> att.toAttachmentItem(images.size + idx) }
+                        images + other
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
-                //for (attachment in poster.attachments) {
-                for (attachment in poster.attachments) {
-                    AttachmentCard(attachment = attachment)
-                    Spacer(modifier = Modifier.height(8.dp))
+                if (mediaItemsToDisplay.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    AttachmentGrid(
+                        items = mediaItemsToDisplay,
+                        onItemClick = { _, index ->
+                            onAction(HomeScreenAction.OnAttachmentClicked(mediaItemsToDisplay, index))
+                        }
+                    )
                 }
             }
             Row(

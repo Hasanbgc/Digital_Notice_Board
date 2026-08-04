@@ -11,6 +11,7 @@ import com.hasan.dnb.domain.UserSession
 import com.hasan.dnb.location.LocationSource
 import domain.Repository
 import domain.model.PostResponse
+import domain.model.toAttachmentItem
 import domain.onError
 import domain.onSuccess
 import home.comment.CommentSheetState
@@ -50,6 +51,7 @@ class HomeViewModel(
             HomeScreenAction.OnEmergencyAlertDismiss -> toggleEmergencyAlert(true)
             is HomeScreenAction.OnEmergencyPosterClicked -> {}
             is HomeScreenAction.OnImageClicked -> showImageDialog(action.imageList, action.id)
+            is HomeScreenAction.OnAttachmentClicked -> showAttachmentDialog(action.attachmentList, action.id)
             is HomeScreenAction.OnLikeClicked -> updateLike(action.id, action.liked)
             is HomeScreenAction.OnShareClicked -> {}
             is HomeScreenAction.OnCommentClicked -> openCommentSheet(action.id)
@@ -103,6 +105,14 @@ class HomeViewModel(
     fun showImageDialog(imageList: List<String>, index: Int) {
         _dialogState.value = DialogState(
             imageUrl = imageList,
+            imagePosition = index,
+            isDialogOpen = true
+        )
+    }
+
+    fun showAttachmentDialog(attachmentList: List<domain.model.AttachmentItem>, index: Int) {
+        _dialogState.value = DialogState(
+            attachmentItems = attachmentList,
             imagePosition = index,
             isDialogOpen = true
         )
@@ -308,6 +318,19 @@ private fun formatDistance(km: Double): String {
 }
 
 private fun PostResponse.toPosterNormal(distanceKm: Double? = null): Poster.Normal {
+    val items = media.map { it.toAttachmentItem() }
+
+    val images = items.filterIsInstance<domain.model.AttachmentItem.Image>().map { it.url }
+    val otherAttachments = items.filterNot { it is domain.model.AttachmentItem.Image }
+        .map { item ->
+            when (item) {
+                is domain.model.AttachmentItem.Pdf -> item.fileName
+                is domain.model.AttachmentItem.Unknown -> item.fileName
+                is domain.model.AttachmentItem.Video -> item.url.substringAfterLast('/')
+                else -> item.url
+            }
+        }
+
     return Poster.Normal(
         id = id.hashCode(),
         noticeId = id,
@@ -316,7 +339,7 @@ private fun PostResponse.toPosterNormal(distanceKm: Double? = null): Poster.Norm
         date = "",
         distance = distanceKm?.let { formatDistance(it) } ?: "",
         time = "Just now",
-        imageUrlList = emptyList(),
+        imageUrlList = images,
         location = locationText ?: "",
         type = Type.NORMAL,
         category = categoryId.toString(),
@@ -326,7 +349,8 @@ private fun PostResponse.toPosterNormal(distanceKm: Double? = null): Poster.Norm
             institution = categoryId.toString(),
             designation = "Notice"
         ),
-        attachments = emptyList(),
+        attachments = otherAttachments,
+        mediaItems = items,
         isFavorite = false,
         shareCount = 0,
         commentCount = 0,

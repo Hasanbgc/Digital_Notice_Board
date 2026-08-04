@@ -29,6 +29,7 @@ sealed class Poster {
         val category: String = "",
         val profile: Profile,
         val attachments: List<String>,
+        val mediaItems: List<domain.model.AttachmentItem> = emptyList(),
         val isFavorite: Boolean,
         val shareCount: Int,
         val commentCount: Int,
